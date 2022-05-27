@@ -224,12 +224,20 @@ public class Manager : MonoBehaviour
     // This function quits the current application by stopping the TCP client and closing the window
     public void quitApplication()
     {
-        bool tcpClosed = tcpClient.Stop();
-        if (tcpClosed)
+        if (tcpClient.socketConnection != null)
         {
-            Debug.Log("> MedusaTCPClient closed successfully!");
-        } 
+            bool tcpClosed = tcpClient.Stop();
+            if (tcpClosed)
+            {
+                Debug.Log("> MedusaTCPClient closed successfully!");
+            }
+        }
         Application.Quit();
+    }
+
+    public void quitApplicationFromException()
+    {
+        mustClose = true;
     }
 
 
@@ -368,9 +376,12 @@ public class Manager : MonoBehaviour
         // If the TCPServer must close
         if (mustClose)
         {
-            // Send the confirmation that the Unity's client is going to close
-            ServerMessage sm = new ServerMessage("close");
-            tcpClient.SendMessage(sm.ToJson());
+            if (tcpClient.socketConnection != null) 
+            { 
+                // Send the confirmation that the Unity's client is going to close
+                ServerMessage sm = new ServerMessage("close");
+                tcpClient.SendMessage(sm.ToJson());
+            }
 
             // Close the application
             mustClose = false;         // Avoid sending it twice

@@ -23,7 +23,7 @@ using Newtonsoft.Json;
 public class MedusaTCPClient
 {
 	// Required instances
-	private TcpClient socketConnection;
+	public TcpClient socketConnection;
 	private Thread clientReceiveThread;
 	private Manager callback;
 
@@ -125,10 +125,10 @@ public class MedusaTCPClient
 						byte[] incomingData = new byte[length];
 						Array.Copy(bytes, 0, incomingData, 0, length);
 						this._recvBuffer = addBytes(this._recvBuffer, incomingData);
-						
+
 						// While there is something to read
 						while (this._recvBuffer.Length > 0)
-                        {
+						{
 							// Decoding first protoheader 
 							if (this._jsonHeaderLen == -1)
 							{
@@ -139,9 +139,9 @@ public class MedusaTCPClient
 									this._jsonHeaderLen = BitConverter.ToInt16(protoHeaderData, 0);
 									this._recvBuffer = this._recvBuffer[2..];
 								} else
-                                {
+								{
 									break;
-                                }
+								}
 							}
 							// Decoding the JSON header
 							if (this._jsonHeaderLen != -1)
@@ -159,9 +159,9 @@ public class MedusaTCPClient
 										this._jsonHeader = JsonConvert.DeserializeObject<Header>(jsonHeaderStr);
 										this._recvBuffer = this._recvBuffer[this._jsonHeaderLen..];
 									} else
-                                    {
+									{
 										break;
-                                    }
+									}
 								}
 							}
 							// Decode message
@@ -191,9 +191,9 @@ public class MedusaTCPClient
 										}
 										this._recvBuffer = this._recvBuffer[this._jsonHeader.content_length..];
 									} else
-                                    {
+									{
 										break;
-                                    }
+									}
 								}
 							}
 							// Interpret message
@@ -213,7 +213,16 @@ public class MedusaTCPClient
 		catch (SocketException socketException)
 		{
 			Debug.Log("Socket exception: " + socketException);
-			callback.quitApplication();
+			socketConnection.Close();
+			socketConnection = null;
+			callback.quitApplicationFromException();
+		}
+		catch (System.IO.IOException ioException)
+		{
+			Debug.Log("IOException exception: " + ioException);
+			socketConnection.Close();
+			socketConnection = null;
+			callback.quitApplicationFromException();
 		}
 	}
 
@@ -272,6 +281,7 @@ public class MedusaTCPClient
 		if (socketConnection != null)
 		{
 			socketConnection.Close();
+			socketConnection = null;
 		}
 		clientReceiveThread.Abort();
 		Debug.Log("Client closed");
