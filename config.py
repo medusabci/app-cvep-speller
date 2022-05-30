@@ -23,7 +23,7 @@ ui_target_file = uic.loadUiType(os.path.dirname(__file__) +
                                 "/config_target.ui")[0]
 
 
-class Config(QtWidgets.QMainWindow, ui_main_file):
+class Config(QtWidgets.QDialog, ui_main_file):
     """ This class provides graphical configuration for the app """
 
     close_signal = QtCore.pyqtSignal(object)
@@ -40,6 +40,8 @@ class Config(QtWidgets.QMainWindow, ui_main_file):
             directory
         """
         QtWidgets.QMainWindow.__init__(self)
+        self.setWindowFlags(
+            self.windowFlags() & ~Qt.WindowContextHelpButtonHint)
         self.setupUi(self)
         self.TAG = '[apps/cvep_speller/config] '
 
@@ -103,6 +105,8 @@ class Config(QtWidgets.QMainWindow, ui_main_file):
             self.on_custom_table_menu
         )
 
+        # Application ready
+        self.setModal(True)
         self.show()
 
     # --------------------- Settings updating --------------------
@@ -575,10 +579,6 @@ class Config(QtWidgets.QMainWindow, ui_main_file):
                 if cut1 == cut2:
                     error_msg += 'Filter %i cannot have the same value for ' \
                                  'cutoff1 and cutoff2 (%.2f Hz)!\n' % (i, cut1)
-            if self.radioButton_art_rej.isChecked() and \
-                    self.doubleSpinBox_art_rej.value() == 0:
-                error_msg += 'Cannot use an artifact rejection algorithm if ' \
-                             'the STD is equal to 0!\n'
             if error_msg != '':
                 error_dialog(error_msg, 'Error!')
                 return False

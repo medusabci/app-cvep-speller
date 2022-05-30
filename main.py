@@ -119,6 +119,12 @@ class App(resources.AppSkeleton):
                 self.close_app(force=True)
                 ex.set_handled(True)
 
+    def check_forced_closure(self):
+        """Called in case of forced closure from Unity app. It closes correctly the
+        app controller"""
+        if self.app_controller is not None:
+            self.close_app(force=True)
+
     # ---------------------------- LSL transponder ----------------------------
     def check_lsl_config(self, working_lsl_streams_info):
         # Check if the have only one EEG
@@ -358,10 +364,12 @@ class App(resources.AppSkeleton):
             self.handle_exception(ex)
             self.medusa_interface.error(ex)
         # while self.app_controller: time.sleep(1)  # For debugging Unity
-        # 5 - Change app state to powering off
+        # 5 - Check for a forced closure from Unity
+        self.check_forced_closure()
+        # 6 - Change app state to powering off
         self.medusa_interface.app_state_changed(
             mds_constants.APP_STATE_POWERING_OFF)
-        # 6 - Save recording
+        # 7 - Save recording
         self.stop_working_threads()
         if self.get_lsl_worker().data.shape[0] > 0:
             qt_app = QApplication([])
@@ -372,7 +380,7 @@ class App(resources.AppSkeleton):
             qt_app.exec()
         else:
             print(self.TAG, 'Cannot save because we have no data!!')
-        # 7 - Change app state to power off
+        # 8 - Change app state to power off
         self.medusa_interface.app_state_changed(
             mds_constants.APP_STATE_OFF)
 

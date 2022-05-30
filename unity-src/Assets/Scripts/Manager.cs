@@ -650,6 +650,9 @@ public class Manager : MonoBehaviour
                 Debug.LogError("Exception from client, aborting: " + exception);
                 state = RUN_STATE_STOP;
                 innerstate = STATE_RUNNING_PREVTEXT;
+
+                tcpClient.socketConnection.Close();
+                tcpClient.socketConnection = null;
                 mustClose = true;
                 break;
             default:
