@@ -51,7 +51,7 @@ class Config(QtWidgets.QDialog, ui_main_file):
         # Initialize the gui application
         theme_colors = gui_utils.get_theme_colors('dark')
         self.stl = gui_utils.set_css_and_theme(self, theme_colors)
-        self.setWindowIcon(QtGui.QIcon('gui/images/medusa_icon.png'))
+        self.setWindowIcon(QtGui.QIcon('gui/images/medusa_task_icon.png'))
         self.setWindowTitle('c-VEP Speller Configuration')
         self.changes_made = False
         self.notifications = NotificationStack(parent=self, timer_ms=500)
@@ -424,7 +424,7 @@ class Config(QtWidgets.QDialog, ui_main_file):
 
                 # Update the GUI
                 self.set_settings_to_gui()
-                print('updated')
+
         return set_config
 
     def update_tab(self, tabwidget, index, new_content):
@@ -827,7 +827,7 @@ class Config(QtWidgets.QDialog, ui_main_file):
         msg = QtWidgets.QMessageBox()
         msg.setIcon(QtWidgets.QMessageBox.Warning)
         msg.setWindowIcon(QtGui.QIcon(os.path.join(
-            os.path.dirname(__file__), '../../gui/images/medusa_icon.png')))
+            os.path.dirname(__file__), '../../gui/images/medusa_task_icon.png')))
         msg.setText("Do you want to leave this window?")
         msg.setInformativeText("Non-saved changes will be discarded.")
         msg.setWindowTitle("c-VEP Speller Configuration")
@@ -870,7 +870,7 @@ class TargetConfigDialog(QtWidgets.QDialog, ui_target_file):
         # Initialize the dialog
         theme_colors = gui_utils.get_theme_colors('dark')
         self.stl = gui_utils.set_css_and_theme(self, theme_colors)
-        self.setWindowIcon(QtGui.QIcon('gui/images/medusa_icon.png'))
+        self.setWindowIcon(QtGui.QIcon('gui/images/medusa_task_icon.png'))
         self.setWindowTitle('c-VEP target customization')
 
         # Set tooltips
