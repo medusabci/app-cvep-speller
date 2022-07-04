@@ -8,7 +8,7 @@
 
 // Versions:
 //      - v1.0 (19/05/2022):    Circular-shifting c-VEP speller working
-
+//      - v1.1 (04/07/2022):    Fixed small bug in which the app displayed and additional trial in training
 
 using System;
 using System.Collections;
@@ -853,7 +853,7 @@ public class Manager : MonoBehaviour
                     ServerMessage sm = new ServerMessage("train");
                     sm.addValue("cycle", cycleTrainCounter);
                     sm.addValue("onset", currentTime);
-                    sm.addValue("trial", currentTrainTarget); // TODO: SEVERAL TRIALS IN TRAINING!!!!!
+                    sm.addValue("trial", currentTrainTarget); // TODO: SEVERAL TARGETS IN TRAINING
                     sm.addValue("matrix_idx", 0);
                     sm.addValue("unit_idx", 0);
                     sm.addValue("level_idx", 0);
@@ -873,7 +873,7 @@ public class Manager : MonoBehaviour
                 resetTrainMatrix();
 
                 // If all the targets have been done, notify the server
-                if (currentTrainTarget >= trainTrials)
+                if (currentTrainTarget >= trainTrials - 1)
                 {
                     mustFinishRun = true;
                     state = RUN_STATE_FINISHED;
