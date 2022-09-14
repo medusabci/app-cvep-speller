@@ -4,12 +4,12 @@
 
 // MedusaTCPClient
 //      > Author: Víctor Martínez-Cagigal
-//      > Date: 31/03/2022
 
 // Versions:
 //      - v1.0 (29/09/2021):    Support for MEDUSA 2.0 server using asyncio
 //      - v2.0 (24/03/2022):    Updated so asyncio is not used anymore
 //      - v2.1 (31/03/2022):    Now the client can decode merged messages
+//		- v2.2 (14/09/2022):	Minor update in function isConnected()
 
 using System;
 using System.Net;
@@ -61,13 +61,13 @@ public class MedusaTCPClient
 	/// <returns>Boolean: true is connected, false otherwise. </returns>
 	public bool isConnected()
 	{
-		if (socketConnection == null)
+		if (socketConnection != null && socketConnection.Connected)
 		{
-			return false;
+			return true;
 		}
 		else
 		{
-			return true;
+			return false;
 		}
 	}
 
@@ -232,7 +232,7 @@ public class MedusaTCPClient
 	/// <param name="clientMessage"> String that contains the message to send. </param>
 	public void SendMessage(string clientMessage)
 	{
-		if (socketConnection == null)
+		if (!this.isConnected())
 		{
 			return;
 		}

@@ -75,7 +75,6 @@ class AppController(TCPServer):
     def close(self):
         super().stop()
         self.server_state.value = SERVER_DOWN
-        return True
 
     def start_application(self):
         """ Starts the Unity application that will act as a TCP client. """

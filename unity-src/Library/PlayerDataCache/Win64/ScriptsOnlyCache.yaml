@@ -40,21 +40,21 @@ ScriptsOnlyBuild:
     - Class: 104
       Script: {instanceID: 0}
     - Class: 114
-      Script: {instanceID: 1562}
+      Script: {instanceID: 1574}
     - Class: 114
-      Script: {instanceID: 1750}
+      Script: {instanceID: 1762}
     - Class: 114
-      Script: {instanceID: 2092}
+      Script: {instanceID: 2104}
     - Class: 114
-      Script: {instanceID: 2388}
+      Script: {instanceID: 2400}
     - Class: 114
-      Script: {instanceID: 2500}
+      Script: {instanceID: 2512}
     - Class: 114
-      Script: {instanceID: 2668}
+      Script: {instanceID: 2680}
     - Class: 114
-      Script: {instanceID: 2852}
+      Script: {instanceID: 2864}
     - Class: 114
-      Script: {instanceID: 19270}
+      Script: {instanceID: 19304}
     - Class: 115
       Script: {instanceID: 0}
     - Class: 128
@@ -513,5 +513,4 @@ ScriptsOnlyBuild:
   platform: 19
   scenePathNames:
   - Assets/Scenes/SampleScene.unity
-  playerPath: D:/Users/Victor/Documents/SoftwareProjects/medusabci/app-cvep-speller/unity/c-VEP
-    Speller.exe
+  playerPath: D:/app-cvep-speller/unity/c-VEP Speller.exe
