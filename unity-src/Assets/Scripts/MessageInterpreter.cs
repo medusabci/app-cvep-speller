@@ -4,11 +4,10 @@
 
 // MessageInterpreter for the c-VEP Speller (Unity app)
 //      > Author: Víctor Martínez-Cagigal
-//      > Date: 19/05/2022
 
 // Versions:
 //      - v1.0 (19/05/2022):    Initial message interpreter
-
+//      - v2.0 (25/08/2022):    Early stopping included in test
 
 using System.Collections;
 using System.Collections.Generic;
@@ -44,6 +43,11 @@ public class MessageInterpreter
         return SelectionDecoder.getSelectionFromJSON(message);
     }
 
+    public List<EarlyStoppingProbsDecoder.Probs> decodeProbs(string message)
+    {
+        return EarlyStoppingProbsDecoder.getEarlyStoppingProbsFromJSON(message);
+    }
+
     /* ----------------------------------- DECODING CLASSES ------------------------------------ */
     /** Class to decode the event_type first. */
     public class EventTypeDecoder
@@ -71,6 +75,7 @@ public class MessageInterpreter
         public int trainCycles;
         public int trainTrials;
         public int testCycles;
+        public bool earlyStoppingEnabled;
         public float fpsResolution;
 
         // Timings
@@ -140,6 +145,25 @@ public class MessageInterpreter
         {
             SelectionDecoder s = JsonUtility.FromJson<SelectionDecoder>(jsonString);
             return s.selection_coords;
+        }
+    }
+
+    public class EarlyStoppingProbsDecoder
+    {
+        public List<Probs> prob_list;
+
+        public static List<Probs> getEarlyStoppingProbsFromJSON(string jsonString)
+        {
+            EarlyStoppingProbsDecoder e = JsonConvert.DeserializeObject<EarlyStoppingProbsDecoder>(jsonString);
+            return e.prob_list;
+        }
+
+        public class Probs
+        {
+            public int n_matrix { get; set; }
+            public int n_row { get; set; }
+            public int n_col { get; set; }
+            public float prob { get; set; }
         }
     }
 

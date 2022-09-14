@@ -410,6 +410,7 @@
 "Assets/Scripts/Manager.cs"
 "Assets/Scripts/MedusaTCPClient.cs"
 "Assets/Scripts/MessageInterpreter.cs"
+"Assets/Scripts/NewBehaviourScript.cs"
 -langversion:9.0
 
 /deterministic

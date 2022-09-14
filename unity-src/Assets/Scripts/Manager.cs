@@ -4,11 +4,11 @@
 
 // c-VEP Speller (Unity app)
 //      > Author: Víctor Martínez-Cagigal
-//      > Date: 19/05/2022
 
 // Versions:
 //      - v1.0 (19/05/2022):    Circular-shifting c-VEP speller working
 //      - v1.1 (04/07/2022):    Fixed small bug in which the app displayed and additional trial in training
+//      - v2.0 (25/08/2022):    Early stopping included in test
 
 using System;
 using System.Collections;
@@ -80,6 +80,7 @@ public class Manager : MonoBehaviour
     const int STATE_TRANSITION_TEXT = 30;       // states of "transitionstate" of transitionFastMode()
     const int STATE_TRANSITION_IDDLE = 31;
 
+    const int STATE_RESULT_RESET = 49;
     const int STATE_RESULT_SHOW = 50;           // states of "resultstate" of showingResult()
     const int STATE_RESULT_IDDLE = 51;
     const int STATE_RESULT_END = 52;
@@ -89,7 +90,7 @@ public class Manager : MonoBehaviour
     static int innerstate = STATE_RUNNING_PREVTEXT;
     static int finishingstate = STATE_FINISHING_IDDLE;
     static int closingstate = STATE_CLOSING_TEXT;
-    static int resultstate = STATE_RESULT_SHOW;
+    static int resultstate = STATE_RESULT_RESET;
     static bool mustStartTrial = false;
     static bool mustFinishRun = false;
     static bool mustClose = false;
@@ -132,6 +133,7 @@ public class Manager : MonoBehaviour
     static int currentTrainTarget = 0;
     static int currentTrainSequence = 0;
     static bool mustHighlightTarget = true;
+    static bool mustTestReset = false;
     private MessageInterpreter messageInterpreter = new MessageInterpreter();
     private int[] sequence;
     private int[,] sequences, target_coords;
@@ -140,12 +142,14 @@ public class Manager : MonoBehaviour
     private Canvas mainCanvas;
     private GameObject[,] matrixTest, matrixTrain;
     private GameObject fpsMonitorText, informationBox, informationText, debugText, mainTestCell, mainTrainCell, resultBox, resultText, photodiodeCell;
+    private float[,] matrixTestProbs;
     private float cellSize;
     private float width, height;
     private int[,] testTarget, trainTarget;
     private string mode;
     private bool targetsAvailable;
     private bool photodiodeEnabled;
+    private bool earlyStoppingEnabled;
     private int cycleTestCounter = 0;
     private int cycleTrainCounter = 0;
     private int[,] targetsRowCol;
@@ -277,13 +281,25 @@ public class Manager : MonoBehaviour
         // If we have received a new selection, show it in the main thread
         if (state == STATE_SELECTION_RECEIVED)
         {
+            if (resultstate == STATE_RESULT_RESET)
+            {
+                if (mustTestReset)
+                {
+                    // Reset test matrix
+                    cycleTestCounter = 0;
+                    currentTestTarget++;
+                    resetTestMatrix();
+                    mustTestReset = false;
+                }                
+            }
             if (resultstate == STATE_RESULT_SHOW)
             {
                 // Show the result
                 if (!String.IsNullOrEmpty(lastResult))
                 {
+                    // Show the result
                     concatenateNewResult(lastResult);
-                    matrixTest[lastResultCoords[1], lastResultCoords[2]].GetComponent<Image>().color = highlightResultBoxColor;
+                    matrixTest[lastResultCoords[1], lastResultCoords[2]].transform.GetChild(1).GetComponent<Image>().color = highlightResultBoxColor;
                     lastResult = "";
                 }
             }
@@ -291,7 +307,7 @@ public class Manager : MonoBehaviour
             if (resultstate == STATE_RESULT_IDDLE)
             {
                 // Default color
-                matrixTest[lastResultCoords[1], lastResultCoords[2]].GetComponent<Image>().color = defaultBoxColor;
+                matrixTest[lastResultCoords[1], lastResultCoords[2]].transform.GetChild(1).GetComponent<Image>().color = defaultBoxColor;
             }
 
             if (resultstate == STATE_RESULT_END)
@@ -317,7 +333,7 @@ public class Manager : MonoBehaviour
                 // Reset result
                 lastResultCoords = new int[3];
                 lastResult = "";
-                resultstate = STATE_RESULT_SHOW;
+                resultstate = STATE_RESULT_RESET;
             }
 
         }
@@ -361,6 +377,7 @@ public class Manager : MonoBehaviour
         // If we must show the received result
         if (mustShowResult)
         {
+            // Show result
             mustShowResult = false;
             StartCoroutine(showingResult());
         }
@@ -440,8 +457,10 @@ public class Manager : MonoBehaviour
         {
             for (int c = 0; c < matrixTest.GetLength(1); c++)
             {
-                matrixTest[r, c].GetComponent<Image>().color = defaultBoxColor;
-                matrixTest[r, c].transform.GetChild(0).GetComponent<Text>().color = defaultTextColor;
+                matrixTest[r, c].transform.GetChild(1).GetComponent<Image>().color = defaultBoxColor;
+                matrixTest[r, c].transform.GetChild(1).transform.GetChild(0).GetComponent<Text>().color = defaultTextColor;
+                matrixTestProbs[r, c] = -1;
+                matrixTest[r, c].transform.GetChild(0).gameObject.SetActive(false);
             }
         }
     } 
@@ -498,7 +517,7 @@ public class Manager : MonoBehaviour
         int testCols = matrixTest.GetLength(1);
         float x0 = (width - (cellSize * testCols + colSeparator * (testCols - 1))) / 2;
         float y0 = (height + (cellSize * testRows + rowSeparator * (testRows - 1))) / 2;
-        Vector2 origin = new Vector2(x0, y0);
+        Vector2 origin = new Vector2(x0 + cellSize/2, y0 - cellSize/2);
 
         // Move all cells
         for (int r = 0; r < matrixTest.GetLength(0); r++)
@@ -507,16 +526,27 @@ public class Manager : MonoBehaviour
             for (int c = 0; c < matrixTest.GetLength(1); c++)
             {
                 float x_ = origin.x + c * (cellSize + colSeparator);
-                
+
                 // Move and scale each command box
-                RectTransform rt = matrixTest[r, c].GetComponent<RectTransform>();
+                /*RectTransform rt = matrixTest[r, c].GetComponent<RectTransform>();
                 rt.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, cellSize);
                 rt.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, cellSize);
-                matrixTest[r, c].transform.position = new Vector2(x_, y_);
+                matrixTest[r, c].transform.position = new Vector2(x_, y_);*/
+
+                float _dwarfing = 0.85f;
+                RectTransform rt = matrixTest[r, c].transform.GetChild(1).GetComponent<RectTransform>();
+                rt.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, cellSize);
+                rt.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, cellSize);
+                matrixTest[r, c].transform.GetChild(1).transform.position = new Vector2(x_, y_);
+
+                rt = matrixTest[r, c].transform.GetChild(0).GetComponent<RectTransform>();
+                rt.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, cellSize);
+                rt.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, cellSize);
+                matrixTest[r, c].transform.GetChild(0).transform.position = new Vector2(x_, y_);
 
                 // Adapt the text of each command label
                 float st_ = cellSize / optimalCellSize;
-                matrixTest[r, c].transform.GetChild(0).GetComponent<Text>().GetComponent<RectTransform>().localScale = new Vector3(st_, st_, 1f);
+                matrixTest[r, c].transform.GetChild(1).transform.GetChild(0).GetComponent<Text>().GetComponent<RectTransform>().localScale = new Vector3(st_, st_, 1f);
             }
         }
 
@@ -596,6 +626,14 @@ public class Manager : MonoBehaviour
         resultText.GetComponent<Text>().text += resultLabel + " ";
     }
 
+    void onUpdateProbs(List<MessageInterpreter.EarlyStoppingProbsDecoder.Probs> prob_list)
+    {
+        foreach (MessageInterpreter.EarlyStoppingProbsDecoder.Probs item in prob_list)
+        {
+            matrixTestProbs[item.n_row, item.n_col] = item.prob;
+        }
+    }
+
     /* ------------------------------------------- COMMUNICATION ------------------------------------------- */
 
     // This function is called by the MedusaTCPClient whenever a packet is received in order to interpret it
@@ -642,8 +680,19 @@ public class Manager : MonoBehaviour
                 break;
             case "selection":
                 // MEDUSA has selected a new command!
-                int[] selection_coords = messageInterpreter.decodeSelection(message);
-                onSelectedCommand(selection_coords);
+                if (state == RUN_STATE_RUNNING || state == STATE_WAITING_SELECTION)
+                {
+                    // If RUN_STATE_RUNNING, then it was early stopped
+                    if (state == RUN_STATE_RUNNING)
+                        Debug.Log("Early stopped!");
+                    // If STATE_WAITING_SELECTION, then it was requested by Unity
+                    int[] selection_coords = messageInterpreter.decodeSelection(message);
+                    onSelectedCommand(selection_coords);
+                }
+                break;
+            case "update_probs":
+                List<MessageInterpreter.EarlyStoppingProbsDecoder.Probs> prob_list = messageInterpreter.decodeProbs(message);
+                onUpdateProbs(prob_list);
                 break;
             case "exception":
                 string exception = messageInterpreter.decodeException(message);
@@ -675,6 +724,7 @@ public class Manager : MonoBehaviour
         trainTrials = parameters.trainTrials;
         testCycles = parameters.testCycles;
         matrices = parameters.matrices;
+        earlyStoppingEnabled = parameters.earlyStoppingEnabled;
 
         currentMatrixIdx = 0;   // For now, only one matrix is supported
 
@@ -714,6 +764,7 @@ public class Manager : MonoBehaviour
         int testNRow = matrices.test[currentMatrixIdx].n_row;
         int testNCol = matrices.test[currentMatrixIdx].n_col;
         matrixTest = new GameObject[testNRow, testNCol];
+        matrixTestProbs = new float[testNRow, testNCol];
         mainTestCell.SetActive(false);
 
         // Create the matrix by duplicating the first cell
@@ -729,9 +780,10 @@ public class Manager : MonoBehaviour
             {
                 matrixTest[r, c] = Instantiate(mainTestCell, new Vector2(0, 0), new Quaternion(), matrixTestObject.transform);
                 matrixTest[r, c].name = "Test_Cell_" + r.ToString() + "_" + c.ToString();
-                matrixTest[r, c].transform.GetChild(0).GetComponent<Text>().text = matrices.test[currentMatrixIdx].item_list[idx].text;
+                matrixTest[r, c].transform.GetChild(1).gameObject.transform.GetChild(0).GetComponent<Text>().text = matrices.test[currentMatrixIdx].item_list[idx].text;
                 matrixTestItemSequence[r].Insert(c, matrices.test[currentMatrixIdx].item_list[idx].sequence);
                 matrixTestLabels[r, c] = matrices.test[currentMatrixIdx].item_list[idx].text;
+                matrixTestProbs[r, c] = -1;
                 idx++;
             }
         }
@@ -750,7 +802,7 @@ public class Manager : MonoBehaviour
         matrixTrainLabels = new string[trainNRow, trainNCol];
         matrixTrainItemSequence = new List<List<int[]>>();
         matrixTrainCurrentTimeShift = 0;
-        matrixTrainSequenceLength = matrices.train[currentMatrixIdx].item_list[0].sequence.GetLength(0); ;   // All the items must have the same sequence length
+        matrixTrainSequenceLength = matrices.train[currentMatrixIdx].item_list[0].sequence.GetLength(0);   // All the items must have the same sequence length
         for (int r = 0; r < trainNRow; r++)
         {
             matrixTrainItemSequence.Add(new List<int[]>());
@@ -921,6 +973,9 @@ public class Manager : MonoBehaviour
     // Loop for "Online" mode: selecting items from the matrix
     void loopTest()
     {
+        if (state != RUN_STATE_RUNNING)
+            return;
+
         // First: show starting text
         if (innerstate == STATE_RUNNING_PREVTEXT)
         {
@@ -960,10 +1015,6 @@ public class Manager : MonoBehaviour
             // Check how many cycles have been displayed
             if (cycleTestCounter > testCycles)
             {
-                cycleTestCounter = 0;
-                currentTestTarget++;
-                resetTestMatrix();
-
                 // Request MEDUSA to process the trial
                 state = STATE_WAITING_SELECTION;
                 ServerMessage sm = new ServerMessage("processPlease");
@@ -979,13 +1030,31 @@ public class Manager : MonoBehaviour
                         int value = matrixTestItemSequence[r][c][matrixTestCurrentTimeShift];
                         if (value == 0)
                         {
-                            matrixTest[r, c].GetComponent<Image>().color = colorBox0;
-                            matrixTest[r, c].transform.GetChild(0).GetComponent<Text>().color = colorText0;
+                            matrixTest[r, c].transform.GetChild(1).GetComponent<Image>().color = colorBox0;
+                            matrixTest[r, c].transform.GetChild(1).transform.GetChild(0).GetComponent<Text>().color = colorText0;
                         }
                         else
                         {
-                            matrixTest[r, c].GetComponent<Image>().color = colorBox1;
-                            matrixTest[r, c].transform.GetChild(0).GetComponent<Text>().color = colorText1;
+                            matrixTest[r, c].transform.GetChild(1).GetComponent<Image>().color = colorBox1;
+                            matrixTest[r, c].transform.GetChild(1).transform.GetChild(0).GetComponent<Text>().color = colorText1;
+                        }
+                    }
+                }
+
+                // Adaptive early stopping feedback
+                if (earlyStoppingEnabled)
+                {
+                    for (int r = 0; r < matrixTestProbs.GetLength(0); r++)
+                    {
+                        for (int c = 0; c < matrixTestProbs.GetLength(1); c++)
+                        {
+                            if (matrixTestProbs[r, c] == -1)
+                            {
+                                matrixTest[r, c].transform.GetChild(0).gameObject.SetActive(false);
+                                continue;
+                            }
+                            matrixTest[r, c].transform.GetChild(0).gameObject.SetActive(true);
+                            matrixTest[r, c].transform.GetChild(0).GetComponent<Image>().color = getColorFromColormap("green", matrixTestProbs[r, c]);
                         }
                     }
                 }
@@ -1087,6 +1156,10 @@ public class Manager : MonoBehaviour
     IEnumerator showingResult()
     {
         Debug.Log("Showing the result...");
+        resultstate = STATE_RESULT_RESET;
+        mustTestReset = true;
+        yield return new WaitForSeconds((float)tPrevIddle/2);
+
         resultstate = STATE_RESULT_SHOW;
         yield return new WaitForSeconds((float)tPrevText);
 
@@ -1119,5 +1192,82 @@ public class Manager : MonoBehaviour
             a = byte.Parse(hex.Substring(6, 2), System.Globalization.NumberStyles.HexNumber);
         }
         return new Color32(r, g, b, a);
+    }
+
+    public static Color getColorFromColormap(string colormap, float value)
+    {
+        switch (colormap)
+        {
+            case "plasma":
+                return mapPlasma(value);
+            case "jet":
+                return mapJet(value);
+            case "rwb":
+                return mapRWB(value);
+            case "green":
+                return mapGreen(value);
+            default:
+                return mapPlasma(value);
+        }
+    }
+
+    public static Color mapGreen(float value)
+    {
+        return Color.Lerp(hexToColor("#ffffff00"), hexToColor("#43ce4fff"), value);
+    }
+
+    public static Color mapRWB(float value)
+    {
+        if (value < 0.5)
+        {
+            return Color.Lerp(hexToColor("#ff0101"), hexToColor("#ffffff"), remap(value, 0.0f, 0.5f, 0.0f, 1.0f));
+        }
+        else 
+        {
+            return Color.Lerp(hexToColor("#ffffff"), hexToColor("#0000ff"), remap(value, 0.5f, 1.0f, 0.0f, 1.0f));
+        }
+    }
+
+    public static Color mapPlasma(float value)
+    {
+        if (value < 0.33)
+        {
+            return Color.Lerp(hexToColor("#0c0786"), hexToColor("#9b179e"), remap(value, 0.0f, 0.33f, 0.0f, 1.0f));
+        } else if (value < 0.66)
+        {
+            return Color.Lerp(hexToColor("#9b179e"), hexToColor("#ec7853"), remap(value, 0.33f, 0.66f, 0.0f, 1.0f));
+        } else
+        {
+            return Color.Lerp(hexToColor("#ec7853"), hexToColor("#eff821"), remap(value, 0.66f, 1.0f, 0.0f, 1.0f));
+        }
+    }
+
+    public static Color mapJet(float value)
+    {
+        if (value < 0.2)
+        {
+            return Color.Lerp(hexToColor("#000084"), hexToColor("#0050ff"), remap(value, 0.0f, 0.2f, 0.0f, 1.0f));
+        }
+        else if (value < 0.4)
+        {
+            return Color.Lerp(hexToColor("#0050ff"), hexToColor("#2cffca"), remap(value, 0.2f, 0.4f, 0.0f, 1.0f));
+        }
+        else if (value < 0.6)
+        {
+            return Color.Lerp(hexToColor("#2cffca"), hexToColor("#cdff29"), remap(value, 0.4f, 0.6f, 0.0f, 1.0f));
+        }
+        else if (value < 0.8)
+        {
+            return Color.Lerp(hexToColor("#cdff29"), hexToColor("#ff6700"), remap(value, 0.6f, 0.8f, 0.0f, 1.0f));
+        }
+        else
+        {
+            return Color.Lerp(hexToColor("#ff6700"), hexToColor("#840000"), remap(value, 0.8f, 1.0f, 0.0f, 1.0f));
+        }
+    }
+
+    public static float remap(float val, float in1, float in2, float out1, float out2)
+    {
+        return out1 + (val - in1) * (out2 - out1) / (in2 - in1);
     }
 }
