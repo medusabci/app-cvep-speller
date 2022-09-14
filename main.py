@@ -1,7 +1,9 @@
 # BUILT-IN MODULES
 import multiprocessing as mp
+import threading
 import time
 import os.path
+from copy import deepcopy
 # EXTERNAL MODULES
 from PyQt5.QtWidgets import QApplication
 import numpy as np
@@ -48,10 +50,6 @@ class App(resources.AppSkeleton):
         ----------
         app_controller : AppController
             Controller that helps us to communicate with Unity.
-        queue_to_controller : queue.Queue
-            Queue used to send messages to ``AppController``.
-        queue_from_controller : queue.Queue
-            Queue used to receive messages from ``AppController``.
     """
 
     def __init__(self, app_info, app_settings, medusa_interface,
@@ -65,16 +63,19 @@ class App(resources.AppSkeleton):
         # Set attributes
         self.TAG = '[apps/cvep_speller/main] '
         self.app_controller = None
-        # Queues to communicate with the app controller
-        self.queue_to_controller = mp.Queue()
-        self.queue_from_controller = mp.Queue()
+
         # Colors
         theme_colors = gui_utils.get_theme_colors('dark')
         self.log_color = theme_colors['THEME_TEXT_ACCENT']
 
         # Booleans
-        self.process_required = False
+        self.unity_selection_required = False
         self.trainmodel_required = False
+
+        # Processing queues (decoding requests and results)
+        self.queue_decoding_requests = mp.Queue() 
+        self.queue_decoding_results = mp.Queue()
+        self.currently_processing_onset_idx = None
 
         # Load model if available
         self.cvep_model = None
@@ -163,9 +164,6 @@ class App(resources.AppSkeleton):
                     "different sequence! Please, train a new model using the "
                     "desired sequence" %
                     app_settings.run_settings.cvep_model_path)
-
-
-
 
     def get_eeg_worker_name(self, working_lsl_streams_info):
         for lsl_info in working_lsl_streams_info:
@@ -264,44 +262,99 @@ class App(resources.AppSkeleton):
             if self.run_state.value == mds_constants.RUN_STATE_STOP:
                 close_everything()
 
-            # Processing event
-            if self.process_required:
+            # If we are not processing anything, we can process the next request
+            if self.currently_processing_onset_idx is None and \
+                    not self.queue_decoding_requests.empty():
+                self.currently_processing_onset_idx = \
+                    self.queue_decoding_requests.get()
+
+            # Processing is required
+            if self.currently_processing_onset_idx is not None:
                 if self.cvep_model is None:
                     raise Exception('[cvep_speller] Cannot process the trial '
                                     'if the model has not been trained before!')
                 # We need to wait until the signal from the last onset is
                 # enough to extract the full epoch
-                if not self.cvep_model.check_predict_feasibility(
-                        self.get_current_dataset()):
-                    print('[cvep_speller] Epoch length is not enough, '
-                              'waiting for more samples...')
-                else:
-                    self.process_required = False
-                    decoding = self.process_trial()
+                if self.check_processing_feasibility(
+                        onset_idx=self.currently_processing_onset_idx):
+                    threading.Thread(
+                        target=self.process_trial,
+                        args=(self.currently_processing_onset_idx, ),
+                        name="cvep_speller_decoding"
+                    ).start()
 
+                    # The processing task has been threaded, so we can
+                    # proceed with the next request
+                    self.currently_processing_onset_idx = None
+
+            # Check for a successful decoding
+            if not self.queue_decoding_results.empty() and \
+                    self.app_controller is not None:
+                decoding = self.queue_decoding_results.get()
+
+                # todo: matrix, level, unit etc
+                # Aclaration:
+                # 1) [-1] to access the last cycle (max no. cycles)
+                # 2) [-1] to access the last and unique training seq
+                # 3) ['sorted_cmds'] to access the commands sorted by
+                # their probability of being selected
+                # 4) [0] to get the most probable command
+                # 5) ['coords'][0] to get the matrix index
+                #    ['item']['row'] to get the row inside the matrix
+                #    ['item']['col'] to get the col inside the matrix
+                coords_ = [
+                    decoding['items_by_no_cycle'][-1][-1][
+                        'sorted_cmds'][0]['coords'][0],
+                    decoding['items_by_no_cycle'][-1][-1][
+                        'sorted_cmds'][0]['item']['row'],
+                    decoding['items_by_no_cycle'][-1][-1][
+                        'sorted_cmds'][0]['item']['col']
+                ]
+
+                # If the processing was required by Unity itself
+                if self.unity_selection_required:
+                    self.unity_selection_required = False
                     # Notify UNITY about the selected character
-                    # todo: matrix, level, unit etc
-                    # Aclaration:
-                    # 1) [-1] to access the last cycle (max no. cycles)
-                    # 2) [-1] to access the last and unique training seq
-                    # 3) ['sorted_cmds'] to access the commands sorted by
-                    # their probability of being selected
-                    # 4) [0] to get the most probable command
-                    # 5) ['coords'][0] to get the matrix index
-                    #    ['item']['row'] to get the row inside the matrix
-                    #    ['item']['col'] to get the col inside the matrix
-                    coords_ = [
-                        decoding['items_by_no_cycle'][-1][-1][
-                            'sorted_cmds'][0]['coords'][0],
-                        decoding['items_by_no_cycle'][-1][-1][
-                                'sorted_cmds'][0]['item']['row'],
-                        decoding['items_by_no_cycle'][-1][-1][
-                                'sorted_cmds'][0]['item']['col']
-                    ]
                     self.app_controller.notify_selection(
+                        selection_coords=coords_,
+                        selection_label=decoding['spell_result'][0]
+                    )
+                else:
+                    # Get the correlation vector
+                    corr_vector = list()
+                    cord_vector = list()
+                    for command in decoding['items_by_no_cycle'][-1][-1][
+                        'sorted_cmds']:
+                        corr_vector.append(command['correlation'])
+                        cord_vector.append([command['coords'][0],
+                                            command['item']['row'],
+                                            command['item']['col']])
+                    corr_vector = np.array(corr_vector)
+                    cord_vector = np.array(cord_vector)
+
+                    # Early stopping method
+                    must_stop, probs = self.cvep_model.must_stop(
+                        corr_vector=corr_vector,
+                        std=self.app_settings.run_settings.early_stopping)
+                    if must_stop:
+                        # Command selected, notify unity
+                        self.app_controller.notify_selection(
                             selection_coords=coords_,
                             selection_label=decoding['spell_result'][0]
-                    )
+                        )
+                    else:
+                        # Command is not selected yet, update correlations
+                        prob_list = list()
+                        for i in range(len(probs)):
+                            prob_list.append({
+                                'n_matrix': int(cord_vector[i][0]),
+                                'n_row': int(cord_vector[i][1]),
+                                'n_col': int(cord_vector[i][2]),
+                                'prob': probs[i]
+                            })
+                        self.app_controller.update_probs(
+                            prob_list=prob_list
+                        )
         print(TAG, 'Terminated')
 
     def process_event(self, dict_event):
@@ -324,9 +377,13 @@ class App(resources.AppSkeleton):
             # Onset information. E.g.: msg = {"event_type":"train",
             # "target":"C", "cycle":0,"onset":5393}
             self.append_trial_info(dict_event)
+            if self.app_settings.run_settings.early_stopping is not None \
+                    and dict_event["event_type"] == "test":
+                self.queue_decoding_requests.put(len(self.cvep_data.onsets) - 1)
         elif dict_event["event_type"] == "processPlease":
             # Unity is requesting MEDUSA to process the previous trial
-            self.process_required = True
+            self.unity_selection_required = True
+            self.queue_decoding_requests.put(len(self.cvep_data.onsets) - 1)
         else:
             print(self.TAG, 'Unknown event_type %s' % dict_event["event_type"])
 
@@ -463,6 +520,17 @@ class App(resources.AppSkeleton):
         return dataset
 
     # ---------------------------- PROCESSING ----------------------------
+    @exceptions.error_handler(scope='app')
+    def check_processing_feasibility(self, onset_idx=None):
+        times_, signal_, fs, channels, equip = self.get_eeg_data()
+        if onset_idx is not None:
+            return self.cvep_model.check_predict_feasibility_signal(
+                times=times_, onsets=self.cvep_data.onsets[:onset_idx + 1],
+                fs=fs)
+        else:
+            return self.cvep_model.check_predict_feasibility_signal(
+                times=times_, onsets=self.cvep_data.onsets, fs=fs)
+
     def append_trial_info(self, msg):
         # Common trial info
         self.cvep_data.cycle_idx = np.append(
@@ -483,9 +551,19 @@ class App(resources.AppSkeleton):
             self.cvep_data.command_idx = np.append(
                 self.cvep_data.command_idx, msg["command_idx"])
 
-    def process_trial(self):
+    def process_trial(self, last_onset_idx=None):
         """ This function processes only the last trial to get the selected
         command. Note that this method is not called in TRAIN_MODE.
+
+        Parameters
+        -------------
+        last_onset_idx: int or None
+            Last onset index to be considered in the prediction.
+
+        Returns
+        ------------
+        decoding: dict()
+            Prediction.
         """
         if self.cvep_model is None:
             self.handle_exception(Exception('[cvep_speller] Cannot process the '
@@ -497,11 +575,22 @@ class App(resources.AppSkeleton):
         times_, signal_, fs, channels, equip = self.get_eeg_data()
         eeg = meeg.EEG(times_, signal_, fs, channels, equipement=equip)
 
+        # Fool medusa-kernel to consider signal only until the desired onset
+        cvep_data_ = deepcopy(self.cvep_data)
+        if last_onset_idx is not None:
+            cvep_data_.onsets = cvep_data_.onsets[:last_onset_idx + 1]
+            cvep_data_.cycle_idx = cvep_data_.cycle_idx[:last_onset_idx + 1]
+            cvep_data_.trial_idx = cvep_data_.trial_idx[:last_onset_idx + 1]
+
         # Process the last trial
         decoding = self.cvep_model.predict(times=times_, signal=signal_,
                                            trial_idx=last_idx,
-                                           exp_data=self.cvep_data,
+                                           exp_data=cvep_data_,
                                            sig_data=eeg)
+
+        # Put the decoding into the queue
+        self.queue_decoding_results.put(decoding)
+
         return decoding
 
     def get_conf(self, mode):

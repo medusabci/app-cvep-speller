@@ -16,6 +16,7 @@ from medusa.bci.cvep_spellers import LFSR, LFSR_PRIMITIVE_POLYNOMIALS
 import matplotlib.pyplot as plt
 from matplotlib.ticker import FormatStrFormatter
 import numpy as np
+from scipy.integrate import quad
 
 # Load the .ui files
 ui_main_file = uic.loadUiType(os.path.dirname(__file__) + "/config.ui")[0]
@@ -55,7 +56,7 @@ class Config(QtWidgets.QDialog, ui_main_file):
         self.setWindowTitle('c-VEP Speller Configuration')
         self.changes_made = False
         self.notifications = NotificationStack(parent=self, timer_ms=500)
-
+        # todo: load no funciona
         # Connect signals
         self.btn_reset.clicked.connect(self.reset)
         self.btn_save.clicked.connect(self.save)
@@ -67,6 +68,8 @@ class Config(QtWidgets.QDialog, ui_main_file):
         self.comboBox_seqlength.currentTextChanged.connect(
             self.on_seqlen_changed)
         self.btn_visualize_encoding.clicked.connect(self.visualize_encoding)
+        self.doubleSpinBox_es_std.valueChanged.connect(
+            self.update_es_confidence_interval)
 
         # Color buttons
         self.btn_color_box0.clicked.connect(self.open_color_dialog(
@@ -96,6 +99,7 @@ class Config(QtWidgets.QDialog, ui_main_file):
 
         # Set settings to GUI
         self.set_settings_to_gui()
+        self.update_es_confidence_interval()
         self.on_seqlen_changed()
         self.notifications.new_notification('Default settings loaded')
 
@@ -152,6 +156,17 @@ class Config(QtWidgets.QDialog, ui_main_file):
         self.lineEdit_tau.setText(str(tau))
         self.lineEdit_cycleduration.setText(str(cycle_dur))
 
+    def update_es_confidence_interval(self):
+        def normal_prob_density(x):
+            # Normal probability density function (PDF)
+            constant = 1.0 / np.sqrt(2 * np.pi)
+            return constant * np.exp((-x ** 2) / 2.0)
+
+        # Integrate PDF from -std to std
+        std = self.doubleSpinBox_es_std.value()
+        result, _ = quad(normal_prob_density, -std, std, limit=1000)
+        self.lineEdit_es_variance.setText(('%.2f%%' % (100 * result)))
+
     def set_settings_to_gui(self):
         # Run settings
         self.lineEdit_user.setText(self.settings.run_settings.user)
@@ -170,6 +185,11 @@ class Config(QtWidgets.QDialog, ui_main_file):
             self.settings.run_settings.fps_resolution)
         self.checkBox_photodiode.setChecked(
             self.settings.run_settings.enable_photodiode)
+        if self.settings.run_settings.early_stopping is not None:
+            self.checkBox_es.setChecked(True)
+            self.doubleSpinBox_es_std.setValue(
+                self.settings.run_settings.early_stopping)
+
 
         # Timings
         self.doubleSpinBox_t_prev_text.setValue(
@@ -443,6 +463,7 @@ class Config(QtWidgets.QDialog, ui_main_file):
     def update_matrix_names(tabwidget):
         """ Updates the matrix names in case that some middle matrix
         has been deleted. """
+
         for tab_idx in range(tabwidget.count()):
             tabwidget.setTabText(tab_idx, 'Matrix #' + str(tab_idx + 1))
 
@@ -460,6 +481,11 @@ class Config(QtWidgets.QDialog, ui_main_file):
         self.settings.run_settings.cvep_model_path = self.lineEdit_cvepmodel.text()
         self.settings.run_settings.fps_resolution = self.spinBox_fpsresolution.value()
         self.settings.run_settings.enable_photodiode = self.checkBox_photodiode.isChecked()
+        if self.checkBox_es.isChecked():
+            self.settings.run_settings.early_stopping = \
+                self.doubleSpinBox_es_std.value()
+        else:
+            self.settings.run_settings.early_stopping = None
 
         # Timings
         self.settings.timings.t_prev_text = self.doubleSpinBox_t_prev_text.value()

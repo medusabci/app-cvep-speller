@@ -108,6 +108,8 @@ class AppController(TCPServer):
         msg["fpsResolution"] = self.app_settings.run_settings.fps_resolution
         msg["photodiodeEnabled"] =  \
             self.app_settings.run_settings.enable_photodiode
+        msg["earlyStoppingEnabled"] = False if \
+            self.app_settings.run_settings.early_stopping is None else True
         msg["matrices"] = self.app_settings.get_dict_matrices()
         msg["color_background"] = self.app_settings.colors.color_background
         msg["color_target_box"] = self.app_settings.colors.color_target_box
@@ -157,6 +159,13 @@ class AppController(TCPServer):
         msg = dict()
         msg["event_type"] = "selection"
         msg["selection_coords"] = selection_coords
+        self.send_command(msg)
+
+    def update_probs(self, prob_list):
+        print(self.TAG, "Updated prob list")
+        msg = dict()
+        msg["event_type"] = "update_probs"
+        msg["prob_list"] = prob_list
         self.send_command(msg)
 
     def notify_model_trained(self):
@@ -216,6 +225,7 @@ class AppController(TCPServer):
             # Unity has finished the stimulation and standby until STOP button
             # is pressed (manager is still recording)
             self.unity_state.value = UNITY_FINISHED
+            self.run_state.value = constants.RUN_STATE_FINISHED
         elif msg["event_type"] == "train" or msg["event_type"] == "test":
             # Onset information. E.g.: msg = {"event_type":"train","target":"C",
             # "cycle":0,"onset":5393}

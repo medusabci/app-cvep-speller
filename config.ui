@@ -217,6 +217,9 @@
                 </item>
                 <item row="4" column="1">
                  <widget class="QSpinBox" name="spinBox_traincycles">
+                  <property name="minimum">
+                   <number>1</number>
+                  </property>
                   <property name="value">
                    <number>10</number>
                   </property>
@@ -231,6 +234,9 @@
                 </item>
                 <item row="5" column="1">
                  <widget class="QSpinBox" name="spinBox_traintrials">
+                  <property name="minimum">
+                   <number>1</number>
+                  </property>
                   <property name="value">
                    <number>5</number>
                   </property>
@@ -239,7 +245,7 @@
                 <item row="6" column="0">
                  <widget class="QLabel" name="label_erp_model">
                   <property name="text">
-                   <string>Test cycles</string>
+                   <string>Max. test cycles</string>
                   </property>
                   <property name="app" stdset="0">
                    <string>erp_speller</string>
@@ -248,6 +254,9 @@
                 </item>
                 <item row="6" column="1">
                  <widget class="QSpinBox" name="spinBox_testcycles">
+                  <property name="minimum">
+                   <number>1</number>
+                  </property>
                   <property name="value">
                    <number>10</number>
                   </property>
@@ -316,6 +325,81 @@
                     </property>
                     <property name="text">
                      <string>Enable photodiode</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item row="9" column="0">
+                 <widget class="QLabel" name="label_5">
+                  <property name="text">
+                   <string>Early Stopping (std)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="9" column="1">
+                 <layout class="QHBoxLayout" name="horizontalLayout_8">
+                  <item>
+                   <widget class="QDoubleSpinBox" name="doubleSpinBox_es_std">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="maximum">
+                     <double>10.000000000000000</double>
+                    </property>
+                    <property name="singleStep">
+                     <double>0.100000000000000</double>
+                    </property>
+                    <property name="value">
+                     <double>3.000000000000000</double>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLabel" name="label_20">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="toolTip">
+                     <string extracomment="Confidence Interval assuming normal distribution"/>
+                    </property>
+                    <property name="text">
+                     <string>Approx. CI:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLineEdit" name="lineEdit_es_variance">
+                    <property name="enabled">
+                     <bool>false</bool>
+                    </property>
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QCheckBox" name="checkBox_es">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="text">
+                     <string>Enable early stopping</string>
+                    </property>
+                    <property name="checked">
+                     <bool>true</bool>
                     </property>
                    </widget>
                   </item>
