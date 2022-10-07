@@ -82,7 +82,7 @@
           <item>
            <widget class="QToolBox" name="toolBox">
             <property name="currentIndex">
-             <number>0</number>
+             <number>3</number>
             </property>
             <widget class="QWidget" name="params_fast">
              <property name="geometry">
@@ -683,7 +683,7 @@
              <property name="geometry">
               <rect>
                <x>0</x>
-               <y>0</y>
+               <y>-100</y>
                <width>494</width>
                <height>422</height>
               </rect>
@@ -895,17 +895,7 @@
                 <item>
                  <widget class="QPushButton" name="btn_update_matrix">
                   <property name="text">
-                   <string>Update matrix</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QPushButton" name="btn_visualize_encoding">
-                  <property name="styleSheet">
-                   <string notr="true">background-color: 'OrangeRed';</string>
-                  </property>
-                  <property name="text">
-                   <string>Visualize encoding</string>
+                   <string>Update encoding</string>
                   </property>
                  </widget>
                 </item>

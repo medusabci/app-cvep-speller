@@ -16,11 +16,15 @@ from medusa.bci.cvep_spellers import LFSR, LFSR_PRIMITIVE_POLYNOMIALS
 import matplotlib.pyplot as plt
 from matplotlib.ticker import FormatStrFormatter
 import numpy as np
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
+from matplotlib.figure import Figure
 
 # Load the .ui files
 ui_main_file = uic.loadUiType(os.path.dirname(__file__) + "/config.ui")[0]
 ui_target_file = uic.loadUiType(os.path.dirname(__file__) +
                                 "/config_target.ui")[0]
+ui_encoding_file = uic.loadUiType(os.path.dirname(__file__) +
+                                "/config_encoding.ui")[0]
 
 
 class Config(QtWidgets.QDialog, ui_main_file):
@@ -66,7 +70,6 @@ class Config(QtWidgets.QDialog, ui_main_file):
         self.btn_update_matrix.clicked.connect(self.update_test_matrix)
         self.comboBox_seqlength.currentTextChanged.connect(
             self.on_seqlen_changed)
-        self.btn_visualize_encoding.clicked.connect(self.visualize_encoding)
 
         # Color buttons
         self.btn_color_box0.clicked.connect(self.open_color_dialog(
@@ -705,6 +708,21 @@ class Config(QtWidgets.QDialog, ui_main_file):
         # Update the gui
         self.set_settings_to_gui()
 
+        # Show the encoding
+        order = int(self.lineEdit_order.text())
+        seed = self.lineEdit_seed.text()
+        lags_info = {
+            'tau': tau,
+            'lags': [i*tau for i in range(n_row * n_col)]
+        }
+        monitor_rate = float(self.spinBox_fpsresolution.value())
+        current_index = self.widget_nested_test.currentIndex()
+        visualize_dialog = VisualizeEncodingDialog(
+            n_row=n_row, n_col=n_col, base=2, order=order,
+            monitor_rate=monitor_rate, item_list=self.settings.matrices[
+                'test'][current_index].item_list, lags_info=lags_info)
+        visualize_dialog.exec_()
+
     def visualize_encoding(self):
         def autocorr_circular(x):
             """ With circular shifts (periodic correlation) """
@@ -888,3 +906,151 @@ class TargetConfigDialog(QtWidgets.QDialog, ui_target_file):
         self.input_target_text.setText(target.text)
         self.input_target_label.setText(target.label)
         self.input_target_sequence.setText(str(target.sequence))
+
+
+class VisualizeEncodingDialog(QtWidgets.QDialog, ui_encoding_file):
+    def __init__(self, n_row, n_col, base, order, monitor_rate, item_list,
+                 lags_info):
+        QtWidgets.QDialog.__init__(self)
+        self.setupUi(self)  # Attach the .ui
+        self.setWindowFlags(
+            self.windowFlags() & ~Qt.WindowContextHelpButtonHint)
+        self.TAG = '[apps/cvep_speller/config_encoding] '
+
+        # Initialize the dialog
+        theme_colors = gui_utils.get_theme_colors('dark')
+        self.stl = gui_utils.set_css_and_theme(self, theme_colors)
+        self.setWindowIcon(QtGui.QIcon('gui/images/medusa_task_icon.png'))
+        self.setWindowTitle('c-VEP target customization')
+
+        # Initialize the canvas
+        self.fig_autocorr = Figure(figsize=(60, 30), dpi=150, )
+        self.canvas_autocorr = FigureCanvasQTAgg(figure=self.fig_autocorr)
+        self.layout_autocorr.addWidget(self.canvas_autocorr)
+        self.axes_autocorr = self.fig_autocorr.add_subplot(111)
+        self.fig_encoding = Figure(figsize=(60, 30), dpi=150, )
+        self.canvas_encoding = FigureCanvasQTAgg(figure=self.fig_encoding)
+        self.layout_encoding.addWidget(self.canvas_encoding)
+        self.axes_encoding = self.fig_encoding.add_subplot(111)
+
+        # Autocorrelation plot
+        lags = lags_info['lags']
+        SMALL_SIZE = 4
+        MEDIUM_SIZE = 6
+        plt.rcParams.update({'font.size': 4})
+        poly_ = LFSR_PRIMITIVE_POLYNOMIALS['base'][base]['order'][order]
+        seq = LFSR(poly_, base=base, center=True).sequence
+        rxx_, tr_ = self.autocorr_circular(seq)
+        rxx_ = rxx_ / np.max(np.abs(rxx_))
+        with plt.style.context('dark_background'):
+            # Autocorrelation
+            tr_s = np.array(tr_) / monitor_rate
+            big_lagged_seqs_ = np.zeros((n_row * n_col, len(seq)))
+            seq = np.array(seq)
+            self.axes_autocorr.xaxis.set_major_formatter(FormatStrFormatter('%.1f'))
+            self.axes_autocorr.yaxis.set_major_formatter(FormatStrFormatter('%.1f'))
+            self.axes_autocorr.plot(tr_s, rxx_, linewidth=1)
+            yoff = -min(np.abs(rxx_))
+            for i, lag in enumerate(lags):
+                big_lagged_seqs_[i, :] = np.array(np.roll(seq, lag)).reshape(-1, 1).T
+                self.axes_autocorr.plot([lag/monitor_rate, lag/monitor_rate],
+                         [yoff - 0.05, yoff + 0.05], color='#ff1e55',
+                                        linewidth=0.5)
+                self.axes_autocorr.text(lag / monitor_rate, yoff - 0.1,
+                                        item_list[i].text,
+                                        horizontalalignment='center',
+                                        color='#ff1e55')
+            self.axes_autocorr.set_xlim((tr_s[0], tr_s[-1]))
+            self.axes_autocorr.set_ylim((min(rxx_) - 0.2, max(rxx_) + 0.2))
+            self.axes_autocorr.set_xlabel('Time shifts (s)', fontsize=MEDIUM_SIZE)
+            self.axes_autocorr.set_ylabel('Norm. $R_{xx}$', fontsize=MEDIUM_SIZE)
+            self.axes_autocorr.set_title('M-sequence autocorrelation',
+                                         fontsize=MEDIUM_SIZE)
+            [tick.label.set_fontsize(SMALL_SIZE) for tick in
+             self.axes_autocorr.yaxis.get_major_ticks()]
+            [tick.label.set_fontsize(SMALL_SIZE) for tick in
+             self.axes_autocorr.xaxis.get_major_ticks()]
+        pos = self.axes_autocorr.get_position()
+        pos.x0 = 0.2
+        pos.y0 = 0.15
+        self.axes_autocorr.set_position(pos)
+        self.fig_autocorr.patch.set_alpha(0.5)
+        self.canvas_autocorr.draw()
+
+        # Encoding plot
+        with plt.style.context('dark_background'):
+            commands = list()
+            for c in item_list:
+                commands.append(c.text)
+            self.axes_encoding.imshow(big_lagged_seqs_, aspect='auto',
+                                      cmap='gray_r')
+            self.axes_encoding.set_yticklabels(commands)
+            self.axes_encoding.set_title('Command encoding', fontsize=MEDIUM_SIZE)
+            self.axes_encoding.set_xlabel('Sequence (samples)', fontsize=MEDIUM_SIZE)
+            self.axes_encoding.set_ylabel('Commands', fontsize=MEDIUM_SIZE)
+            plt.yticks(ticks=[i for i in range(len(commands))])
+            self.axes_encoding.set_yticks([i for i in range(len(commands))])
+            [tick.label.set_fontsize(SMALL_SIZE) for tick in
+             self.axes_encoding.yaxis.get_major_ticks()]
+            [tick.label.set_fontsize(SMALL_SIZE) for tick in
+             self.axes_encoding.xaxis.get_major_ticks()]
+        pos = self.axes_encoding.get_position()
+        pos.x0 = 0.2
+        pos.y0 = 0.15
+        self.axes_encoding.set_position(pos)
+        self.fig_encoding.patch.set_alpha(0.5)
+        self.canvas_encoding.draw()
+
+        # Correlation values table
+        self.table_values.setRowCount(1)
+        self.table_values.setColumnCount(n_row * n_col)
+        half_rxx = rxx_[int(len(rxx_) / 2):]
+        values = list()
+        for i, lag in enumerate(lags):
+            values.append(half_rxx[lag])
+            item = QtWidgets.QTableWidgetItem("{:.2f}".format(half_rxx[lag]))
+            self.table_values.setItem(0, i, item)
+        values = np.array(values)
+        min_p = - min(np.abs(rxx_))
+        self.bad_cmds = list()
+        for i in range(n_row * n_col):
+            if i == 0:
+                self.table_values.item(0, i).setBackground(Qt.darkBlue)
+                continue
+            if min_p != values[i]:
+                self.bad_cmds.append(commands[i])
+                self.table_values.item(0, i).setBackground(Qt.darkRed)
+            else:
+                self.table_values.item(0, i).setBackground(Qt.darkGreen)
+        self.table_values.setHorizontalHeaderLabels(commands)
+        self.table_values.setVerticalHeaderLabels(['p'])
+        self.table_values.resizeColumnsToContents()
+
+        # Mean tau
+        self.edit_tau.setText("{:.2f}".format(np.mean(np.diff(lags))))
+        self.edit_tau_nocorr.setText("{:.2f}".format(lags_info['tau']))
+
+        # Advise
+        if np.all(min_p == values[1:]):
+            self.label_values.setText("✔️  Encoding is correct!")
+            self.label_values.setStyleSheet("color: limegreen;")
+        else:
+            self.label_values.setText("❌️  Careful, I could not optimize the "
+                                      "lags enough for this configuration"
+                                      ", so the correlation for "
+                                      "command(s) %s is not minimum!" %
+                                      ','.join(self.bad_cmds))
+            self.label_values.setStyleSheet("color: orangered;")
+
+    @staticmethod
+    def autocorr_circular(x):
+        """ With circular shifts (periodic correlation) """
+        N = len(x)
+        rxx = []
+        t = []
+        for i in range(-(N - 1), N):
+            rxx.append(np.sum(x * np.roll(x, i)))
+            t.append(i)
+        rxx = np.array(rxx)
+        return rxx, t
+
