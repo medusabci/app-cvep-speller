@@ -290,7 +290,7 @@ class Config(QtWidgets.QDialog, ui_main_file):
             new_layout = QGridLayout()
             new_layout.setContentsMargins(0, 0, 0, 0)
             new_layout.setSpacing(10)
-            new_layout.setMargin(10)
+            new_layout.setContentsMargins(10, 10, 10, 10)
             # Add buttons as commands
             for r in range(curr_mtx.n_row):
                 for c in range(curr_mtx.n_col):
@@ -377,7 +377,7 @@ class Config(QtWidgets.QDialog, ui_main_file):
             new_layout = QGridLayout()
             new_layout.setContentsMargins(0, 0, 0, 0)
             new_layout.setSpacing(10)
-            new_layout.setMargin(10)
+            new_layout.setContentsMargins(10, 10, 10, 10)
             # Add buttons as commands
             for r in range(curr_mtx.n_row):
                 for c in range(curr_mtx.n_col):
