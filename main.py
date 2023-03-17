@@ -59,8 +59,6 @@ class App(resources.AppSkeleton):
         # Call superclass constructor
         super().__init__(app_info, app_settings, medusa_interface,
                          app_state, run_state, working_lsl_streams_info)
-        self.eeg_worker_name = self.get_eeg_worker_name(
-            working_lsl_streams_info)
 
         # Set attributes
         self.TAG = '[apps/cvep_speller/main] '
@@ -71,6 +69,10 @@ class App(resources.AppSkeleton):
         # Colors
         theme_colors = gui_utils.get_theme_colors('dark')
         self.log_color = theme_colors['THEME_TEXT_ACCENT']
+
+        # Find EEG
+        self.eeg_worker_name = self.get_eeg_worker_name(
+            working_lsl_streams_info)
 
         # Booleans
         self.process_required = False
@@ -161,14 +163,12 @@ class App(resources.AppSkeleton):
                     "desired sequence" %
                     app_settings.run_settings.cvep_model_path)
 
-
-
-
     def get_eeg_worker_name(self, working_lsl_streams_info):
         for lsl_info in working_lsl_streams_info:
-            if lsl_info['lsl_type'] == 'EEG':
+            if lsl_info['medusa_type'] == 'EEG':
+                self.send_to_log('Linked to EEG stream: %s' % lsl_info['lsl_name'])
                 return lsl_info['lsl_name']
-        return None
+        raise Exception('[cvep_speller] Cannot find any EEG stream on LSL!')
 
     def get_lsl_worker(self):
         """Returns the LSL worker"""
