@@ -236,7 +236,7 @@ class Timings:
 
 class Colors:
 
-    def __init__(self, color_background='#a3bec7',
+    def __init__(self, color_background='#ffeab0',
                  color_target_box='#ff195bff',
                  color_highlight_result_box='#03fc5aff',
                  color_result_info_box='#8c8c8cff',
@@ -244,10 +244,10 @@ class Colors:
                  color_result_info_text='#f4f657ff',
                  color_fps_good='#5ee57dff',
                  color_fps_bad='#b43228ff',
-                 color_box_0='#000000',
-                 color_box_1='#ffffff',
+                 color_box_0='#b8b8b8',
+                 color_box_1='#b8b8b8',
                  color_text_0='#ffffff',
-                 color_text_1='#000000'):
+                 color_text_1='#ffffff'):
         self.color_background = color_background
         self.color_target_box = color_target_box
         self.color_highlight_result_box = color_highlight_result_box
