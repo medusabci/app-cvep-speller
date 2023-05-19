@@ -121,10 +121,6 @@
 -define:CSHARP_7_OR_LATER
 -define:CSHARP_7_3_OR_NEWER
 -r:"Assets/JsonDotNet/Assemblies/Standalone/Newtonsoft.Json.dll"
--r:"D:/app-cvep-speller/unity-src/Library/PackageCache/com.unity.collab-proxy@1.15.13/Lib/Editor/PlasticSCM/log4netPlastic.dll"
--r:"D:/app-cvep-speller/unity-src/Library/PackageCache/com.unity.collab-proxy@1.15.13/Lib/Editor/PlasticSCM/Unity.Plastic.Antlr3.Runtime.dll"
--r:"D:/app-cvep-speller/unity-src/Library/PackageCache/com.unity.collab-proxy@1.15.13/Lib/Editor/PlasticSCM/Unity.Plastic.Newtonsoft.Json.dll"
--r:"D:/app-cvep-speller/unity-src/Library/PackageCache/com.unity.collab-proxy@1.15.13/Lib/Editor/PlasticSCM/unityplastic.dll"
 -r:"D:/Programs/Unity/Hub/Editor/2021.2.16f1/Editor/Data/Managed/UnityEditor.Graphs.dll"
 -r:"D:/Programs/Unity/Hub/Editor/2021.2.16f1/Editor/Data/Managed/UnityEngine/UnityEditor.CoreModule.dll"
 -r:"D:/Programs/Unity/Hub/Editor/2021.2.16f1/Editor/Data/Managed/UnityEngine/UnityEditor.DeviceSimulatorModule.dll"
@@ -408,6 +404,10 @@
 -r:"D:/Programs/Unity/Hub/Editor/2021.2.16f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Xml.dll"
 -r:"D:/Programs/Unity/Hub/Editor/2021.2.16f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Xml.Linq.dll"
 -r:"D:/Programs/Unity/Hub/Editor/2021.2.16f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Xml.Serialization.dll"
+-r:"D:/Users/Victor/Documents/SoftwareProjects/medusabci/medusa-platform/src/accounts/vicmarcag/apps/cvep_speller/unity-src/Library/PackageCache/com.unity.collab-proxy@1.15.13/Lib/Editor/PlasticSCM/log4netPlastic.dll"
+-r:"D:/Users/Victor/Documents/SoftwareProjects/medusabci/medusa-platform/src/accounts/vicmarcag/apps/cvep_speller/unity-src/Library/PackageCache/com.unity.collab-proxy@1.15.13/Lib/Editor/PlasticSCM/Unity.Plastic.Antlr3.Runtime.dll"
+-r:"D:/Users/Victor/Documents/SoftwareProjects/medusabci/medusa-platform/src/accounts/vicmarcag/apps/cvep_speller/unity-src/Library/PackageCache/com.unity.collab-proxy@1.15.13/Lib/Editor/PlasticSCM/Unity.Plastic.Newtonsoft.Json.dll"
+-r:"D:/Users/Victor/Documents/SoftwareProjects/medusabci/medusa-platform/src/accounts/vicmarcag/apps/cvep_speller/unity-src/Library/PackageCache/com.unity.collab-proxy@1.15.13/Lib/Editor/PlasticSCM/unityplastic.dll"
 "Library/PackageCache/com.unity.ugui@1.0.0/Runtime/EventSystem/EventData/AxisEventData.cs"
 "Library/PackageCache/com.unity.ugui@1.0.0/Runtime/EventSystem/EventData/BaseEventData.cs"
 "Library/PackageCache/com.unity.ugui@1.0.0/Runtime/EventSystem/EventData/PointerEventData.cs"
