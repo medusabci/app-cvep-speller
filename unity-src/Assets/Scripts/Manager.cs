@@ -1,14 +1,14 @@
 ﻿// MEDUSA-PLATFORM 
-// v2022.0 CHAOS
+// v2023.0 GAIA
 // www.medusabci.com
 
 // c-VEP Speller (Unity app)
 //      > Author: Víctor Martínez-Cagigal
-//      > Date: 19/05/2022
 
 // Versions:
 //      - v1.0 (19/05/2022):    Circular-shifting c-VEP speller working
 //      - v1.1 (04/07/2022):    Fixed small bug in which the app displayed and additional trial in training
+//      - v2.0 (19/05/2023):    Checkerboard and manual stimulus parameters added
 
 using System;
 using System.Collections;
@@ -108,10 +108,16 @@ public class Manager : MonoBehaviour
     public Color32 resultBoxColor = new Color32(140, 140, 140, 255);
     public Color32 resultLabelColor = new Color32(183, 183, 183, 255);
     public Color32 resultTextColor = new Color32(244, 246, 87, 255);
-    public Color32 colorBox0 = new Color32(255, 255, 255, 255);
-    public Color32 colorBox1 = new Color32(0, 0, 0, 255);
-    public Color32 colorText0 = new Color32(0, 0, 0, 255);
-    public Color32 colorText1 = new Color32(255, 255, 255, 255);
+
+    // Stimuli
+    private Color32[] colorsBox;
+    private Color32[] colorsText;
+    private bool isCheckerboard;
+    public Sprite[] checkerboards;
+    private float currStimSize, currStimSeparation;
+    private float stimSizeStep = 10.0f;
+    private float stimSeparationStep = 10.0f;
+    private bool isResponsive = true;
 
     // FPS counter
     private float updateCount = 0;
@@ -139,8 +145,7 @@ public class Manager : MonoBehaviour
     private Camera mainCamera;
     private Canvas mainCanvas;
     private GameObject[,] matrixTest, matrixTrain;
-    private GameObject fpsMonitorText, informationBox, informationText, debugText, mainTestCell, mainTrainCell, resultBox, resultText, photodiodeCell;
-    private float cellSize;
+    private GameObject fpsMonitorText, informationBox, informationText, mainTestCell, mainTrainCell, resultBox, resultText, debugText, photodiodeCell;
     private float width, height;
     private int[,] testTarget, trainTarget;
     private string mode;
@@ -200,6 +205,10 @@ public class Manager : MonoBehaviour
         mainTrainCell = GameObject.Find("Train_Cell_Main");
         mainTrainCell.SetActive(false);
 
+        // Hide debug text
+        debugText = GameObject.Find("DebugText");
+        debugText.SetActive(false);
+
         // Find the photodiode cell object
         photodiodeCell = GameObject.Find("Photodiode_Cell");
 
@@ -253,6 +262,33 @@ public class Manager : MonoBehaviour
         {
             Screen.SetResolution(450, 450, false);
         }
+
+        /* KEYPRESSES AND MOUSE EVENTS */
+        if ((state != RUN_STATE_RUNNING) & (!isResponsive))
+        {
+            float scrollInput = Input.GetAxis("Mouse ScrollWheel");
+            if (scrollInput != 0)
+            {
+                Debug.Log("Detected scrollwheel: " + scrollInput);
+                // Change stimulus dimensions: [Scroll + D]
+                if(Input.GetKey(KeyCode.D))
+                {
+                    if (scrollInput > 0) currStimSize += stimSizeStep;
+                    if (scrollInput < 0) currStimSize -= stimSizeStep;
+                }
+
+                // Change stimulus separation: [Scoll + S]
+                if (Input.GetKey(KeyCode.S))
+                {
+                    if (scrollInput > 0) currStimSeparation += stimSeparationStep;
+                    if (scrollInput < 0) currStimSeparation -= stimSeparationStep;
+                }
+                onScreenSizeChange((float)Screen.width, (float)Screen.height, parameters.isResponsive, currStimSize, currStimSeparation);
+                debugText.GetComponent<Text>().text = $"Dimensions: {currStimSize} px\nSeparation: {currStimSeparation} px";
+                debugText.SetActive(true);
+            } 
+        }
+        
 
         /* BEHAVIOR FOR DIFFERENT STATES */
         // If the TCP client just connected, request the parameters
@@ -354,6 +390,7 @@ public class Manager : MonoBehaviour
         // If a new trial should be started, run the co-routine
         if (mustStartTrial)
         {
+            debugText.SetActive(false);
             mustStartTrial = false;
             StartCoroutine(innerRunningCycle());
         }
@@ -426,8 +463,11 @@ public class Manager : MonoBehaviour
         {
             for (int c = 0; c < matrixTrain.GetLength(1); c++)
             {
+                matrixTrain[r, c].GetComponent<Image>().sprite = null;
                 matrixTrain[r, c].GetComponent<Image>().color = defaultBoxColor;
-                matrixTrain[r, c].transform.GetChild(0).GetComponent<Text>().color = defaultTextColor;
+                matrixTrain[r, c].transform.Find("CellText").gameObject.SetActive(true);
+                matrixTrain[r, c].transform.Find("CellText").GetComponent<Text>().color = defaultTextColor;
+                matrixTrain[r, c].transform.Find("CellPoint").gameObject.SetActive(false);
             }
         }
     }
@@ -440,8 +480,11 @@ public class Manager : MonoBehaviour
         {
             for (int c = 0; c < matrixTest.GetLength(1); c++)
             {
+                matrixTest[r, c].GetComponent<Image>().sprite = null;
                 matrixTest[r, c].GetComponent<Image>().color = defaultBoxColor;
-                matrixTest[r, c].transform.GetChild(0).GetComponent<Text>().color = defaultTextColor;
+                matrixTest[r, c].transform.Find("CellText").gameObject.SetActive(true);
+                matrixTest[r, c].transform.Find("CellText").GetComponent<Text>().color = defaultTextColor;
+                matrixTest[r, c].transform.Find("CellPoint").gameObject.SetActive(false);
             }
         }
     } 
@@ -449,7 +492,7 @@ public class Manager : MonoBehaviour
     // This function updates the position of the cells of the training and testing matrices
     //      Note: Automatic Unity's scaling messes everything up. If some items are positioned programatically, it is better
     //      to resize them using this function (e.g., cells, text size, etc.).
-    void onScreenSizeChange(float width, float height)
+    void onScreenSizeChange(float width, float height, bool isAuto, float stimSize, float separation)
     {
 
         // Optimal proportions for texts
@@ -473,23 +516,30 @@ public class Manager : MonoBehaviour
         Image resultBox = GameObject.Find("ResultBox").GetComponent<Image>();
         height -= resultBox.rectTransform.rect.height;
 
-       
-        // Compute the cell size
-        float h_ = (height - (nRows + 1) * minSeparatorSize) / nRows;
-        float w_ = (width - (nCols + 1) * minSeparatorSize) / nCols;
-        cellSize = Mathf.Min(w_, h_);
-        
-        // Compute the separators
-        float colSeparator = (float)minSeparatorSize;
-        float rowSeparator = (float)minSeparatorSize;
-        if (height < width)
+        // Automatic resizing
+        float colSeparator = separation;
+        float rowSeparator = separation;
+        float cellSize = stimSize;
+        if (isAuto)
         {
-            colSeparator = (width - cellSize * nCols) / (nCols + 1);
-        }
-        else
-        {
-            rowSeparator = (height - cellSize * nRows) / (nRows + 1);
-        }
+            // Compute the cell size
+            float h_ = (height - (nRows + 1) * minSeparatorSize) / nRows;
+            float w_ = (width - (nCols + 1) * minSeparatorSize) / nCols;
+            cellSize = Mathf.Min(w_, h_);
+
+            // Compute the separators
+            colSeparator = (float)minSeparatorSize;
+            rowSeparator = (float)minSeparatorSize;
+            if (height < width)
+            {
+                colSeparator = (width - cellSize * nCols) / (nCols + 1);
+            }
+            else
+            {
+                rowSeparator = (height - cellSize * nRows) / (nRows + 1);
+            }
+        } 
+
 
         // TEST MATRIX
 
@@ -516,7 +566,7 @@ public class Manager : MonoBehaviour
 
                 // Adapt the text of each command label
                 float st_ = cellSize / optimalCellSize;
-                matrixTest[r, c].transform.GetChild(0).GetComponent<Text>().GetComponent<RectTransform>().localScale = new Vector3(st_, st_, 1f);
+                matrixTest[r, c].transform.Find("CellText").GetComponent<Text>().GetComponent<RectTransform>().localScale = new Vector3(st_, st_, 1f);
             }
         }
 
@@ -545,9 +595,15 @@ public class Manager : MonoBehaviour
 
                 // Adapt the text of each command label
                 float st_ = cellSize / optimalCellSize;
-                matrixTrain[r, c].transform.GetChild(0).GetComponent<Text>().GetComponent<RectTransform>().localScale = new Vector3(st_, st_, 1f);
+                matrixTrain[r, c].transform.Find("CellText").GetComponent<Text>().GetComponent<RectTransform>().localScale = new Vector3(st_, st_, 1f);
             }
-        }        
+        }
+
+        // Generate the checkerboards if required
+        if (isCheckerboard)
+        {
+            checkerboards = generateCheckerboards((int)cellSize, parameters.stim_spatial_cycles, colorsBox[0], colorsBox[1]);
+        }
     }
     
     // This function sets the information text. IMPORTANT: only the main thread is allowed to run this function.
@@ -675,7 +731,6 @@ public class Manager : MonoBehaviour
         trainTrials = parameters.trainTrials;
         testCycles = parameters.testCycles;
         matrices = parameters.matrices;
-
         currentMatrixIdx = 0;   // For now, only one matrix is supported
 
         // Set up the fixedDeltaTime to the desired frame rate for the clock
@@ -688,6 +743,13 @@ public class Manager : MonoBehaviour
             photodiodeCell.SetActive(false);
         }
 
+        // Is checkerboard?
+        if (String.Equals(parameters.stim_type, "checkerboard", StringComparison.OrdinalIgnoreCase))
+        {
+            isCheckerboard = true;
+        }
+            
+
         // Set up the default colors
         mainCamera = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
         mainCamera.backgroundColor = hexToColor(parameters.color_background);
@@ -698,10 +760,8 @@ public class Manager : MonoBehaviour
         GameObject.Find("ResultLabel").GetComponent<Text>().color = resultLabelColor;
         GameObject.Find("ResultText").GetComponent<Text>().color = resultTextColor;
 
-        colorBox0 = hexToColor(parameters.color_box_0);
-        colorBox1 = hexToColor(parameters.color_box_1);
-        colorText0 = hexToColor(parameters.color_text_0);
-        colorText1 = hexToColor(parameters.color_text_1);
+        colorsBox = new Color32[] { hexToColor(parameters.color_box_0), hexToColor(parameters.color_box_1) };
+        colorsText = new Color32[] { hexToColor(parameters.color_text_0), hexToColor(parameters.color_text_1) };
 
         // TEST MATRIX
         //      matrixTest                  -> Test matrix containing the GameObjects (i.e., each cell that contains the box and the text)
@@ -729,7 +789,9 @@ public class Manager : MonoBehaviour
             {
                 matrixTest[r, c] = Instantiate(mainTestCell, new Vector2(0, 0), new Quaternion(), matrixTestObject.transform);
                 matrixTest[r, c].name = "Test_Cell_" + r.ToString() + "_" + c.ToString();
-                matrixTest[r, c].transform.GetChild(0).GetComponent<Text>().text = matrices.test[currentMatrixIdx].item_list[idx].text;
+                matrixTest[r, c].transform.Find("CellText").GetComponent<Text>().text = matrices.test[currentMatrixIdx].item_list[idx].text;
+                matrixTest[r, c].transform.Find("CellPoint").gameObject.SetActive(false);
+                matrixTest[r, c].transform.Find("CellPoint").GetComponent<Image>().color = hexToColor(parameters.color_point);
                 matrixTestItemSequence[r].Insert(c, matrices.test[currentMatrixIdx].item_list[idx].sequence);
                 matrixTestLabels[r, c] = matrices.test[currentMatrixIdx].item_list[idx].text;
                 idx++;
@@ -758,7 +820,9 @@ public class Manager : MonoBehaviour
             {
                 matrixTrain[r, c] = Instantiate(mainTrainCell, new Vector2(0, 0), new Quaternion(), matrixTrainObject.transform);
                 matrixTrain[r, c].name = "Train_Cell_" + r.ToString() + "_" + c.ToString();
-                matrixTrain[r, c].transform.GetChild(0).GetComponent<Text>().text = matrices.train[currentMatrixIdx].item_list[idx].label;
+                matrixTrain[r, c].transform.Find("CellText").GetComponent<Text>().text = matrices.train[currentMatrixIdx].item_list[idx].label;
+                matrixTrain[r, c].transform.Find("CellPoint").gameObject.SetActive(false);
+                matrixTrain[r, c].transform.Find("CellPoint").GetComponent<Image>().color = hexToColor(parameters.color_point);
                 matrixTrainItemSequence[r].Insert(c, matrices.train[currentMatrixIdx].item_list[idx].sequence);
                 matrixTrainLabels[r, c] = matrices.train[currentMatrixIdx].item_list[idx].label;
                 idx++;
@@ -778,8 +842,13 @@ public class Manager : MonoBehaviour
         }
 
         // Resize event to set up all positions
-        onScreenSizeChange((float)Screen.width, (float)Screen.height);
+        isResponsive = parameters.isResponsive;
+        currStimSeparation = (float)parameters.stim_separation;
+        currStimSize = (float)parameters.stim_size;
+        onScreenSizeChange((float)Screen.width, (float)Screen.height, isResponsive,
+            currStimSize, currStimSeparation);
 
+  
         // Change state
         state = RUN_STATE_READY;
         ServerMessage sm = new ServerMessage("ready");
@@ -894,17 +963,27 @@ public class Manager : MonoBehaviour
                 {
                     for (int c = 0; c < matrixTrain.GetLength(1); c++)
                     {
+                        // Stimulus color/image
                         int value = matrixTrainItemSequence[r][c][matrixTrainCurrentTimeShift];
-                        if (value == 0)
+                        if (isCheckerboard)
                         {
-                            matrixTrain[r, c].GetComponent<Image>().color = colorBox0;
-                            matrixTrain[r, c].transform.GetChild(0).GetComponent<Text>().color = colorText0;
-                        }
+                            matrixTrain[r, c].GetComponent<Image>().sprite = checkerboards[value];
+                        } 
                         else
                         {
-                            matrixTrain[r, c].GetComponent<Image>().color = colorBox1;
-                            matrixTrain[r, c].transform.GetChild(0).GetComponent<Text>().color = colorText1;
+                            matrixTrain[r, c].GetComponent<Image>().color = colorsBox[value];
                         }
+                        // Stimulus text
+                        if (parameters.show_text)
+                        {
+                            matrixTrain[r, c].transform.Find("CellText").gameObject.SetActive(true);
+                            matrixTrain[r, c].transform.Find("CellText").GetComponent<Text>().color = colorsText[value];
+                        } else
+                        {
+                            matrixTrain[r, c].transform.Find("CellText").gameObject.SetActive(false);
+                        }
+                        // Stimulus midpoint
+                        if (parameters.show_point) matrixTrain[r, c].transform.Find("CellPoint").gameObject.SetActive(true);
                     }
                 }
 
@@ -976,17 +1055,27 @@ public class Manager : MonoBehaviour
                 {
                     for (int c = 0; c < matrixTest.GetLength(1); c++)
                     {
+                        // Stimulus color/image
                         int value = matrixTestItemSequence[r][c][matrixTestCurrentTimeShift];
-                        if (value == 0)
+                        if (isCheckerboard)
                         {
-                            matrixTest[r, c].GetComponent<Image>().color = colorBox0;
-                            matrixTest[r, c].transform.GetChild(0).GetComponent<Text>().color = colorText0;
+                            matrixTest[r, c].GetComponent<Image>().sprite = checkerboards[value];
                         }
                         else
                         {
-                            matrixTest[r, c].GetComponent<Image>().color = colorBox1;
-                            matrixTest[r, c].transform.GetChild(0).GetComponent<Text>().color = colorText1;
+                            matrixTest[r, c].GetComponent<Image>().color = colorsBox[value];
                         }
+                        // Stimulus text
+                        if (parameters.show_text)
+                        {
+                            matrixTest[r, c].transform.Find("CellText").gameObject.SetActive(true);
+                            matrixTest[r, c].transform.Find("CellText").GetComponent<Text>().color = colorsText[value];
+                        } else
+                        {
+                            matrixTest[r, c].transform.Find("CellText").gameObject.SetActive(false);
+                        }
+                        // Stimulus midpoint
+                        if (parameters.show_point) matrixTest[r, c].transform.Find("CellPoint").gameObject.SetActive(true);
                     }
                 }
 
@@ -1097,6 +1186,50 @@ public class Manager : MonoBehaviour
         Debug.Log("Showing result finished...");
     }
 
+    /* ----------------------------------- CHECKERBOARD GENERATION --------------------------------------- */
+    public static Sprite[] generateCheckerboards(int imageSize, int spatialCycles, Color32 color0, Color32 color1)
+    {
+        // Initialize the textures
+        int blockSize = imageSize / (spatialCycles * 2);
+        Texture2D texturePositive = new Texture2D(2 * spatialCycles * blockSize, 2 * spatialCycles * blockSize);
+        Texture2D textureNegative = new Texture2D(2 * spatialCycles * blockSize, 2 * spatialCycles * blockSize);
+
+        // Get the color arrays
+        Color32[] colorArray0 = colorToArray(color0, blockSize * blockSize);
+        Color32[] colorArray1 = colorToArray(color1, blockSize * blockSize);
+
+        // Create the checkerboard pattern by painting group of pixels
+        for (int i = 0; i < spatialCycles * 2; i++)
+        {
+            for (int j = 0; j < spatialCycles * 2; j++)
+            {
+                if (((i + j) % 2) == 1)
+                {
+                    texturePositive.SetPixels32(i * blockSize, j * blockSize, blockSize, blockSize, colorArray0);
+                    textureNegative.SetPixels32(i * blockSize, j * blockSize, blockSize, blockSize, colorArray1);
+                }
+                else
+                {
+                    texturePositive.SetPixels32(i * blockSize, j * blockSize, blockSize, blockSize, colorArray1);
+                    textureNegative.SetPixels32(i * blockSize, j * blockSize, blockSize, blockSize, colorArray0);
+                }
+            }
+        }
+        texturePositive.Apply();
+        textureNegative.Apply();
+
+        // Ignore spatial pixel interpolation
+        texturePositive.wrapMode = TextureWrapMode.Clamp;
+        texturePositive.filterMode = FilterMode.Point;
+        textureNegative.wrapMode = TextureWrapMode.Clamp;
+        textureNegative.filterMode = FilterMode.Point;
+
+        // Create the sprites
+        Sprite spritePositive = Sprite.Create(texturePositive, new Rect(0, 0, texturePositive.width, texturePositive.height), Vector2.one * 0.5f);
+        Sprite spriteNegative = Sprite.Create(textureNegative, new Rect(0, 0, textureNegative.width, textureNegative.height), Vector2.one * 0.5f);
+        return new Sprite[] { spritePositive, spriteNegative};
+    }
+
     /* ------------------------------------------- COLOR UTILS ------------------------------------------- */
 
     public static string colorToHex(Color32 color)
@@ -1119,5 +1252,15 @@ public class Manager : MonoBehaviour
             a = byte.Parse(hex.Substring(6, 2), System.Globalization.NumberStyles.HexNumber);
         }
         return new Color32(r, g, b, a);
+    }
+
+    public static Color32[] colorToArray(Color32 color, int arrayLength)
+    {
+        Color32[] colorArray = new Color32[arrayLength];
+        for (int i = 0; i < arrayLength; i++)
+        {
+            colorArray[i] = new Color32(color.r, color.g, color.b, color.a);
+        }
+        return colorArray;
     }
 }

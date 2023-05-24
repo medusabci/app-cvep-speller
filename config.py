@@ -1,23 +1,29 @@
 from PyQt5 import QtGui, QtWidgets, uic, QtCore
 from PyQt5.QtWidgets import QColorDialog, QToolButton, QGridLayout, QSizePolicy
 from PyQt5.QtCore import Qt
-from gui import gui_utils
-from . import settings
 import os
 import glob
 import json
+import time
+import pickle
+import ast
+import copy
+import numpy as np
 from functools import partial
+import matplotlib.pyplot as plt
+from matplotlib.ticker import FormatStrFormatter
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
+from matplotlib.figure import Figure
+
+from gui import gui_utils
+from .settings import circular_shift
 from medusa.bci import cvep_spellers
 from medusa import components
-import pickle
+from . import optimize_layout
 from gui.qt_widgets.notifications import NotificationStack
 from gui.qt_widgets.dialogs import error_dialog, warning_dialog
 from medusa.bci.cvep_spellers import LFSR, LFSR_PRIMITIVE_POLYNOMIALS
-import matplotlib.pyplot as plt
-from matplotlib.ticker import FormatStrFormatter
-import numpy as np
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
-from matplotlib.figure import Figure
+
 
 # Load the .ui files
 ui_main_file = uic.loadUiType(os.path.dirname(__file__) + "/config.ui")[0]
@@ -70,6 +76,10 @@ class Config(QtWidgets.QDialog, ui_main_file):
         self.btn_update_matrix.clicked.connect(self.update_test_matrix)
         self.comboBox_seqlength.currentTextChanged.connect(
             self.on_seqlen_changed)
+        self.comboBox_sti_type.currentTextChanged.connect(
+            self.on_stimulus_type_changed)
+        self.checkBox_responsive.stateChanged.connect(
+            self.on_responsive_changed)
 
         # Color buttons
         self.btn_color_box0.clicked.connect(self.open_color_dialog(
@@ -96,10 +106,15 @@ class Config(QtWidgets.QDialog, ui_main_file):
             self.open_color_dialog(self.btn_color_result_info_label))
         self.btn_color_result_info_text.clicked.connect(
             self.open_color_dialog(self.btn_color_result_info_text))
+        self.btn_color_point.clicked.connect(
+            self.open_color_dialog(self.btn_color_point))
 
         # Set settings to GUI
+        self.updated_lags = None
         self.set_settings_to_gui()
         self.on_seqlen_changed()
+        self.on_stimulus_type_changed()
+        self.on_responsive_changed()
         self.notifications.new_notification('Default settings loaded')
 
         # Train model items
@@ -154,6 +169,21 @@ class Config(QtWidgets.QDialog, ui_main_file):
         self.lineEdit_seed.setText(str(seed))
         self.lineEdit_tau.setText(str(tau))
         self.lineEdit_cycleduration.setText(str(cycle_dur))
+
+    def on_stimulus_type_changed(self):
+        if self.comboBox_sti_type.currentText() == "checkerboard":
+            self.spinBox_spatial_cycles.setEnabled(True)
+        else:
+            self.spinBox_spatial_cycles.setEnabled(False)
+            self.spinBox_spatial_cycles.setValue(0)
+
+    def on_responsive_changed(self):
+        if self.checkBox_responsive.isChecked():
+            self.spinBox_sti_size.setEnabled(False)
+            self.spinBox_sti_separation.setEnabled(False)
+        else:
+            self.spinBox_sti_size.setEnabled(True)
+            self.spinBox_sti_separation.setEnabled(True)
 
     def set_settings_to_gui(self):
         # Run settings
@@ -215,6 +245,19 @@ class Config(QtWidgets.QDialog, ui_main_file):
                                   'background-color',
                                   self.settings.colors.color_result_info_text[
                                   :7])
+        gui_utils.modify_property(self.btn_color_point, 'background-color',
+                                  self.settings.colors.color_point[:7])
+
+        # Stimulus
+        self.checkBox_responsive.setChecked(self.settings.stimuli.is_responsive)
+        self.spinBox_sti_size.setValue(self.settings.stimuli.size)
+        self.spinBox_sti_separation.setValue(self.settings.stimuli.separation)
+        self.spinBox_spatial_cycles.setValue(self.settings.stimuli.spatial_cycles)
+        index = self.comboBox_sti_type.findText(self.settings.stimuli.type,
+                                                 Qt.MatchFixedString)
+        self.comboBox_sti_type.setCurrentIndex(index)
+        self.checkBox_show_text.setChecked(self.settings.stimuli.show_text)
+        self.checkBox_show_point.setChecked(self.settings.stimuli.show_point)
 
         # Useful PyQt policies
         policy_max_pre = QSizePolicy(QSizePolicy.Maximum, QSizePolicy.Preferred)
@@ -494,6 +537,19 @@ class Config(QtWidgets.QDialog, ui_main_file):
             self.btn_color_result_info_label, 'background-color')
         self.settings.colors.color_result_info_text = gui_utils.get_property(
             self.btn_color_result_info_text, 'background-color')
+        self.settings.colors.color_point = gui_utils.get_property(
+            self.btn_color_point, 'background-color')
+
+        # Stimulus
+        self.settings.stimuli.is_responsive = \
+            self.checkBox_responsive.isChecked()
+        self.settings.stimuli.size = self.spinBox_sti_size.value()
+        self.settings.stimuli.separation = self.spinBox_sti_separation.value()
+        self.settings.stimuli.spatial_cycles = \
+            self.spinBox_spatial_cycles.value()
+        self.settings.stimuli.type = self.comboBox_sti_type.currentText()
+        self.settings.stimuli.show_text = self.checkBox_show_text.isChecked()
+        self.settings.stimuli.show_point = self.checkBox_show_point.isChecked()
 
     def update_gui(self):
         self.get_settings_from_gui()
@@ -545,9 +601,10 @@ class Config(QtWidgets.QDialog, ui_main_file):
         self.notifications.new_notification('Loaded default settings')
 
     def save(self):
+        config_path = os.path.dirname(__file__) + '/../../../../../config/'
         fdialog = QtWidgets.QFileDialog()
         fname = fdialog.getSaveFileName(
-            fdialog, 'Save settings', '../../config/', 'JSON (*.json)')
+            fdialog, 'Save settings', config_path, 'JSON (*.json)')
         if fname[0]:
             self.get_settings_from_gui()
             self.settings.save(path=fname[0])
@@ -556,12 +613,16 @@ class Config(QtWidgets.QDialog, ui_main_file):
 
     def load(self):
         """ Opens a dialog to load a configuration file. """
+        config_path = os.path.dirname(__file__) + '/../../../../../config/'
         fdialog = QtWidgets.QFileDialog()
         fname = fdialog.getOpenFileName(
-            fdialog, 'Load settings', '../../config/', 'JSON (*.json)')
+            fdialog, 'Load settings', config_path, 'JSON (*.json)')
         if fname[0]:
             loaded_settings = self.settings.load(fname[0])
             self.settings = loaded_settings
+            # todo:nested
+            self.updated_lags = self.settings.matrices['test'][0].info_lags[
+                'lags']
             self.set_settings_to_gui()
             self.notifications.new_notification('Loaded settings: %s' %
                                                 fname[0].split('/')[-1])
@@ -699,9 +760,13 @@ class Config(QtWidgets.QDialog, ui_main_file):
 
         # Compute the matrices
         self.get_settings_from_gui()
+        if self.updated_lags is not None:
+            if n_row * n_col != len(self.updated_lags):
+                # n row and col has been changed so discard the lags
+                self.updated_lags = None
         train_matrices, test_matrices = \
             self.settings.standard_single_sequence_matrices(
-            n_row=n_row, n_col=n_col, mseqlen=mseqlen)
+            n_row=n_row, n_col=n_col, mseqlen=mseqlen, lags=self.updated_lags)
         self.settings.matrices = {'train': train_matrices, 'test':
             test_matrices}
 
@@ -711,104 +776,30 @@ class Config(QtWidgets.QDialog, ui_main_file):
         # Show the encoding
         order = int(self.lineEdit_order.text())
         seed = self.lineEdit_seed.text()
-        lags_info = {
-            'tau': tau,
-            'lags': [i*tau for i in range(n_row * n_col)]
-        }
         monitor_rate = float(self.spinBox_fpsresolution.value())
         current_index = self.widget_nested_test.currentIndex()
+        if self.settings.matrices['test'][current_index].info_lags is None:
+            error_dialog(
+                message='Cannot visualize encoding without info about the '
+                        'circular shifted lags!',
+                title='CVEPMatrix error')
+            return
         visualize_dialog = VisualizeEncodingDialog(
             n_row=n_row, n_col=n_col, base=2, order=order,
-            monitor_rate=monitor_rate, item_list=self.settings.matrices[
-                'test'][current_index].item_list, lags_info=lags_info)
-        visualize_dialog.exec_()
-
-    def visualize_encoding(self):
-        def autocorr_circular(x):
-            """ With circular shifts (periodic correlation) """
-            N = len(x)
-            rxx = []
-            t = []
-            for i in range(-(N - 1), N):
-                rxx.append(np.sum(x * np.roll(x, i)))
-                t.append(i)
-            rxx = np.array(rxx)
-            return rxx, t
-
-        # First, update the test matrix
-        self.update_test_matrix()
-        current_index = self.widget_nested_test.currentIndex()
-
-        # Compute the sequence and its autocorrelation
-        mseqlen = int(self.comboBox_seqlength.currentText())
-        monitor_rate = float(self.spinBox_fpsresolution.value())
-        if mseqlen == 31:
-            poly_ = LFSR_PRIMITIVE_POLYNOMIALS['base'][2]['order'][5]
-            m_seq = LFSR(poly_, base=2)
-        elif mseqlen == 63:
-            poly_ = LFSR_PRIMITIVE_POLYNOMIALS['base'][2]['order'][6]
-            m_seq = LFSR(poly_, base=2, seed=[1, 1, 1, 1, 1, 0])
-        elif mseqlen == 127:
-            poly_ = LFSR_PRIMITIVE_POLYNOMIALS['base'][2]['order'][7]
-            m_seq = LFSR(poly_, base=2)
-        elif mseqlen == 255:
-            poly_ = LFSR_PRIMITIVE_POLYNOMIALS['base'][2]['order'][8]
-            m_seq = LFSR(poly_, base=2)
-        else:
-            raise ValueError('[cvep_speller/settings] Sequence length of %i '
-                             'not supported (use 31, 63, 127 or 255)!' %
-                             mseqlen)
-        seq = m_seq.sequence
-        n_row = int(self.spinBox_nrow.value())
-        n_col = int(self.spinBox_ncol.value())
-        tau = mseqlen / (n_row * n_col)
-        rxx_, tr_ = autocorr_circular(seq)
-        rxx_ = rxx_ / np.max(np.abs(rxx_))
-
-        # Plots
-        SMALL_SIZE = 7
-        MEDIUM_SIZE = 9
-        fig = plt.figure(figsize=(10, 4), dpi=300)
-        ax1 = fig.add_subplot(1, 2, 1)
-        ax2 = fig.add_subplot(1, 2, 2)
-        with plt.style.context('seaborn'):
-            # Autocorrelation
-            tr_s = np.array(tr_) / monitor_rate
-            big_lagged_seqs_ = np.zeros((n_row * n_col, len(seq)))
-            seq = np.array(seq)
-            ax1.xaxis.set_major_formatter(FormatStrFormatter('%.1f'))
-            ax1.yaxis.set_major_formatter(FormatStrFormatter('%.1f'))
-            ax1.plot(tr_s, rxx_, linewidth=1.2)
-            yoff = min(rxx_)
-            for i in range(n_row * n_col):
-                lag = int(i * tau)
-                big_lagged_seqs_[i, :] = np.array(np.roll(seq, lag)).\
-                    reshape(-1, 1).T
-                ax1.plot([lag / monitor_rate, lag / monitor_rate],
-                         [yoff - 0.05, yoff + 0.05], 'r')
-                ax1.text(lag / monitor_rate, yoff - 0.1, self.settings.matrices[
-                    'test'][current_index].item_list[i].text,
-                         horizontalalignment='center', color='red')
-            ax1.set_xlim((tr_s[0], tr_s[-1]))
-            ax1.set_ylim((yoff - 0.2, max(rxx_) + 0.2))
-            ax1.set_xlabel('Time shifts (s)', fontsize=MEDIUM_SIZE)
-            ax1.set_ylabel('Norm. $R_{xx}$', fontsize=MEDIUM_SIZE)
-            ax1.set_title('M-sequence autocorrelation')
-            plt.yticks(fontsize=SMALL_SIZE)
-            plt.xticks(fontsize=SMALL_SIZE)
-
-            # Encoding
-            commands = list()
-            for c in self.settings.matrices['test'][current_index].item_list:
-                commands.append(c.text)
-            ax2.imshow(big_lagged_seqs_, aspect='auto')
-            ax2.set_yticklabels(commands)
-            ax2.set_title('Command encoding')
-            ax2.set_xlabel('Sequence (samples)', fontsize=MEDIUM_SIZE)
-            ax2.set_ylabel('Commands', fontsize=MEDIUM_SIZE)
-            plt.yticks(ticks=[i for i in range(len(commands))])
-            plt.xticks(fontsize=SMALL_SIZE)
-        plt.show()
+            monitor_rate=monitor_rate, matrix=self.settings.matrices[
+                'test'][current_index])
+        if visualize_dialog.exec_():
+            if visualize_dialog.layout_updated:
+                # Apply the modified layout
+                self.updated_lags = visualize_dialog.lags_info['lags']
+                train_matrices, test_matrices = \
+                    self.settings.standard_single_sequence_matrices(
+                        n_row=n_row, n_col=n_col, mseqlen=mseqlen,
+                        lags=self.updated_lags)
+                self.settings.matrices = {'train': train_matrices, 'test':
+                    test_matrices}
+                self.set_settings_to_gui()
+                self.notifications.new_notification("Updated layout")
 
     # --------------------- Colors ------------------------
     def open_color_dialog(self, handle):
@@ -909,19 +900,33 @@ class TargetConfigDialog(QtWidgets.QDialog, ui_target_file):
 
 
 class VisualizeEncodingDialog(QtWidgets.QDialog, ui_encoding_file):
-    def __init__(self, n_row, n_col, base, order, monitor_rate, item_list,
-                 lags_info):
+    def __init__(self, n_row, n_col, base, order, monitor_rate, matrix):
         QtWidgets.QDialog.__init__(self)
         self.setupUi(self)  # Attach the .ui
         self.setWindowFlags(
             self.windowFlags() & ~Qt.WindowContextHelpButtonHint)
         self.TAG = '[apps/cvep_speller/config_encoding] '
 
+        self.n_row = n_row
+        self.n_col = n_col
+        self.base = base
+        self.order = order
+        self.monitor_rate = monitor_rate
+        self.item_list = matrix.item_list
+        self.lags_info = matrix.info_lags
+
         # Initialize the dialog
         theme_colors = gui_utils.get_theme_colors('dark')
         self.stl = gui_utils.set_css_and_theme(self, theme_colors)
         self.setWindowIcon(QtGui.QIcon('gui/images/medusa_task_icon.png'))
         self.setWindowTitle('c-VEP target customization')
+        self.notifications = NotificationStack(parent=self, timer_ms=500)
+
+        # Connect signal
+        self.btn_optimize_layout.clicked.connect(self.on_optimize_layout)
+        self.btn_retrieve_ddbb_layout.clicked.connect(self.on_retrieve_layout)
+        self.btn_apply.clicked.connect(self.on_apply)
+        self.btn_cancel.clicked.connect(self.on_cancel)
 
         # Initialize the canvas
         self.fig_autocorr = Figure(figsize=(60, 30), dpi=150, )
@@ -932,35 +937,63 @@ class VisualizeEncodingDialog(QtWidgets.QDialog, ui_encoding_file):
         self.canvas_encoding = FigureCanvasQTAgg(figure=self.fig_encoding)
         self.layout_encoding.addWidget(self.canvas_encoding)
         self.axes_encoding = self.fig_encoding.add_subplot(111)
+        self.fig_layout = Figure(figsize=(60, 30), dpi=150, )
+        self.canvas_layout = FigureCanvasQTAgg(figure=self.fig_layout)
+        self.layout_layout.addWidget(self.canvas_layout)
+        self.axes_layout = self.fig_layout.add_subplot(111)
+
+        # Layout optimizer
+        self.optimizer = optimize_layout.OptimizeLayoutGA(
+            base ** order - 1, self.lags_info['lags'], (n_row, n_col)
+        )
+
+        # Update encoding
+        self.update_encoding()
+
+        # Flag to know if the layout has been updated
+        self.layout_updated = False
+
+    def update_encoding(self):
+        # Clear previous plots
+        self.axes_layout.cla()
+        self.axes_encoding.cla()
+        self.axes_autocorr.cla()
+
+        # Compute the m-sequence
+        poly_ = LFSR_PRIMITIVE_POLYNOMIALS['base'][self.base]['order'][
+            self.order]
+        seed = None
+        if (self.base == 2) and (self.order == 6):
+            seed = [1, 1, 1, 1, 1, 0]
+        seq = LFSR(poly_, base=self.base, center=True, seed=seed).sequence
 
         # Autocorrelation plot
-        lags = lags_info['lags']
+        lags = self.lags_info['lags']
         SMALL_SIZE = 4
         MEDIUM_SIZE = 6
         plt.rcParams.update({'font.size': 4})
-        poly_ = LFSR_PRIMITIVE_POLYNOMIALS['base'][base]['order'][order]
-        seq = LFSR(poly_, base=base, center=True).sequence
         rxx_, tr_ = self.autocorr_circular(seq)
         rxx_ = rxx_ / np.max(np.abs(rxx_))
         with plt.style.context('dark_background'):
             # Autocorrelation
-            tr_s = np.array(tr_) / monitor_rate
-            big_lagged_seqs_ = np.zeros((n_row * n_col, len(seq)))
+            tr_s = np.array(tr_) / self.monitor_rate
+            big_lagged_seqs_ = np.zeros((self.n_row * self.n_col, len(seq)))
             seq = np.array(seq)
             self.axes_autocorr.xaxis.set_major_formatter(FormatStrFormatter('%.1f'))
             self.axes_autocorr.yaxis.set_major_formatter(FormatStrFormatter('%.1f'))
             self.axes_autocorr.plot(tr_s, rxx_, linewidth=1)
             yoff = -min(np.abs(rxx_))
             for i, lag in enumerate(lags):
-                big_lagged_seqs_[i, :] = np.array(np.roll(seq, lag)).reshape(-1, 1).T
-                self.axes_autocorr.plot([lag/monitor_rate, lag/monitor_rate],
+                big_lagged_seqs_[i, :] = np.array(circular_shift(seq, lag)).reshape(-1, 1).T
+                self.axes_autocorr.plot([lag/self.monitor_rate,
+                                         lag/self.monitor_rate],
                          [yoff - 0.05, yoff + 0.05], color='#ff1e55',
                                         linewidth=0.5)
-                self.axes_autocorr.text(lag / monitor_rate, yoff - 0.1,
-                                        item_list[i].text,
+                self.axes_autocorr.text(lag / self.monitor_rate, yoff - 0.1,
+                                        self.item_list[i].text,
                                         horizontalalignment='center',
                                         color='#ff1e55')
-            self.axes_autocorr.set_xlim((tr_s[0], tr_s[-1]))
+            self.axes_autocorr.set_xlim((0, tr_s[-1]))
             self.axes_autocorr.set_ylim((min(rxx_) - 0.2, max(rxx_) + 0.2))
             self.axes_autocorr.set_xlabel('Time shifts (s)', fontsize=MEDIUM_SIZE)
             self.axes_autocorr.set_ylabel('Norm. $R_{xx}$', fontsize=MEDIUM_SIZE)
@@ -980,10 +1013,11 @@ class VisualizeEncodingDialog(QtWidgets.QDialog, ui_encoding_file):
         # Encoding plot
         with plt.style.context('dark_background'):
             commands = list()
-            for c in item_list:
+            for c in self.item_list:
                 commands.append(c.text)
             self.axes_encoding.imshow(big_lagged_seqs_, aspect='auto',
-                                      cmap='gray_r')
+                                      cmap='gray', interpolation=None)
+            self.axes_encoding.set_yticks(range(big_lagged_seqs_.shape[0]))
             self.axes_encoding.set_yticklabels(commands)
             self.axes_encoding.set_title('Command encoding', fontsize=MEDIUM_SIZE)
             self.axes_encoding.set_xlabel('Sequence (samples)', fontsize=MEDIUM_SIZE)
@@ -1002,8 +1036,10 @@ class VisualizeEncodingDialog(QtWidgets.QDialog, ui_encoding_file):
         self.canvas_encoding.draw()
 
         # Correlation values table
+        # s_comms = list(zip(np.argsort(lags), np.array(commands)))
+        # s_comms = [x[1] for x in sorted(s_comms, key=lambda x: x[0])]
         self.table_values.setRowCount(1)
-        self.table_values.setColumnCount(n_row * n_col)
+        self.table_values.setColumnCount(self.n_row * self.n_col)
         half_rxx = rxx_[int(len(rxx_) / 2):]
         values = list()
         for i, lag in enumerate(lags):
@@ -1013,8 +1049,8 @@ class VisualizeEncodingDialog(QtWidgets.QDialog, ui_encoding_file):
         values = np.array(values)
         min_p = - min(np.abs(rxx_))
         self.bad_cmds = list()
-        for i in range(n_row * n_col):
-            if i == 0:
+        for i in range(self.n_row * self.n_col):
+            if lags[i] == 0:
                 self.table_values.item(0, i).setBackground(Qt.darkBlue)
                 continue
             if min_p != values[i]:
@@ -1022,16 +1058,17 @@ class VisualizeEncodingDialog(QtWidgets.QDialog, ui_encoding_file):
                 self.table_values.item(0, i).setBackground(Qt.darkRed)
             else:
                 self.table_values.item(0, i).setBackground(Qt.darkGreen)
+
         self.table_values.setHorizontalHeaderLabels(commands)
         self.table_values.setVerticalHeaderLabels(['p'])
         self.table_values.resizeColumnsToContents()
 
         # Mean tau
-        self.edit_tau.setText("{:.2f}".format(np.mean(np.diff(lags))))
-        self.edit_tau_nocorr.setText("{:.2f}".format(lags_info['tau']))
+        self.edit_tau.setText("{:.2f}".format(np.mean(np.diff(sorted(lags)))))
+        self.edit_tau_nocorr.setText("{:.2f}".format(self.lags_info['tau']))
 
         # Advise
-        if np.all(min_p == values[1:]):
+        if np.sum(min_p == values) == (len(values) - 1):
             self.label_values.setText("✔️  Encoding is correct!")
             self.label_values.setStyleSheet("color: limegreen;")
         else:
@@ -1041,6 +1078,132 @@ class VisualizeEncodingDialog(QtWidgets.QDialog, ui_encoding_file):
                                       "command(s) %s is not minimum!" %
                                       ','.join(self.bad_cmds))
             self.label_values.setStyleSheet("color: orangered;")
+
+        # Layout
+        with plt.style.context('dark_background'):
+            lags = copy.copy(self.lags_info['lags'])
+            lags.reverse()
+            siz = 2
+            sep = 0.4
+            for j in range(self.n_col):
+                for i in range(self.n_row):
+                    x = [i * (siz + sep), i * (siz + sep) + siz,
+                         i * (siz + sep) + siz, i * (siz + sep)]
+                    y = [j * (siz + sep), j * (siz + sep),
+                         j * (siz + sep) + siz, j * (siz + sep) + siz]
+                    curr_lag = lags.pop()
+                    if curr_lag == 0:
+                        self.axes_layout.fill(x, y, edgecolor=None,
+                                              facecolor="#8bfca0")
+                    else:
+                        self.axes_layout.fill(x, y, edgecolor=None,
+                                              facecolor="#b8eaff")
+                    self.axes_layout.text(
+                        i * (siz + sep) + siz/2, j * (siz + sep) + siz/2,
+                        curr_lag, horizontalalignment='center',
+                        verticalalignment='center', color="k", fontsize=10
+                    )
+            self.axes_layout.invert_yaxis()
+            self.axes_layout.set_aspect('equal', adjustable='box')
+            self.axes_layout.get_xaxis().set_visible(False)
+            self.axes_layout.get_yaxis().set_visible(False)
+            self.fig_layout.patch.set_alpha(0.5)
+            self.canvas_layout.draw()
+
+        # Check fitness
+        fitness = self.optimizer._fitness_chromosome(
+            np.array(self.lags_info['lags']).reshape(self.n_row, self.n_col)
+        )
+
+        # Do we have better fitnesses for this configuration?
+        with open(os.path.dirname(__file__) + '/app_optimized_layouts',
+                  'r') as f:
+            OPT_LAYOUTS = json.load(f)
+        b_fit = None
+        key_1 = str((self.n_row, self.n_col))
+        if key_1 in OPT_LAYOUTS:
+            key_2 = str(tuple(sorted(self.lags_info['lags'])))
+            if key_2 in OPT_LAYOUTS[key_1]:
+                b_sol, b_fit = OPT_LAYOUTS[key_1][key_2]
+
+        # Advise
+        s_fit = "Current fitness is {:.1f}. ".format(fitness)
+        if b_fit is not None:
+            if b_fit > fitness:
+                s_fit += "We have a better solution for this layout (fitness " \
+                         "of {:.1f}) in our database. Click on the button " \
+                         "below to use it. ".format(b_fit)
+                self.label_fitness.setText(s_fit)
+                self.label_fitness.setStyleSheet("color: gold;")
+                self.btn_retrieve_ddbb_layout.setEnabled(True)
+            if b_fit == fitness:
+                s_fit += "This layout has been already optimized. You can try to " \
+                         "optimize it further by clicking the button below. "
+                self.label_fitness.setText(s_fit)
+                self.label_fitness.setStyleSheet("color: forestgreen;")
+                self.btn_retrieve_ddbb_layout.setEnabled(False)
+        else:
+            self.btn_retrieve_ddbb_layout.setEnabled(False)
+            s_fit += "We have no record associated with this layout in our " \
+                     "database. It is recommended to optimize the layout " \
+                     "by clicking the button below. "
+            self.label_fitness.setText(s_fit)
+            self.label_fitness.setStyleSheet("color: orangered;")
+
+    def on_retrieve_layout(self):
+        with open(os.path.dirname(__file__) + '/app_optimized_layouts',
+                  'r') as f:
+            OPT_LAYOUTS = json.load(f)
+        key_1 = str((self.n_row, self.n_col))
+        if key_1 in OPT_LAYOUTS:
+            key_2 = str(tuple(sorted(self.lags_info['lags'])))
+            if key_2 in OPT_LAYOUTS[key_1]:
+                b_sol, b_fit = OPT_LAYOUTS[key_1][key_2]
+                b_sol = ast.literal_eval(b_sol)
+                self.lags_info['lags'] = np.array(b_sol).flatten().astype(int).tolist()
+                self.layout_updated = True
+                self.update_encoding()
+
+    def on_optimize_layout(self):
+        # Reset
+        self.axes_layout.cla()
+        self.label_fitness.setText("")
+
+        # Optimize
+        initial_state = np.array(self.lags_info['lags']).reshape(self.n_row, self.n_col)
+        self.optimizer.initial_state = initial_state
+        b_sol, b_fit = self.optimizer.start()
+
+        # Check if better than stored
+        with open(os.path.dirname(__file__) + '/app_optimized_layouts',
+                  'r') as f:
+            OPT_LAYOUTS = json.load(f)
+        overwrite = True
+        key_1 = str((self.n_row, self.n_col))
+        key_2 = str(tuple(sorted(self.lags_info['lags'])))
+        if not key_1 in OPT_LAYOUTS:
+            OPT_LAYOUTS[key_1] = dict()
+        else:
+            if key_2 in OPT_LAYOUTS[key_1]:
+                _, s_fit = OPT_LAYOUTS[key_1][key_2]
+                if s_fit > b_fit:
+                    overwrite = False
+        if overwrite:
+            OPT_LAYOUTS[key_1][key_2] = (
+                str(b_sol.astype(int).tolist()),
+                b_fit
+            )
+            with open(os.path.dirname(__file__) + '/app_optimized_layouts',
+                      'w') as f:
+                json.dump(OPT_LAYOUTS, f)
+
+        # Update
+        self.lags_info['lags'] = b_sol.flatten().astype(int).tolist()
+        self.layout_updated = True
+        self.update_encoding()
+
+        # Notification
+        self.notifications.new_notification('Layout updated')
 
     @staticmethod
     def autocorr_circular(x):
@@ -1054,3 +1217,9 @@ class VisualizeEncodingDialog(QtWidgets.QDialog, ui_encoding_file):
         rxx = np.array(rxx)
         return rxx, t
 
+    def on_apply(self):
+        self.accept()
+
+    def on_cancel(self):
+        self.layout_updated = False
+        self.accept()

@@ -124,6 +124,14 @@ class AppController(TCPServer):
         msg["color_box_1"] = self.app_settings.colors.color_box_1
         msg["color_text_0"] = self.app_settings.colors.color_text_0
         msg["color_text_1"] = self.app_settings.colors.color_text_1
+        msg["color_point"] = self.app_settings.colors.color_point
+        msg["isResponsive"] = self.app_settings.stimuli.is_responsive
+        msg["stim_size"] = self.app_settings.stimuli.size
+        msg["stim_separation"] = self.app_settings.stimuli.separation
+        msg["stim_type"] = self.app_settings.stimuli.type
+        msg["stim_spatial_cycles"] = self.app_settings.stimuli.spatial_cycles
+        msg["show_text"] = self.app_settings.stimuli.show_text
+        msg["show_point"] = self.app_settings.stimuli.show_point
 
         self.send_command(msg)
 

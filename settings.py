@@ -10,13 +10,14 @@ import json
 class Settings(SerializableComponent):
 
     def __init__(self, connection_settings=None, run_settings=None,
-                 timings=None, colors=None, matrices=None):
+                 timings=None, colors=None, stimuli=None, matrices=None):
         self.connection_settings = connection_settings if \
             connection_settings is not None else ConnectionSettings()
         self.run_settings = run_settings if \
             run_settings is not None else RunSettings()
         self.timings = timings if timings is not None else Timings()
         self.colors = colors if colors is not None else Colors()
+        self.stimuli = stimuli if stimuli is not None else Stimuli()
 
         self.matrices = matrices
         if matrices is None:
@@ -39,7 +40,8 @@ class Settings(SerializableComponent):
                      'run_settings': self.run_settings.__dict__,
                      'timings': self.timings.__dict__,
                      'matrices': matrices_dict,
-                     'colors': self.colors.__dict__
+                     'colors': self.colors.__dict__,
+                     'stimuli': self.stimuli.__dict__
                      }
         return sett_dict
 
@@ -50,6 +52,7 @@ class Settings(SerializableComponent):
         run_sett = RunSettings(**settings_dict['run_settings'])
         timings = Timings(**settings_dict['timings'])
         colors = Colors(**settings_dict['colors'])
+        stimuli = Stimuli(**settings_dict['stimuli'])
         # Train matrices
         train_matrices = []
         for m in settings_dict['matrices']['train']:
@@ -57,11 +60,10 @@ class Settings(SerializableComponent):
             for i in m['item_list']:
                 target = CVEPTarget(text=i['text'],
                                     label=i['label'],
-                                    sequence=i['sequence'],
-                                    functionality=i['functionality'],
-                                    ignored=i['ignored'])
+                                    sequence=i['sequence'])
                 item_list.append(target)
-            matrix = CVEPMatrix(n_row=m['n_row'], n_col=m['n_col'])
+            matrix = CVEPMatrix(n_row=m['n_row'], n_col=m['n_col'],
+                                info_lags=m['info_lags'])
             matrix.item_list = item_list
             matrix.organize_matrix()
             train_matrices.append(matrix)
@@ -72,11 +74,10 @@ class Settings(SerializableComponent):
             for i in m['item_list']:
                 target = CVEPTarget(text=i['text'],
                                     label=i['label'],
-                                    sequence=i['sequence'],
-                                    functionality=i['functionality'],
-                                    ignored=i['ignored'])
+                                    sequence=i['sequence'])
                 item_list.append(target)
-            matrix = CVEPMatrix(n_row=m['n_row'], n_col=m['n_col'])
+            matrix = CVEPMatrix(n_row=m['n_row'], n_col=m['n_col'],
+                                info_lags=m['info_lags'])
             matrix.item_list = item_list
             matrix.organize_matrix()
             test_matrices.append(matrix)
@@ -88,6 +89,7 @@ class Settings(SerializableComponent):
                         run_settings=run_sett,
                         timings=timings,
                         colors=colors,
+                        stimuli=stimuli,
                         matrices=matrices)
 
     def set_matrices(self, train_matrices, test_matrices):
@@ -119,7 +121,8 @@ class Settings(SerializableComponent):
         return coords
 
     @staticmethod
-    def standard_single_sequence_matrices(n_row=4, n_col=4, mseqlen=63):
+    def standard_single_sequence_matrices(n_row=4, n_col=4, mseqlen=63,
+                                          lags=None):
         """ Computes a predefined standard c-VEP matrix that modulates commands
         using a single-sequence via circular shifting.
 
@@ -131,12 +134,25 @@ class Settings(SerializableComponent):
             Number of columns.
         mseqlen: int
             Length of the binary m-sequence (supported 31, 63, 127, 255)
+        lags: list
+            List of lags to create a custom arrangement (default: None).
 
         Returns
         --------
         matrix : CVEPMatrix
             Structured matrix object.
         """
+        # Error detection
+        if lags is not None:
+            assert len(lags) == (n_row * n_col), ValueError(
+                '[cvep_speller/settings] Lag array length must be the same '
+                'as the number of commands!'
+            )
+            assert (np.max(lags) < mseqlen) and (np.min(lags) >= 0) , \
+                ValueError('[cvep_speller/settings] There is some lag falling '
+                           'outside the m-sequence length!'
+            )
+
         # Number of commands supported
         no_commands = n_row * n_col
         tau = mseqlen / no_commands
@@ -146,14 +162,12 @@ class Settings(SerializableComponent):
                              'the number of commands (%i) or increment the '
                              'sequence length (supported lengths: 31, 63, '
                              '127 or 255)' % no_commands)
-        tau = int(round(tau))
 
         # Init
         comms = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789/*-+.,' \
                 '_abcdefghijklmnopqrstuvwxyz'
         comms *= 20
         comms_ = comms[:no_commands]
-        lags_ = list(range(no_commands))
 
         # M-sequence generation
         if mseqlen == 31:
@@ -175,15 +189,25 @@ class Settings(SerializableComponent):
         seq = m_seq.sequence
 
         # Set up the test matrix
-        test_matrix = CVEPMatrix(n_row, n_col)
+        if lags is None:
+            lags = np.round(np.linspace(0, mseqlen, no_commands + 1))[:-1].astype(int).tolist()
+        test_info_lags = {
+            "tau": np.mean(np.diff(lags)),
+            "lags": lags
+        }
+        test_matrix = CVEPMatrix(n_row, n_col, info_lags=test_info_lags)
         for idx, c in enumerate(comms_):
-            seq_ = circular_shift(sequence=seq, lag=lags_[idx] * tau)
+            seq_ = circular_shift(sequence=seq, lag=lags[idx])
             target = CVEPTarget(text=c, label=c, sequence=seq_)
             test_matrix.append(target)
         test_matrix.organize_matrix()
 
         # Set up the train matrix (1x1 without lag)
-        train_matrix = CVEPMatrix(1, 1)
+        train_info_lags = {
+            "tau": 0,
+            "lags": [0]
+        }
+        train_matrix = CVEPMatrix(1, 1, info_lags=train_info_lags)
         seq_ = circular_shift(sequence=seq, lag=0)
         target = CVEPTarget(text='0', label='0', sequence=seq_)
         train_matrix.append(target)
@@ -226,6 +250,7 @@ class RunSettings:
         self.cvep_model_path = cvep_model_path
         self.fps_resolution = fps_resolution
 
+
 class Timings:
 
     def __init__(self, t_prev_text=1.0, t_prev_iddle=1.0, t_finish_text=1.0):
@@ -247,7 +272,8 @@ class Colors:
                  color_box_0='#000000',
                  color_box_1='#ffffff',
                  color_text_0='#ffffff',
-                 color_text_1='#000000'):
+                 color_text_1='#000000',
+                 color_point='#ff0000'):
         self.color_background = color_background
         self.color_target_box = color_target_box
         self.color_highlight_result_box = color_highlight_result_box
@@ -260,6 +286,7 @@ class Colors:
         self.color_box_1 = color_box_1
         self.color_text_0 = color_text_0
         self.color_text_1 = color_text_1
+        self.color_point = color_point
 
     @staticmethod
     def concat_dict(dict_):
@@ -269,9 +296,23 @@ class Colors:
         return concat
 
 
+class Stimuli:
+
+    def __init__(self, is_responsive=True, size=200, separation=20,
+                 type="normal", spatial_cycles=0, show_point=False,
+                 show_text=True):
+        self.is_responsive = is_responsive
+        self.size = size
+        self.separation = separation
+        self.type = type
+        self.spatial_cycles = spatial_cycles
+        self.show_point = show_point
+        self.show_text = show_text
+
+
 class CVEPMatrix:
 
-    def __init__(self, n_row=-1, n_col=-1):
+    def __init__(self, n_row=-1, n_col=-1, info_lags=None):
         """ Class that represents a c-VEP matrix.
 
         Attribute `item_list` encompasses a vector of commands, while
@@ -287,9 +328,13 @@ class CVEPMatrix:
         n_col: int
             (Optional, default:-1) Number of columns of the output matrix.
             If -1, `n_col` will be taken from the class.
+        info_lags : dict()
+            (Optional, default: None) Sometimes is useful to store additional
+            info such as tau or lag positions for circular shifted c-VEPs.
         """
         self.n_row = n_row
         self.n_col = n_col
+        self.info_lags = info_lags
 
         self.item_list = []  # Vector of targets
         self.matrix_list = []  # Matrix of targets.
@@ -368,13 +413,13 @@ class CVEPMatrix:
             items.append(i.to_dict())
         return {"n_row": self.n_row,
                 "n_col": self.n_col,
+                "info_lags": self.info_lags,
                 "item_list": items}
 
 
 class CVEPTarget:
 
-    def __init__(self, row=-1, col=-1, text='', label='', sequence=None,
-                 functionality=FUNC_NONE, ignored=False):
+    def __init__(self, row=-1, col=-1, text='', label='', sequence=None):
         """ Class that represents a target cell of the c-VEP speller matrix.
 
         Parameters

@@ -1,13 +1,13 @@
 ﻿// MEDUSA-PLATFORM 
-// v2022.0 CHAOS
+// v2023.0 CHAOS
 // www.medusabci.com
 
 // MessageInterpreter for the c-VEP Speller (Unity app)
 //      > Author: Víctor Martínez-Cagigal
-//      > Date: 19/05/2022
 
 // Versions:
 //      - v1.0 (19/05/2022):    Initial message interpreter
+//      - v2.0 (19/05/2023):    Checkerboard and manual stimuli parameters added
 
 
 using System.Collections;
@@ -91,6 +91,16 @@ public class MessageInterpreter
         public string color_box_1;
         public string color_text_0;
         public string color_text_1;
+        public string color_point;
+
+        // Stimuli
+        public bool isResponsive;
+        public int stim_size;
+        public int stim_separation;
+        public string stim_type;
+        public int stim_spatial_cycles;
+        public bool show_text;
+        public bool show_point;
 
         public static ParameterDecoder getParametersFromJSON(string jsonString)
         {

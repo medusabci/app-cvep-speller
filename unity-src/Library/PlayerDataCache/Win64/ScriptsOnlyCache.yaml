@@ -22,7 +22,7 @@ ScriptsOnlyBuild:
     - UnityEngine.UI.FontData
     - UnityEngine.UI.MaskableGraphic/CullStateChangedEvent
   sceneClasses:
-    Assets/Scenes/SampleScene.unity:
+    Assets/Scenes/Speller.unity:
     - Class: 1
       Script: {instanceID: 0}
     - Class: 4
@@ -40,21 +40,19 @@ ScriptsOnlyBuild:
     - Class: 104
       Script: {instanceID: 0}
     - Class: 114
-      Script: {instanceID: 1574}
+      Script: {instanceID: 1560}
     - Class: 114
-      Script: {instanceID: 1762}
+      Script: {instanceID: 1748}
     - Class: 114
-      Script: {instanceID: 2104}
+      Script: {instanceID: 2090}
     - Class: 114
-      Script: {instanceID: 2400}
+      Script: {instanceID: 2386}
     - Class: 114
-      Script: {instanceID: 2512}
+      Script: {instanceID: 2498}
     - Class: 114
-      Script: {instanceID: 2680}
+      Script: {instanceID: 2666}
     - Class: 114
-      Script: {instanceID: 2864}
-    - Class: 114
-      Script: {instanceID: 19304}
+      Script: {instanceID: 2850}
     - Class: 115
       Script: {instanceID: 0}
     - Class: 128
@@ -62,6 +60,8 @@ ScriptsOnlyBuild:
     - Class: 157
       Script: {instanceID: 0}
     - Class: 196
+      Script: {instanceID: 0}
+    - Class: 213
       Script: {instanceID: 0}
     - Class: 222
       Script: {instanceID: 0}
@@ -140,7 +140,7 @@ ScriptsOnlyBuild:
     className: Shadow
   - hash:
       serializedVersion: 2
-      Hash: d195ca178f92016a33f78d0a6ff7ad9f
+      Hash: 58079f51b499cef538133953979ced5f
     assemblyName: Assembly-CSharp.dll
     namespaceName: 
     className: Manager
@@ -512,5 +512,6 @@ ScriptsOnlyBuild:
     className: TouchInputModule
   platform: 19
   scenePathNames:
-  - Assets/Scenes/SampleScene.unity
-  playerPath: D:/app-cvep-speller/unity/c-VEP Speller.exe
+  - Assets/Scenes/Speller.unity
+  playerPath: D:/Users/Victor/Documents/SoftwareProjects/medusabci/medusa-platform/src/accounts/vicmarcag/apps/cvep_speller/unity/c-VEP
+    Speller.exe
