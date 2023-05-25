@@ -110,7 +110,7 @@ class Config(QtWidgets.QDialog, ui_main_file):
             self.open_color_dialog(self.btn_color_point))
 
         # Set settings to GUI
-        self.updated_lags = None
+        self.updated_lags = self.settings.matrices['test'][0].info_lags['lags']
         self.set_settings_to_gui()
         self.on_seqlen_changed()
         self.on_stimulus_type_changed()
