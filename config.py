@@ -23,7 +23,7 @@ from . import optimize_layout
 from gui.qt_widgets.notifications import NotificationStack
 from gui.qt_widgets.dialogs import error_dialog, warning_dialog
 from medusa.bci.cvep_spellers import LFSR, LFSR_PRIMITIVE_POLYNOMIALS
-
+from .utils_win_monitor_rates import get_monitor_rates
 
 # Load the .ui files
 ui_main_file = uic.loadUiType(os.path.dirname(__file__) + "/config.ui")[0]
@@ -80,6 +80,8 @@ class Config(QtWidgets.QDialog, ui_main_file):
             self.on_stimulus_type_changed)
         self.checkBox_responsive.stateChanged.connect(
             self.on_responsive_changed)
+        self.spinBox_fpsresolution.valueChanged.connect(
+            self.on_fpsresolution_changed)
 
         # Color buttons
         self.btn_color_box0.clicked.connect(self.open_color_dialog(
@@ -128,6 +130,43 @@ class Config(QtWidgets.QDialog, ui_main_file):
         self.show()
 
     # --------------------- Settings updating --------------------
+    def on_fpsresolution_changed(self):
+        self.textEdit_monitor_rates.clear()
+        monitors = get_monitor_rates()
+        if len(monitors) == 0:
+            text = "No connected monitor is detected. The app cannot " \
+                   "guarantee a real updating using %s Hz" % \
+                   self.spinBox_fpsresolution.value()
+            self.textEdit_monitor_rates.append(text)
+        else:
+            rates = list()
+            text = "Connected monitors:\n"
+            for monitor in monitors:
+                name, rate = monitor
+                text += " * %s - max. %i Hz\n" % (name, rate)
+                rates.append(rate)
+            self.textEdit_monitor_rates.append(text)
+
+            if len(rates) > 1 and not np.all(np.array(rates == rates[0])):
+                self.textEdit_monitor_rates.append(
+                    "<span style='color: yellow; font-weight: \"bold\"'>"
+                    "\n[Warning]: the monitors have different refresh "
+                    "rates! The fps_resolution may vary. An exact "
+                    "target FPS can only be guaranteed if all monitors "
+                    "have the same refresh rate.</span>\n"
+                )
+
+            for rate in rates:
+                if rate < self.spinBox_fpsresolution.value():
+                    self.textEdit_monitor_rates.append(
+                        "<span style='color: red; font-weight: \"bold\"'>"
+                        "\n[Error]: at least one monitor will not be "
+                        "able to reach the desired Target FPS! The "
+                        "paradigm will not work.</span>\n"
+                    )
+        self.update_table_cutoffs()
+
+
     def on_mode_changed(self):
         if self.comboBox_mode.currentText() == 'Online':
             self.train_test_box.setCurrentIndex(1)
@@ -558,7 +597,7 @@ class Config(QtWidgets.QDialog, ui_main_file):
     def update_table_cutoffs(self):
         for i in range(self.tableWidget_bpf.rowCount()):
             self.tableWidget_bpf.setItem(i, 1, QtWidgets.QTableWidgetItem(
-                str(int(self.settings.run_settings.fps_resolution / 2))))
+                str(int(self.spinBox_fpsresolution.value() / 2))))
 
     def on_custom_table_menu(self, pos):
         # Get action

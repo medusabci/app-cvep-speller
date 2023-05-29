@@ -510,6 +510,18 @@ ScriptsOnlyBuild:
     assemblyName: UnityEngine.UI.dll
     namespaceName: UnityEngine.EventSystems
     className: TouchInputModule
+  - hash:
+      serializedVersion: 2
+      Hash: fa2015c388f0d112c8b89388361175e7
+    assemblyName: Assembly-CSharp.dll
+    namespaceName: 
+    className: _test_checkerboard
+  - hash:
+      serializedVersion: 2
+      Hash: fa2015c388f0d112c8b89388361175e7
+    assemblyName: Assembly-CSharp.dll
+    namespaceName: 
+    className: CheckerTest
   platform: 19
   scenePathNames:
   - Assets/Scenes/Speller.unity

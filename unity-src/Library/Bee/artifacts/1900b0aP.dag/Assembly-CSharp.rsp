@@ -374,9 +374,11 @@
 -r:"Library/Bee/artifacts/1900b0aP.dag/Unity.TextMeshPro.ref.dll"
 -r:"Library/Bee/artifacts/1900b0aP.dag/Unity.Timeline.ref.dll"
 -r:"Library/Bee/artifacts/1900b0aP.dag/UnityEngine.UI.ref.dll"
+"Assets/Scripts/CheckerTest.cs"
 "Assets/Scripts/Manager.cs"
 "Assets/Scripts/MedusaTCPClient.cs"
 "Assets/Scripts/MessageInterpreter.cs"
+"Assets/Scripts/_test_checkerboard.cs"
 -langversion:9.0
 
 /deterministic

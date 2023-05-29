@@ -9,6 +9,7 @@
 //      - v1.0 (19/05/2022):    Circular-shifting c-VEP speller working
 //      - v1.1 (04/07/2022):    Fixed small bug in which the app displayed and additional trial in training
 //      - v2.0 (19/05/2023):    Checkerboard and manual stimulus parameters added
+//      - v2.1 (29/05/2023):    Improved checkerboard generation
 
 using System;
 using System.Collections;
@@ -516,10 +517,17 @@ public class Manager : MonoBehaviour
         Image resultBox = GameObject.Find("ResultBox").GetComponent<Image>();
         height -= resultBox.rectTransform.rect.height;
 
+        // Generate the checkerboards if required
+        float cellSize = stimSize;
+        if (isCheckerboard)
+        {
+            checkerboards = generateCheckerboards((int)cellSize, parameters.stim_spatial_cycles, colorsBox[0], colorsBox[1]);
+            cellSize = checkerboards[0].rect.width;     // Overwrite cell size to match exactly the tile pattern
+        }
+
         // Automatic resizing
         float colSeparator = separation;
         float rowSeparator = separation;
-        float cellSize = stimSize;
         if (isAuto)
         {
             // Compute the cell size
@@ -538,7 +546,9 @@ public class Manager : MonoBehaviour
             {
                 rowSeparator = (height - cellSize * nRows) / (nRows + 1);
             }
-        } 
+        }
+
+        
 
 
         // TEST MATRIX
@@ -597,13 +607,7 @@ public class Manager : MonoBehaviour
                 float st_ = cellSize / optimalCellSize;
                 matrixTrain[r, c].transform.Find("CellText").GetComponent<Text>().GetComponent<RectTransform>().localScale = new Vector3(st_, st_, 1f);
             }
-        }
-
-        // Generate the checkerboards if required
-        if (isCheckerboard)
-        {
-            checkerboards = generateCheckerboards((int)cellSize, parameters.stim_spatial_cycles, colorsBox[0], colorsBox[1]);
-        }
+        }        
     }
     
     // This function sets the information text. IMPORTANT: only the main thread is allowed to run this function.
@@ -1219,9 +1223,9 @@ public class Manager : MonoBehaviour
         textureNegative.Apply();
 
         // Ignore spatial pixel interpolation
-        texturePositive.wrapMode = TextureWrapMode.Clamp;
+        texturePositive.wrapMode = TextureWrapMode.MirrorOnce;
         texturePositive.filterMode = FilterMode.Point;
-        textureNegative.wrapMode = TextureWrapMode.Clamp;
+        textureNegative.wrapMode = TextureWrapMode.MirrorOnce;
         textureNegative.filterMode = FilterMode.Point;
 
         // Create the sprites
