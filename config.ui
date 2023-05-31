@@ -82,14 +82,14 @@
           <item>
            <widget class="QToolBox" name="toolBox">
             <property name="currentIndex">
-             <number>0</number>
+             <number>2</number>
             </property>
             <widget class="QWidget" name="params_fast">
              <property name="geometry">
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>543</width>
+               <width>539</width>
                <height>444</height>
               </rect>
              </property>
@@ -337,7 +337,7 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>543</width>
+               <width>539</width>
                <height>444</height>
               </rect>
              </property>
@@ -407,7 +407,7 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>526</width>
+               <width>522</width>
                <height>778</height>
               </rect>
              </property>
@@ -512,6 +512,11 @@
                      <item>
                       <property name="text">
                        <string>checkerboard</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>black-bg checkerboard</string>
                       </property>
                      </item>
                     </widget>
@@ -848,7 +853,7 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>543</width>
+               <width>539</width>
                <height>444</height>
               </rect>
              </property>
@@ -1072,7 +1077,7 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>543</width>
+               <width>539</width>
                <height>444</height>
               </rect>
              </property>

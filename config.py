@@ -210,7 +210,7 @@ class Config(QtWidgets.QDialog, ui_main_file):
         self.lineEdit_cycleduration.setText(str(cycle_dur))
 
     def on_stimulus_type_changed(self):
-        if self.comboBox_sti_type.currentText() == "checkerboard":
+        if not self.comboBox_sti_type.currentText() == "normal":
             self.spinBox_spatial_cycles.setEnabled(True)
         else:
             self.spinBox_spatial_cycles.setEnabled(False)

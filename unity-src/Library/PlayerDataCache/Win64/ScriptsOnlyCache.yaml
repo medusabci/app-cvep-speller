@@ -52,7 +52,7 @@ ScriptsOnlyBuild:
     - Class: 114
       Script: {instanceID: 2666}
     - Class: 114
-      Script: {instanceID: 2850}
+      Script: {instanceID: 2852}
     - Class: 115
       Script: {instanceID: 0}
     - Class: 128
@@ -240,6 +240,12 @@ ScriptsOnlyBuild:
     assemblyName: UnityEngine.UI.dll
     namespaceName: UnityEngine.UI
     className: GraphicRaycaster
+  - hash:
+      serializedVersion: 2
+      Hash: fa2015c388f0d112c8b89388361175e7
+    assemblyName: Assembly-CSharp.dll
+    namespaceName: 
+    className: _test_checkerboard
   - hash:
       serializedVersion: 2
       Hash: f40fedccd4adbc76605bea6d67537e4b
@@ -488,6 +494,12 @@ ScriptsOnlyBuild:
     className: TMP_ScrollbarEventHandler
   - hash:
       serializedVersion: 2
+      Hash: fa2015c388f0d112c8b89388361175e7
+    assemblyName: Assembly-CSharp.dll
+    namespaceName: 
+    className: CheckerTest
+  - hash:
+      serializedVersion: 2
       Hash: 8220b46879dc5e37db1b940c938f5744
     assemblyName: Unity.Timeline.dll
     namespaceName: UnityEngine.Timeline
@@ -510,18 +522,6 @@ ScriptsOnlyBuild:
     assemblyName: UnityEngine.UI.dll
     namespaceName: UnityEngine.EventSystems
     className: TouchInputModule
-  - hash:
-      serializedVersion: 2
-      Hash: fa2015c388f0d112c8b89388361175e7
-    assemblyName: Assembly-CSharp.dll
-    namespaceName: 
-    className: _test_checkerboard
-  - hash:
-      serializedVersion: 2
-      Hash: fa2015c388f0d112c8b89388361175e7
-    assemblyName: Assembly-CSharp.dll
-    namespaceName: 
-    className: CheckerTest
   platform: 19
   scenePathNames:
   - Assets/Scenes/Speller.unity
