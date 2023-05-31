@@ -300,7 +300,7 @@ class Stimuli:
 
     def __init__(self, is_responsive=True, size=200, separation=20,
                  type="normal", spatial_cycles=0, show_point=False,
-                 show_text=True):
+                 show_text=True, use_interpolation=True):
         self.is_responsive = is_responsive
         self.size = size
         self.separation = separation
@@ -308,6 +308,7 @@ class Stimuli:
         self.spatial_cycles = spatial_cycles
         self.show_point = show_point
         self.show_text = show_text
+        self.use_interpolation = use_interpolation
 
 
 class CVEPMatrix:

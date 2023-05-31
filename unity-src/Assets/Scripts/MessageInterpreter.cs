@@ -8,7 +8,7 @@
 // Versions:
 //      - v1.0 (19/05/2022):    Initial message interpreter
 //      - v2.0 (19/05/2023):    Checkerboard and manual stimuli parameters added
-
+//      - v2.2 (31/05/2023):    Added "black-bg checkerboard" and Bilinear/Point interpolations
 
 using System.Collections;
 using System.Collections.Generic;
@@ -101,6 +101,7 @@ public class MessageInterpreter
         public int stim_spatial_cycles;
         public bool show_text;
         public bool show_point;
+        public bool use_interpolation;
 
         public static ParameterDecoder getParametersFromJSON(string jsonString)
         {

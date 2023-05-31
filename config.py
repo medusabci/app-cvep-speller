@@ -212,9 +212,11 @@ class Config(QtWidgets.QDialog, ui_main_file):
     def on_stimulus_type_changed(self):
         if not self.comboBox_sti_type.currentText() == "normal":
             self.spinBox_spatial_cycles.setEnabled(True)
+            self.checkBox_spatial_interpolation.setEnabled(True)
         else:
             self.spinBox_spatial_cycles.setEnabled(False)
             self.spinBox_spatial_cycles.setValue(0)
+            self.checkBox_spatial_interpolation.setEnabled(False)
 
     def on_responsive_changed(self):
         if self.checkBox_responsive.isChecked():
@@ -297,6 +299,8 @@ class Config(QtWidgets.QDialog, ui_main_file):
         self.comboBox_sti_type.setCurrentIndex(index)
         self.checkBox_show_text.setChecked(self.settings.stimuli.show_text)
         self.checkBox_show_point.setChecked(self.settings.stimuli.show_point)
+        self.checkBox_spatial_interpolation.setChecked(
+            self.settings.stimuli.use_interpolation)
 
         # Useful PyQt policies
         policy_max_pre = QSizePolicy(QSizePolicy.Maximum, QSizePolicy.Preferred)
@@ -589,6 +593,8 @@ class Config(QtWidgets.QDialog, ui_main_file):
         self.settings.stimuli.type = self.comboBox_sti_type.currentText()
         self.settings.stimuli.show_text = self.checkBox_show_text.isChecked()
         self.settings.stimuli.show_point = self.checkBox_show_point.isChecked()
+        self.settings.stimuli.use_interpolation = \
+            self.checkBox_spatial_interpolation.isChecked()
 
     def update_gui(self):
         self.get_settings_from_gui()

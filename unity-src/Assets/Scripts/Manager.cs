@@ -10,7 +10,7 @@
 //      - v1.1 (04/07/2022):    Fixed small bug in which the app displayed and additional trial in training
 //      - v2.0 (19/05/2023):    Checkerboard and manual stimulus parameters added
 //      - v2.1 (29/05/2023):    Improved checkerboard generation
-//      - v2.2 (31/05/2023):    Added "black-bg checkerboard" and Bilinear interpolation of colors
+//      - v2.2 (31/05/2023):    Added "black-bg checkerboard" and Bilinear/Point interpolations
 
 using System;
 using System.Collections;
@@ -522,7 +522,7 @@ public class Manager : MonoBehaviour
         float cellSize = stimSize;
         if (isCheckerboard)
         {
-            checkerboards = generateCheckerboards((int)cellSize, parameters.stim_spatial_cycles, colorsBox[0], colorsBox[1], parameters.stim_type);
+            checkerboards = generateCheckerboards((int)cellSize, parameters.stim_spatial_cycles, colorsBox[0], colorsBox[1], parameters.stim_type, parameters.use_interpolation);
             cellSize = checkerboards[0].rect.width;     // Overwrite cell size to match exactly the tile pattern
         }
 
@@ -1193,7 +1193,7 @@ public class Manager : MonoBehaviour
     }
 
     /* ----------------------------------- CHECKERBOARD GENERATION --------------------------------------- */
-    public static Sprite[] generateCheckerboards(int imageSize, int spatialCycles, Color32 color0, Color32 color1, string type)
+    public static Sprite[] generateCheckerboards(int imageSize, int spatialCycles, Color32 color0, Color32 color1, string type, bool use_interpolation)
     {
         // Initialize the textures
         int blockSize = imageSize / (spatialCycles * 2);
@@ -1227,11 +1227,20 @@ public class Manager : MonoBehaviour
         texturePositive.Apply();
         textureNegative.Apply();
 
-        // Ignore spatial pixel interpolation
+        // Spatial pixel interpolation
         texturePositive.wrapMode = TextureWrapMode.MirrorOnce;
-        texturePositive.filterMode = FilterMode.Bilinear;
         textureNegative.wrapMode = TextureWrapMode.MirrorOnce;
-        textureNegative.filterMode = FilterMode.Bilinear;
+        if (use_interpolation)
+        {
+            texturePositive.filterMode = FilterMode.Bilinear;
+            textureNegative.filterMode = FilterMode.Bilinear;
+        }
+        else
+        {
+            texturePositive.filterMode = FilterMode.Point;
+            textureNegative.filterMode = FilterMode.Point;
+        }
+            
 
         // Create the sprites
         Sprite spritePositive = Sprite.Create(texturePositive, new Rect(0, 0, texturePositive.width, texturePositive.height), Vector2.one * 0.5f);

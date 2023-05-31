@@ -132,6 +132,7 @@ class AppController(TCPServer):
         msg["stim_spatial_cycles"] = self.app_settings.stimuli.spatial_cycles
         msg["show_text"] = self.app_settings.stimuli.show_text
         msg["show_point"] = self.app_settings.stimuli.show_point
+        msg["use_interpolation"] = self.app_settings.stimuli.use_interpolation
 
         self.send_command(msg)
 
