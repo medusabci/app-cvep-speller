@@ -1,6 +1,7 @@
-from PyQt5 import QtGui, QtWidgets, uic, QtCore
-from PyQt5.QtWidgets import QColorDialog, QToolButton, QGridLayout, QSizePolicy
-from PyQt5.QtCore import Qt
+from PySide6.QtUiTools import loadUiType
+from PySide6 import QtGui, QtWidgets, QtCore
+from PySide6.QtCore import Signal, Qt
+from PySide6.QtWidgets import QSizePolicy, QApplication
 from gui import gui_utils
 from . import settings
 import os
@@ -16,21 +17,23 @@ from medusa.bci.cvep_spellers import LFSR, LFSR_PRIMITIVE_POLYNOMIALS
 import matplotlib.pyplot as plt
 from matplotlib.ticker import FormatStrFormatter
 import numpy as np
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
+# from matplotlib.backends.backend_qt import FigureCanvasQT
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
+from .utils_win_monitor_rates import get_monitor_rates
 
 # Load the .ui files
-ui_main_file = uic.loadUiType(os.path.dirname(__file__) + "/config.ui")[0]
-ui_target_file = uic.loadUiType(os.path.dirname(__file__) +
+ui_main_file = loadUiType(os.path.dirname(__file__) + "/config.ui")[0]
+ui_target_file = loadUiType(os.path.dirname(__file__) +
                                 "/config_target.ui")[0]
-ui_encoding_file = uic.loadUiType(os.path.dirname(__file__) +
+ui_encoding_file = loadUiType(os.path.dirname(__file__) +
                                 "/config_encoding.ui")[0]
 
 
 class Config(QtWidgets.QDialog, ui_main_file):
     """ This class provides graphical configuration for the app """
 
-    close_signal = QtCore.pyqtSignal(object)
+    close_signal = Signal(object)
 
     def __init__(self, sett, medusa_interface,
                  working_lsl_streams_info, theme_colors=None):
@@ -43,7 +46,7 @@ class Config(QtWidgets.QDialog, ui_main_file):
             Instance of class Settings defined in settings.py in the app
             directory
         """
-        QtWidgets.QMainWindow.__init__(self)
+        QtWidgets.QDialog.__init__(self)
         self.setWindowFlags(
             self.windowFlags() & ~Qt.WindowContextHelpButtonHint)
         self.setupUi(self)
@@ -70,6 +73,8 @@ class Config(QtWidgets.QDialog, ui_main_file):
         self.btn_update_matrix.clicked.connect(self.update_test_matrix)
         self.comboBox_seqlength.currentTextChanged.connect(
             self.on_seqlen_changed)
+        self.spinBox_fpsresolution.valueChanged.connect(
+            self.on_fpsresolution_changed)
 
         # Color buttons
         self.btn_color_box0.clicked.connect(self.open_color_dialog(
@@ -113,6 +118,42 @@ class Config(QtWidgets.QDialog, ui_main_file):
         self.show()
 
     # --------------------- Settings updating --------------------
+    def on_fpsresolution_changed(self):
+        self.textEdit_monitor_rates.clear()
+        monitors = get_monitor_rates()
+        if len(monitors) == 0:
+            text = "No connected monitor is detected. The app cannot " \
+                   "guarantee a real updating using %s Hz" % \
+                   self.spinBox_fpsresolution.value()
+            self.textEdit_monitor_rates.append(text)
+        else:
+            rates = list()
+            text = "Connected monitors:\n"
+            for monitor in monitors:
+                name, rate = monitor
+                text += " * %s - max. %i Hz\n" % (name, rate)
+                rates.append(rate)
+            self.textEdit_monitor_rates.append(text)
+
+            if len(rates) > 1 and not np.all(np.array(rates == rates[0])):
+                self.textEdit_monitor_rates.append(
+                    "<span style='color: yellow; font-weight: \"bold\"'>"
+                    "\n[Warning]: the monitors have different refresh "
+                    "rates! The fps_resolution may vary. An exact "
+                    "target FPS can only be guaranteed if all monitors "
+                    "have the same refresh rate.</span>\n"
+                )
+
+            for rate in rates:
+                if rate < self.spinBox_fpsresolution.value():
+                    self.textEdit_monitor_rates.append(
+                        "<span style='color: red; font-weight: \"bold\"'>"
+                        "\n[Error]: at least one monitor will not be "
+                        "able to reach the desired Target FPS! The "
+                        "paradigm will not work.</span>\n"
+                    )
+        self.update_table_cutoffs()
+
     def on_mode_changed(self):
         if self.comboBox_mode.currentText() == 'Online':
             self.train_test_box.setCurrentIndex(1)
@@ -270,7 +311,7 @@ class Config(QtWidgets.QDialog, ui_main_file):
                 fps_monitor, "color",
                 self.settings.colors.color_fps_good[:7])
             # Create a new layout for the commands
-            new_layout = QGridLayout()
+            new_layout = QtWidgets.QGridLayout()
             new_layout.setContentsMargins(0, 0, 0, 0)
             new_layout.setSpacing(10)
             new_layout.setContentsMargins(10, 10, 10, 10)
@@ -278,7 +319,7 @@ class Config(QtWidgets.QDialog, ui_main_file):
             for r in range(curr_mtx.n_row):
                 for c in range(curr_mtx.n_col):
                     key_ = curr_mtx.matrix_list[r][c].sequence[0]
-                    temp_button = QToolButton()
+                    temp_button = QtWidgets.QToolButton()
                     temp_button.setObjectName('btn_command')
                     temp_button.setText(curr_mtx.matrix_list[r][c].text)
                     temp_button.clicked.connect(self.btn_command_on_click(r, c))
@@ -357,7 +398,7 @@ class Config(QtWidgets.QDialog, ui_main_file):
                 fps_monitor, "color",
                 self.settings.colors.color_fps_good[:7])
             # Create a new layout for the commands
-            new_layout = QGridLayout()
+            new_layout = QtWidgets.QGridLayout()
             new_layout.setContentsMargins(0, 0, 0, 0)
             new_layout.setSpacing(10)
             new_layout.setContentsMargins(10, 10, 10, 10)
@@ -365,7 +406,7 @@ class Config(QtWidgets.QDialog, ui_main_file):
             for r in range(curr_mtx.n_row):
                 for c in range(curr_mtx.n_col):
                     key_ = curr_mtx.matrix_list[r][c].sequence[0]
-                    temp_button = QToolButton()
+                    temp_button = QtWidgets.QToolButton()
                     temp_button.setObjectName('btn_command')
                     temp_button.setSizePolicy(policy_max_max)
                     temp_button.setText(curr_mtx.matrix_list[r][c].text)
@@ -596,7 +637,7 @@ class Config(QtWidgets.QDialog, ui_main_file):
         filt = "c-VEP Files (*.cvep.bson)"
         files = QtWidgets.QFileDialog.getOpenFileNames(
             caption="Select training files",
-            directory=os.getcwd() + "/../data/",
+            dir=os.getcwd() + "/../data/",
             filter=filt)
         if files[0]:
             self.notifications.new_notification('Training model...')
@@ -632,7 +673,7 @@ class Config(QtWidgets.QDialog, ui_main_file):
             model = cvep_spellers.CVEPModelCircularShifting(
                 bpf=bpf,
                 notch=notch,
-                art_rej=None,
+                art_rej=3.0,
                 correct_raster_latencies=False
             )
             try:
@@ -666,7 +707,7 @@ class Config(QtWidgets.QDialog, ui_main_file):
             os.makedirs(directory)
             print('Created directory %s!' % directory)
         filepath = QtWidgets.QFileDialog.getOpenFileName(caption="c-VEP Model",
-                                                         directory=directory,
+                                                         dir=directory,
                                                          filter=filt)
         self.lineEdit_cvepmodel.setText(filepath[0])
 
@@ -925,11 +966,11 @@ class VisualizeEncodingDialog(QtWidgets.QDialog, ui_encoding_file):
 
         # Initialize the canvas
         self.fig_autocorr = Figure(figsize=(60, 30), dpi=150, )
-        self.canvas_autocorr = FigureCanvasQTAgg(figure=self.fig_autocorr)
+        self.canvas_autocorr = FigureCanvas(figure=self.fig_autocorr)
         self.layout_autocorr.addWidget(self.canvas_autocorr)
         self.axes_autocorr = self.fig_autocorr.add_subplot(111)
         self.fig_encoding = Figure(figsize=(60, 30), dpi=150, )
-        self.canvas_encoding = FigureCanvasQTAgg(figure=self.fig_encoding)
+        self.canvas_encoding = FigureCanvas(figure=self.fig_encoding)
         self.layout_encoding.addWidget(self.canvas_encoding)
         self.axes_encoding = self.fig_encoding.add_subplot(111)
 
@@ -966,10 +1007,10 @@ class VisualizeEncodingDialog(QtWidgets.QDialog, ui_encoding_file):
             self.axes_autocorr.set_ylabel('Norm. $R_{xx}$', fontsize=MEDIUM_SIZE)
             self.axes_autocorr.set_title('M-sequence autocorrelation',
                                          fontsize=MEDIUM_SIZE)
-            [tick.label.set_fontsize(SMALL_SIZE) for tick in
-             self.axes_autocorr.yaxis.get_major_ticks()]
-            [tick.label.set_fontsize(SMALL_SIZE) for tick in
-             self.axes_autocorr.xaxis.get_major_ticks()]
+            # [tick.label.set_fontsize(SMALL_SIZE) for tick in
+            #  self.axes_autocorr.yaxis.get_major_ticks()]
+            # [tick.label.set_fontsize(SMALL_SIZE) for tick in
+            #  self.axes_autocorr.xaxis.get_major_ticks()]
         pos = self.axes_autocorr.get_position()
         pos.x0 = 0.2
         pos.y0 = 0.15
@@ -988,12 +1029,12 @@ class VisualizeEncodingDialog(QtWidgets.QDialog, ui_encoding_file):
             self.axes_encoding.set_title('Command encoding', fontsize=MEDIUM_SIZE)
             self.axes_encoding.set_xlabel('Sequence (samples)', fontsize=MEDIUM_SIZE)
             self.axes_encoding.set_ylabel('Commands', fontsize=MEDIUM_SIZE)
-            plt.yticks(ticks=[i for i in range(len(commands))])
+            # plt.yticks(ticks=[i for i in range(len(commands))])
             self.axes_encoding.set_yticks([i for i in range(len(commands))])
-            [tick.label.set_fontsize(SMALL_SIZE) for tick in
-             self.axes_encoding.yaxis.get_major_ticks()]
-            [tick.label.set_fontsize(SMALL_SIZE) for tick in
-             self.axes_encoding.xaxis.get_major_ticks()]
+            # [tick.label.set_fontsize(SMALL_SIZE) for tick in
+            #  self.axes_encoding.yaxis.get_major_ticks()]
+            # [tick.label.set_fontsize(SMALL_SIZE) for tick in
+            #  self.axes_encoding.xaxis.get_major_ticks()]
         pos = self.axes_encoding.get_position()
         pos.x0 = 0.2
         pos.y0 = 0.15

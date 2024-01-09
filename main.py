@@ -3,7 +3,7 @@ import multiprocessing as mp
 import time
 import os.path
 # EXTERNAL MODULES
-from PyQt5.QtWidgets import QApplication
+from PySide6.QtWidgets import QApplication
 import numpy as np
 import pickle
 # MEDUSA-KERNEL MODULES
@@ -55,10 +55,12 @@ class App(resources.AppSkeleton):
     """
 
     def __init__(self, app_info, app_settings, medusa_interface,
-                 app_state, run_state, working_lsl_streams_info):
+                 app_state, run_state, working_lsl_streams_info,
+                 rec_info):
         # Call superclass constructor
         super().__init__(app_info, app_settings, medusa_interface,
-                         app_state, run_state, working_lsl_streams_info)
+                         app_state, run_state, working_lsl_streams_info,
+                         rec_info)
 
         # Set attributes
         self.TAG = '[apps/cvep_speller/main] '
@@ -367,7 +369,7 @@ class App(resources.AppSkeleton):
                 self.medusa_interface.error(ex)
         # 5 - Close (only if close app has not been called yet)
         if self.app_controller.server_state.value != SERVER_DOWN:
-            self.close_app()
+            self.app_controller.close()
         while self.app_controller.server_state.value == SERVER_UP:
             time.sleep(0.1)
         # 6 - Change app state to powering off
@@ -376,12 +378,18 @@ class App(resources.AppSkeleton):
         # 7 - Save recording
         self.stop_working_threads()
         if self.get_lsl_worker().data.shape[0] > 0:
-            qt_app = QApplication([])
-            self.save_file_dialog = resources.SaveFileDialog(
-                self.app_info['extension'])
-            self.save_file_dialog.accepted.connect(self.on_save_rec_accepted)
-            self.save_file_dialog.rejected.connect(self.on_save_rec_rejected)
-            qt_app.exec()
+            file_path = self.get_file_path_from_rec_info()
+            if file_path is None:
+                qt_app = QApplication([])
+                self.save_file_dialog = resources.SaveFileDialog(
+                    self.rec_info,
+                    self.app_info['extension'])
+                self.save_file_dialog.accepted.connect(self.on_save_rec_accepted)
+                self.save_file_dialog.rejected.connect(self.on_save_rec_rejected)
+                qt_app.exec()
+            else:
+                # Save file automatically
+                self.save_recording(file_path)
         else:
             print(self.TAG, 'Cannot save because we have no data!!')
         # 8 - Change app state to power off
@@ -400,17 +408,79 @@ class App(resources.AppSkeleton):
     # ---------------------------- SAVE DATA ----------------------------
     @exceptions.error_handler(scope='app')
     def on_save_rec_accepted(self):
-        file_info = self.save_file_dialog.get_file_info()
-        rec = self.get_current_recording(file_info)
-        rec.save(file_info['path'])
-        # Print a message
-        self.medusa_interface.log('Recording saved successfully')
-        # Close the app
-        self.close()
+        file_path, self.rec_info = self.save_file_dialog.get_rec_info()
+        self.save_recording(file_path)
 
     @exceptions.error_handler(scope='app')
     def on_save_rec_rejected(self):
-        self.close()
+        pass
+
+    @exceptions.error_handler(scope='app')
+    def save_recording(self, file_path):
+        # Recording
+        rec = components.Recording(
+            subject_id=self.rec_info.pop('subject_id'),
+            recording_id=self.rec_info.pop('rec_id'),
+            date=time.strftime("%d-%m-%Y %H:%M", time.localtime()),
+            **self.rec_info)
+        # Experiment data
+        rec.add_experiment_data(self.cvep_data)
+        # Biosignal data
+        for lsl_stream in self.lsl_streams_info:
+            if lsl_stream.medusa_type == 'EEG':
+                lsl_worker = self.lsl_workers[lsl_stream.medusa_uid]
+                times, signal = lsl_worker.get_data()
+                channel_set = meeg.EEGChannelSet()
+                channel_set.set_standard_montage(
+                    l_cha=lsl_worker.receiver.l_cha,
+                    allow_unlocated_channels=True)
+                biosignal = meeg.EEG(
+                    times=times,
+                    signal=signal,
+                    fs=lsl_worker.receiver.fs,
+                    channel_set=channel_set,
+                    lsl_stream_info=lsl_stream.to_serializable_obj())
+                rec.add_biosignal(biosignal)
+            elif lsl_stream.medusa_type == 'EMG':
+                lsl_worker = self.lsl_workers[lsl_stream.medusa_uid]
+                times, signal = lsl_worker.get_data()
+                channel_set = lsl_stream.cha_info
+                biosignal = emg.EMG(
+                    times=times,
+                    signal=signal,
+                    fs=lsl_worker.receiver.fs,
+                    channel_set=channel_set,
+                    lsl_stream_info=lsl_stream.to_serializable_obj())
+                rec.add_biosignal(biosignal)
+            elif lsl_stream.medusa_type == 'NIRS':
+                lsl_worker = self.lsl_workers[lsl_stream.medusa_uid]
+                times, signal = lsl_worker.get_data()
+                channel_set = lsl_stream.cha_info
+                biosignal = nirs.NIRS(
+                    times=times,
+                    signal=signal,
+                    fs=lsl_worker.receiver.fs,
+                    channel_set=channel_set,
+                    lsl_stream_info=lsl_stream.to_serializable_obj())
+                rec.add_biosignal(biosignal)
+            elif lsl_stream.medusa_type == 'CustomBiosignalData':
+                lsl_worker = self.lsl_workers[lsl_stream.medusa_uid]
+                times, signal = lsl_worker.get_data()
+                channel_set = lsl_stream.cha_info
+                fs = lsl_worker.receiver.fs
+                biosignal = components.CustomBiosignalData(
+                    times=times,
+                    signal=signal,
+                    fs=fs,
+                    channel_set=channel_set,
+                    lsl_stream_info=lsl_stream.to_serializable_obj())
+                rec.add_biosignal(biosignal, lsl_stream.medusa_uid)
+            else:
+                raise ValueError('Unknown biosignal type!')
+        # Save recording
+        rec.save(file_path)
+        # Print a message
+        self.medusa_interface.log('Recording saved successfully')
 
     @exceptions.error_handler(scope='app')
     def get_eeg_data(self):
