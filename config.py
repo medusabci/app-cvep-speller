@@ -586,9 +586,10 @@ class Config(QtWidgets.QDialog, ui_main_file):
         self.notifications.new_notification('Loaded default settings')
 
     def save(self):
+        config_path = os.getcwd() + "/../config/"
         fdialog = QtWidgets.QFileDialog()
         fname = fdialog.getSaveFileName(
-            fdialog, 'Save settings', '../../config/', 'JSON (*.json)')
+            fdialog, 'Save settings', config_path, 'JSON (*.json)')
         if fname[0]:
             self.get_settings_from_gui()
             self.settings.save(path=fname[0])
@@ -597,9 +598,10 @@ class Config(QtWidgets.QDialog, ui_main_file):
 
     def load(self):
         """ Opens a dialog to load a configuration file. """
+        config_path = os.getcwd() + "/../config/"
         fdialog = QtWidgets.QFileDialog()
         fname = fdialog.getOpenFileName(
-            fdialog, 'Load settings', '../../config/', 'JSON (*.json)')
+            fdialog, 'Load settings', config_path, 'JSON (*.json)')
         if fname[0]:
             loaded_settings = self.settings.load(fname[0])
             self.settings = loaded_settings
@@ -763,93 +765,6 @@ class Config(QtWidgets.QDialog, ui_main_file):
             monitor_rate=monitor_rate, item_list=self.settings.matrices[
                 'test'][current_index].item_list, lags_info=lags_info)
         visualize_dialog.exec_()
-
-    def visualize_encoding(self):
-        def autocorr_circular(x):
-            """ With circular shifts (periodic correlation) """
-            N = len(x)
-            rxx = []
-            t = []
-            for i in range(-(N - 1), N):
-                rxx.append(np.sum(x * np.roll(x, i)))
-                t.append(i)
-            rxx = np.array(rxx)
-            return rxx, t
-
-        # First, update the test matrix
-        self.update_test_matrix()
-        current_index = self.widget_nested_test.currentIndex()
-
-        # Compute the sequence and its autocorrelation
-        mseqlen = int(self.comboBox_seqlength.currentText())
-        monitor_rate = float(self.spinBox_fpsresolution.value())
-        if mseqlen == 31:
-            poly_ = LFSR_PRIMITIVE_POLYNOMIALS['base'][2]['order'][5]
-            m_seq = LFSR(poly_, base=2)
-        elif mseqlen == 63:
-            poly_ = LFSR_PRIMITIVE_POLYNOMIALS['base'][2]['order'][6]
-            m_seq = LFSR(poly_, base=2, seed=[1, 1, 1, 1, 1, 0])
-        elif mseqlen == 127:
-            poly_ = LFSR_PRIMITIVE_POLYNOMIALS['base'][2]['order'][7]
-            m_seq = LFSR(poly_, base=2)
-        elif mseqlen == 255:
-            poly_ = LFSR_PRIMITIVE_POLYNOMIALS['base'][2]['order'][8]
-            m_seq = LFSR(poly_, base=2)
-        else:
-            raise ValueError('[cvep_speller/settings] Sequence length of %i '
-                             'not supported (use 31, 63, 127 or 255)!' %
-                             mseqlen)
-        seq = m_seq.sequence
-        n_row = int(self.spinBox_nrow.value())
-        n_col = int(self.spinBox_ncol.value())
-        tau = mseqlen / (n_row * n_col)
-        rxx_, tr_ = autocorr_circular(seq)
-        rxx_ = rxx_ / np.max(np.abs(rxx_))
-
-        # Plots
-        SMALL_SIZE = 7
-        MEDIUM_SIZE = 9
-        fig = plt.figure(figsize=(10, 4), dpi=300)
-        ax1 = fig.add_subplot(1, 2, 1)
-        ax2 = fig.add_subplot(1, 2, 2)
-        with plt.style.context('seaborn'):
-            # Autocorrelation
-            tr_s = np.array(tr_) / monitor_rate
-            big_lagged_seqs_ = np.zeros((n_row * n_col, len(seq)))
-            seq = np.array(seq)
-            ax1.xaxis.set_major_formatter(FormatStrFormatter('%.1f'))
-            ax1.yaxis.set_major_formatter(FormatStrFormatter('%.1f'))
-            ax1.plot(tr_s, rxx_, linewidth=1.2)
-            yoff = min(rxx_)
-            for i in range(n_row * n_col):
-                lag = int(i * tau)
-                big_lagged_seqs_[i, :] = np.array(np.roll(seq, lag)).\
-                    reshape(-1, 1).T
-                ax1.plot([lag / monitor_rate, lag / monitor_rate],
-                         [yoff - 0.05, yoff + 0.05], 'r')
-                ax1.text(lag / monitor_rate, yoff - 0.1, self.settings.matrices[
-                    'test'][current_index].item_list[i].text,
-                         horizontalalignment='center', color='red')
-            ax1.set_xlim((tr_s[0], tr_s[-1]))
-            ax1.set_ylim((yoff - 0.2, max(rxx_) + 0.2))
-            ax1.set_xlabel('Time shifts (s)', fontsize=MEDIUM_SIZE)
-            ax1.set_ylabel('Norm. $R_{xx}$', fontsize=MEDIUM_SIZE)
-            ax1.set_title('M-sequence autocorrelation')
-            plt.yticks(fontsize=SMALL_SIZE)
-            plt.xticks(fontsize=SMALL_SIZE)
-
-            # Encoding
-            commands = list()
-            for c in self.settings.matrices['test'][current_index].item_list:
-                commands.append(c.text)
-            ax2.imshow(big_lagged_seqs_, aspect='auto')
-            ax2.set_yticklabels(commands)
-            ax2.set_title('Command encoding')
-            ax2.set_xlabel('Sequence (samples)', fontsize=MEDIUM_SIZE)
-            ax2.set_ylabel('Commands', fontsize=MEDIUM_SIZE)
-            plt.yticks(ticks=[i for i in range(len(commands))])
-            plt.xticks(fontsize=SMALL_SIZE)
-        plt.show()
 
     # --------------------- Colors ------------------------
     def open_color_dialog(self, handle):

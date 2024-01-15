@@ -57,9 +57,7 @@ class Settings(SerializableComponent):
             for i in m['item_list']:
                 target = CVEPTarget(text=i['text'],
                                     label=i['label'],
-                                    sequence=i['sequence'],
-                                    functionality=i['functionality'],
-                                    ignored=i['ignored'])
+                                    sequence=i['sequence'])
                 item_list.append(target)
             matrix = CVEPMatrix(n_row=m['n_row'], n_col=m['n_col'])
             matrix.item_list = item_list
@@ -72,9 +70,7 @@ class Settings(SerializableComponent):
             for i in m['item_list']:
                 target = CVEPTarget(text=i['text'],
                                     label=i['label'],
-                                    sequence=i['sequence'],
-                                    functionality=i['functionality'],
-                                    ignored=i['ignored'])
+                                    sequence=i['sequence'])
                 item_list.append(target)
             matrix = CVEPMatrix(n_row=m['n_row'], n_col=m['n_col'])
             matrix.item_list = item_list
@@ -373,8 +369,7 @@ class CVEPMatrix:
 
 class CVEPTarget:
 
-    def __init__(self, row=-1, col=-1, text='', label='', sequence=None,
-                 functionality=FUNC_NONE, ignored=False):
+    def __init__(self, row=-1, col=-1, text='', label='', sequence=None):
         """ Class that represents a target cell of the c-VEP speller matrix.
 
         Parameters
