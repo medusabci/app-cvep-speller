@@ -922,10 +922,8 @@ class VisualizeEncodingDialog(QtWidgets.QDialog, ui_encoding_file):
             self.axes_autocorr.set_ylabel('Norm. $R_{xx}$', fontsize=MEDIUM_SIZE)
             self.axes_autocorr.set_title('M-sequence autocorrelation',
                                          fontsize=MEDIUM_SIZE)
-            # [tick.label.set_fontsize(SMALL_SIZE) for tick in
-            #  self.axes_autocorr.yaxis.get_major_ticks()]
-            # [tick.label.set_fontsize(SMALL_SIZE) for tick in
-            #  self.axes_autocorr.xaxis.get_major_ticks()]
+            self.axes_autocorr.tick_params(axis='x', labelsize=SMALL_SIZE)
+            self.axes_autocorr.tick_params(axis='y', labelsize=SMALL_SIZE)
         pos = self.axes_autocorr.get_position()
         pos.x0 = 0.2
         pos.y0 = 0.15
@@ -944,12 +942,9 @@ class VisualizeEncodingDialog(QtWidgets.QDialog, ui_encoding_file):
             self.axes_encoding.set_title('Command encoding', fontsize=MEDIUM_SIZE)
             self.axes_encoding.set_xlabel('Sequence (samples)', fontsize=MEDIUM_SIZE)
             self.axes_encoding.set_ylabel('Commands', fontsize=MEDIUM_SIZE)
-            # plt.yticks(ticks=[i for i in range(len(commands))])
             self.axes_encoding.set_yticks([i for i in range(len(commands))])
-            # [tick.label.set_fontsize(SMALL_SIZE) for tick in
-            #  self.axes_encoding.yaxis.get_major_ticks()]
-            # [tick.label.set_fontsize(SMALL_SIZE) for tick in
-            #  self.axes_encoding.xaxis.get_major_ticks()]
+            self.axes_encoding.tick_params(axis='x', labelsize=SMALL_SIZE)
+            self.axes_encoding.tick_params(axis='y', labelsize=SMALL_SIZE)
         pos = self.axes_encoding.get_position()
         pos.x0 = 0.2
         pos.y0 = 0.15
