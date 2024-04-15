@@ -1,7 +1,7 @@
 from PySide6.QtUiTools import loadUiType
 from PySide6 import QtGui, QtWidgets, QtCore
 from PySide6.QtCore import Signal, Qt
-from PySide6.QtWidgets import QSizePolicy, QApplication
+from PySide6.QtWidgets import QSizePolicy, QApplication, QColorDialog
 from gui import gui_utils
 from . import settings
 import os
