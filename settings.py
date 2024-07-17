@@ -20,7 +20,7 @@ class Settings(SerializableComponent):
 
         self.matrices = matrices
         if matrices is None:
-            train_matrices, test_matrices = \
+            train_matrices, test_matrices, _ = \
                 self.standard_single_sequence_matrices()
             self.matrices = {'train': train_matrices,
                              'test': test_matrices}
@@ -142,14 +142,14 @@ class Settings(SerializableComponent):
                              'the number of commands (%i) or increment the '
                              'sequence length (supported lengths: 31, 63, '
                              '127 or 255)' % no_commands)
-        tau = int(round(tau))
 
         # Init
         comms = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789/*-+.,' \
                 '_abcdefghijklmnopqrstuvwxyz'
         comms *= 20
         comms_ = comms[:no_commands]
-        lags_ = list(range(no_commands))
+        lags = np.linspace(0, mseqlen, no_commands + 1)[:-1].astype(int)
+        # lags_ = list(range(no_commands))
 
         # M-sequence generation
         if mseqlen == 31:
@@ -173,7 +173,8 @@ class Settings(SerializableComponent):
         # Set up the test matrix
         test_matrix = CVEPMatrix(n_row, n_col)
         for idx, c in enumerate(comms_):
-            seq_ = circular_shift(sequence=seq, lag=lags_[idx] * tau)
+            # seq_ = circular_shift(sequence=seq, lag=lags_[idx] * tau)
+            seq_ = circular_shift(sequence=seq, lag=lags[idx])
             target = CVEPTarget(text=c, label=c, sequence=seq_)
             test_matrix.append(target)
         test_matrix.organize_matrix()
@@ -188,7 +189,11 @@ class Settings(SerializableComponent):
         # Return
         test_matrices = [test_matrix]
         train_matrices = [train_matrix]
-        return train_matrices, test_matrices
+        lags_info = {
+            'tau': tau,
+            'lags': lags
+        }
+        return train_matrices, test_matrices, lags_info
 
 
 class ConnectionSettings:

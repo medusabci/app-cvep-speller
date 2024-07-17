@@ -729,20 +729,20 @@ class Config(QtWidgets.QDialog, ui_main_file):
                         (n_col * n_row, mseqlen)
             error_dialog(error_msg, 'Oops!')
             return
-        if round(tau) == 1:
+        if tau < 2:
             warn_msg = 'With that number of commands (%i) and that sequence ' \
                        'length (%i), the delay between shifted-version ' \
-                       'sequences will be 1. Consider to decrease the number ' \
-                       'of commands or increase the sequence length to space ' \
-                       'more the shifted-sequences and favor the performance' \
-                        % (n_col * n_row, mseqlen)
+                       'sequences will be %.2f. Consider to decrease the ' \
+                       'number of commands or increase the sequence length ' \
+                       'to space more the shifted-sequences and favor the ' \
+                       'performance' \
+                        % (n_col * n_row, mseqlen, tau)
             warning_dialog(warn_msg, 'Be careful!')
-        tau = int(round(tau))
-        self.lineEdit_tau.setText(str(tau))
+        self.lineEdit_tau.setText("%.2f" % tau)
 
         # Compute the matrices
         self.get_settings_from_gui()
-        train_matrices, test_matrices = \
+        train_matrices, test_matrices, lags_info = \
             self.settings.standard_single_sequence_matrices(
             n_row=n_row, n_col=n_col, mseqlen=mseqlen)
         self.settings.matrices = {'train': train_matrices, 'test':
@@ -754,10 +754,6 @@ class Config(QtWidgets.QDialog, ui_main_file):
         # Show the encoding
         order = int(self.lineEdit_order.text())
         seed = self.lineEdit_seed.text()
-        lags_info = {
-            'tau': tau,
-            'lags': [i*tau for i in range(n_row * n_col)]
-        }
         monitor_rate = float(self.spinBox_fpsresolution.value())
         current_index = self.widget_nested_test.currentIndex()
         visualize_dialog = VisualizeEncodingDialog(
@@ -938,6 +934,7 @@ class VisualizeEncodingDialog(QtWidgets.QDialog, ui_encoding_file):
                 commands.append(c.text)
             self.axes_encoding.imshow(big_lagged_seqs_, aspect='auto',
                                       cmap='gray_r')
+            self.axes_encoding.set_yticks(np.arange(len(commands)))
             self.axes_encoding.set_yticklabels(commands)
             self.axes_encoding.set_title('Command encoding', fontsize=MEDIUM_SIZE)
             self.axes_encoding.set_xlabel('Sequence (samples)', fontsize=MEDIUM_SIZE)
@@ -978,8 +975,7 @@ class VisualizeEncodingDialog(QtWidgets.QDialog, ui_encoding_file):
         self.table_values.resizeColumnsToContents()
 
         # Mean tau
-        self.edit_tau.setText("{:.2f}".format(np.mean(np.diff(lags))))
-        self.edit_tau_nocorr.setText("{:.2f}".format(lags_info['tau']))
+        self.edit_tau.setText("{:.2f}".format(lags_info['tau']))
 
         # Advise
         if np.all(min_p == values[1:]):
