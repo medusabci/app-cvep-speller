@@ -672,23 +672,32 @@ class Config(QtWidgets.QDialog, ui_main_file):
                 notch = None
 
             # Train the model
+            art_rej = None
+            if self.checkBox_calibration_art_rej.isChecked():
+                art_rej = 3.0
             model = cvep_spellers.CVEPModelCircularShifting(
                 bpf=bpf,
                 notch=notch,
-                art_rej=3.0,
+                art_rej=art_rej,
                 correct_raster_latencies=False
             )
             try:
                 fitted_info = model.fit_dataset(dataset)
             except Exception as e:
                 error_dialog(str(e), "Cannot train model!")
+                return
+            if art_rej is not None:
+                print(self.TAG, 'Model trained\n  > Discarded %i/%i epochs!' %
+                      (fitted_info['no_discarded_epochs'],
+                       fitted_info['no_total_epochs']))
+            else:
+                print(self.TAG, 'Model trained')
 
-            model_pkl = model.to_pickleable_obj()
-            print(self.TAG, 'Model trained\n  > Discarded %i/%i epochs!' %
-                  (fitted_info['no_discarded_epochs'],
-                   fitted_info['no_total_epochs']))
+            # Disable art_rej for online mode
+            model.get_inst("clf_method").art_rej = None
 
             # Save model
+            model_pkl = model.to_pickleable_obj()
             fdialog = QtWidgets.QFileDialog()
             fname = fdialog.getSaveFileName(
                 fdialog, 'Save c-VEP Model',

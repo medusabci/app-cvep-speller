@@ -27,7 +27,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="widget_train_matrices">
        <attribute name="title">
@@ -89,7 +89,7 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>510</width>
+               <width>515</width>
                <height>371</height>
               </rect>
              </property>
@@ -337,7 +337,7 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>524</width>
+               <width>529</width>
                <height>315</height>
               </rect>
              </property>
@@ -407,7 +407,7 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>510</width>
+               <width>515</width>
                <height>546</height>
               </rect>
              </property>
@@ -691,7 +691,7 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>510</width>
+               <width>515</width>
                <height>463</height>
               </rect>
              </property>
@@ -915,7 +915,7 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>524</width>
+               <width>529</width>
                <height>315</height>
               </rect>
              </property>
@@ -1048,6 +1048,16 @@
                      <string>Circular Shifting</string>
                     </property>
                    </item>
+                  </widget>
+                 </item>
+                 <item row="1" column="1">
+                  <widget class="QCheckBox" name="checkBox_calibration_art_rej">
+                   <property name="text">
+                    <string>Reject noisy calibration epochs</string>
+                   </property>
+                   <property name="checked">
+                    <bool>true</bool>
+                   </property>
                   </widget>
                  </item>
                 </layout>

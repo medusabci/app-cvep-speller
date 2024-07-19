@@ -133,10 +133,22 @@ class App(resources.AppSkeleton):
         for lsl_info in working_lsl_streams_info:
             if lsl_info['lsl_type'] == 'EEG':
                 count += 1
-        if count == 1:
-            return True
-        else:
-            return False
+                # Check if labels are correct
+                ch_set = meeg.EEGChannelSet()
+                try:
+                    ch_set.set_standard_montage(l_cha=lsl_info['l_cha'])
+                except meeg.ChannelNotFound as e:
+                    raise exceptions.IncorrectLSLConfig(
+                    "It seems that channel labels are not present in the LSL "
+                    "stream. This application requires standard labels to use "
+                    "topographic coordinates and perform artifact rejection. "
+                    "Original exception: %s" % str(e)
+                )
+        if count == 0:
+            raise exceptions.IncorrectLSLConfig(
+                "No EEG stream detected. This application requires an EEG "
+                "stream. Please check the LSL configuration."
+            )
 
     def check_settings_config(self, app_settings):
         """Check settings config.
