@@ -2,6 +2,7 @@
 import asyncio
 import subprocess
 import multiprocessing as mp
+import os
 # Medusa modules
 import constants
 from .app_constants import *
@@ -79,7 +80,9 @@ class AppController(TCPServer):
     def start_application(self):
         """ Starts the Unity application that will act as a TCP client. """
         try:
-            subprocess.call([self.app_settings.connection_settings.path_to_exe,
+            path_to_exe = os.path.dirname(__file__) +  \
+                               '/unity/c-VEP Speller.exe'
+            subprocess.call([path_to_exe,
                              self.app_settings.connection_settings.ip,
                              str(self.app_settings.connection_settings.port)])
         except Exception as ex:

@@ -197,16 +197,10 @@ class Settings(SerializableComponent):
 
 
 class ConnectionSettings:
-    def __init__(self, path_to_exe=None, ip="127.0.0.1", port=50000):
-        self.path_to_exe = path_to_exe
+
+    def __init__(self, ip="127.0.0.1", port=50000):
         self.ip = ip
         self.port = port
-
-        # Default .exe path
-        if self.path_to_exe is None:
-            self.path_to_exe = os.path.dirname(__file__) +  \
-                               '/unity/c-VEP Speller.exe'
-
 
 class RunSettings:
     def __init__(self, user="S0X", session="Train", run=1,

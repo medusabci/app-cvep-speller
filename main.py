@@ -153,11 +153,6 @@ class App(resources.AppSkeleton):
     def check_settings_config(self, app_settings):
         """Check settings config.
         By default, this function check if unity path exits"""
-
-        if not os.path.exists(app_settings.connection_settings.path_to_exe):
-            raise exceptions.IncorrectSettingsConfig(
-                "Incorrect path of Unity file: " +
-                app_settings.connection_settings.path_to_exe)
         if app_settings.run_settings.mode == ONLINE_MODE:
             # Check if we are on online and no model is specified
             if app_settings.run_settings.cvep_model_path == '':
