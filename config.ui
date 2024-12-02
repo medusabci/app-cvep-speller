@@ -13,21 +13,33 @@
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <layout class="QHBoxLayout" name="horizontalLayout_7">
+  <layout class="QVBoxLayout" name="verticalLayout_12">
    <item>
     <widget class="QSplitter" name="splitter">
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>16777215</height>
+      </size>
+     </property>
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
      <widget class="QTabWidget" name="train_test_box">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
       <property name="minimumSize">
        <size>
-        <width>174</width>
+        <width>300</width>
         <height>0</height>
        </size>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="widget_train_matrices">
        <attribute name="title">
@@ -81,6 +93,17 @@
          <layout class="QVBoxLayout" name="verticalLayout_4">
           <item>
            <widget class="QToolBox" name="toolBox">
+            <property name="baseSize">
+             <size>
+              <width>0</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <stylestrategy>PreferAntialias</stylestrategy>
+             </font>
+            </property>
             <property name="currentIndex">
              <number>0</number>
             </property>
@@ -89,7 +112,7 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>515</width>
+               <width>429</width>
                <height>371</height>
               </rect>
              </property>
@@ -206,7 +229,7 @@
                  </layout>
                 </item>
                 <item row="4" column="0">
-                 <widget class="QLabel" name="label_target">
+                 <widget class="QLabel" name="label_train_cycles">
                   <property name="text">
                    <string>Train cycles</string>
                   </property>
@@ -223,7 +246,7 @@
                  </widget>
                 </item>
                 <item row="5" column="0">
-                 <widget class="QLabel" name="label_traintarget">
+                 <widget class="QLabel" name="label_train_trials">
                   <property name="text">
                    <string>Train trials</string>
                   </property>
@@ -237,7 +260,7 @@
                  </widget>
                 </item>
                 <item row="6" column="0">
-                 <widget class="QLabel" name="label_erp_model">
+                 <widget class="QLabel" name="label_test_cycles">
                   <property name="text">
                    <string>Test cycles</string>
                   </property>
@@ -254,7 +277,12 @@
                  </widget>
                 </item>
                 <item row="7" column="0">
-                 <widget class="QLabel" name="label_csd_model">
+                 <widget class="QLabel" name="label_cvep_model">
+                  <property name="font">
+                   <font>
+                    <stylestrategy>PreferAntialias</stylestrategy>
+                   </font>
+                  </property>
                   <property name="text">
                    <string>C-VEP model </string>
                   </property>
@@ -273,6 +301,24 @@
                     <property name="enabled">
                      <bool>false</bool>
                     </property>
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="minimumSize">
+                     <size>
+                      <width>0</width>
+                      <height>0</height>
+                     </size>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <pointsize>9</pointsize>
+                      <stylestrategy>PreferAntialias</stylestrategy>
+                     </font>
+                    </property>
                     <property name="app" stdset="0">
                      <string>erp_speller</string>
                     </property>
@@ -280,6 +326,11 @@
                   </item>
                   <item>
                    <widget class="QPushButton" name="btn_browse_cvepmodel">
+                    <property name="font">
+                     <font>
+                      <stylestrategy>PreferAntialias</stylestrategy>
+                     </font>
+                    </property>
                     <property name="text">
                      <string>Browse</string>
                     </property>
@@ -323,6 +374,12 @@
                 </item>
                 <item row="8" column="1">
                  <widget class="QTextEdit" name="textEdit_monitor_rates">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
                   <property name="readOnly">
                    <bool>true</bool>
                   </property>
@@ -337,8 +394,8 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>529</width>
-               <height>315</height>
+               <width>443</width>
+               <height>285</height>
               </rect>
              </property>
              <attribute name="label">
@@ -407,8 +464,8 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>515</width>
-               <height>546</height>
+               <width>429</width>
+               <height>529</height>
               </rect>
              </property>
              <attribute name="label">
@@ -422,62 +479,282 @@
                   <property name="title">
                    <string>Sequence events</string>
                   </property>
-                  <layout class="QFormLayout" name="formLayout_7">
-                   <item row="0" column="0">
-                    <widget class="QLabel" name="label_6">
-                     <property name="text">
-                      <string>Box color for 0</string>
-                     </property>
-                    </widget>
+                  <layout class="QVBoxLayout" name="verticalLayout_14">
+                   <item>
+                    <layout class="QHBoxLayout" name="box0">
+                     <item>
+                      <widget class="QLabel" name="label_color_box_0">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="text">
+                        <string>Box color for 0</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QPushButton" name="btn_color_box0">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Minimum">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="text">
+                        <string/>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QLabel" name="label_op_box_0">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="text">
+                        <string>alpha</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QSpinBox" name="spinBox_op_box_0">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="maximum">
+                        <number>100</number>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QLabel" name="label_5">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="text">
+                        <string>%</string>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
                    </item>
-                   <item row="0" column="1">
-                    <widget class="QPushButton" name="btn_color_box0">
-                     <property name="text">
-                      <string/>
-                     </property>
-                    </widget>
+                   <item>
+                    <layout class="QHBoxLayout" name="box1">
+                     <item>
+                      <widget class="QLabel" name="label_color_box_1">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="text">
+                        <string>Box color for 1</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QPushButton" name="btn_color_box1">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Minimum">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="text">
+                        <string/>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QLabel" name="label_op_box_1">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="text">
+                        <string>alpha</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QSpinBox" name="spinBox_op_box_1">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Minimum">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="maximum">
+                        <number>100</number>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QLabel" name="label_6">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="text">
+                        <string>%</string>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
                    </item>
-                   <item row="1" column="0">
-                    <widget class="QLabel" name="label_7">
-                     <property name="text">
-                      <string>Box color for 1</string>
-                     </property>
-                    </widget>
+                   <item>
+                    <layout class="QHBoxLayout" name="text0">
+                     <item>
+                      <widget class="QLabel" name="label_text_0">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="text">
+                        <string>Text color for 0</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QPushButton" name="btn_color_text0">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Minimum">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="text">
+                        <string/>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QLabel" name="label_op_text_0">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="text">
+                        <string>alpha</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QSpinBox" name="spinBox_op_text_0">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Minimum">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="maximum">
+                        <number>100</number>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QLabel" name="label_7">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="text">
+                        <string>%</string>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
                    </item>
-                   <item row="1" column="1">
-                    <widget class="QPushButton" name="btn_color_box1">
-                     <property name="text">
-                      <string/>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="2" column="0">
-                    <widget class="QLabel" name="label_8">
-                     <property name="text">
-                      <string>Text color for 0</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="3" column="0">
-                    <widget class="QLabel" name="label_9">
-                     <property name="text">
-                      <string>Text color for 1</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="2" column="1">
-                    <widget class="QPushButton" name="btn_color_text0">
-                     <property name="text">
-                      <string/>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="3" column="1">
-                    <widget class="QPushButton" name="btn_color_text1">
-                     <property name="text">
-                      <string/>
-                     </property>
-                    </widget>
+                   <item>
+                    <layout class="QHBoxLayout" name="text1">
+                     <item>
+                      <widget class="QLabel" name="label_text_1">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="text">
+                        <string>Text color for 1</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QPushButton" name="btn_color_text1">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Minimum">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="text">
+                        <string/>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QLabel" name="label_op_text_1">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="text">
+                        <string>alpha</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QSpinBox" name="spinBox_op_text_1">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Minimum">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="maximum">
+                        <number>100</number>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QLabel" name="label_8">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="text">
+                        <string>%</string>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
                    </item>
                   </layout>
                  </widget>
@@ -489,33 +766,13 @@
                   </property>
                   <layout class="QFormLayout" name="formLayout_5">
                    <item row="0" column="0">
-                    <widget class="QLabel" name="label_color_background">
-                     <property name="text">
-                      <string>Background</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="0" column="1">
-                    <widget class="QToolButton" name="btn_color_background">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="text">
-                      <string/>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="1" column="0">
                     <widget class="QLabel" name="label_color_target_box">
                      <property name="text">
                       <string>Highlight target</string>
                      </property>
                     </widget>
                    </item>
-                   <item row="1" column="1">
+                   <item row="0" column="1">
                     <widget class="QToolButton" name="btn_color_target_box">
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
@@ -528,14 +785,14 @@
                      </property>
                     </widget>
                    </item>
-                   <item row="2" column="0">
+                   <item row="1" column="0">
                     <widget class="QLabel" name="label_color_highlight_result_box">
                      <property name="text">
                       <string>Highlight result</string>
                      </property>
                     </widget>
                    </item>
-                   <item row="2" column="1">
+                   <item row="1" column="1">
                     <widget class="QToolButton" name="btn_color_highlight_result_box">
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
@@ -564,13 +821,6 @@
                      </property>
                     </widget>
                    </item>
-                   <item row="2" column="0">
-                    <widget class="QLabel" name="label_color_fps_bad">
-                     <property name="text">
-                      <string>Bad FPS</string>
-                     </property>
-                    </widget>
-                   </item>
                    <item row="1" column="1">
                     <widget class="QToolButton" name="btn_color_fps_good">
                      <property name="sizePolicy">
@@ -581,6 +831,13 @@
                      </property>
                      <property name="text">
                       <string/>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="2" column="0">
+                    <widget class="QLabel" name="label_color_fps_bad">
+                     <property name="text">
+                      <string>Bad FPS</string>
                      </property>
                     </widget>
                    </item>
@@ -617,13 +874,6 @@
                      <property name="formAlignment">
                       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
                      </property>
-                     <item row="0" column="0">
-                      <widget class="QLabel" name="label_color_result_info_box">
-                       <property name="text">
-                        <string>Information background</string>
-                       </property>
-                      </widget>
-                     </item>
                      <item row="0" column="1">
                       <widget class="QToolButton" name="btn_color_result_info_box">
                        <property name="sizePolicy">
@@ -641,19 +891,6 @@
                       <widget class="QLabel" name="label_color_result_info_label">
                        <property name="text">
                         <string>Information label</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="1" column="1">
-                      <widget class="QToolButton" name="btn_color_result_info_label">
-                       <property name="sizePolicy">
-                        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-                         <horstretch>0</horstretch>
-                         <verstretch>0</verstretch>
-                        </sizepolicy>
-                       </property>
-                       <property name="text">
-                        <string/>
                        </property>
                       </widget>
                      </item>
@@ -677,9 +914,145 @@
                        </property>
                       </widget>
                      </item>
+                     <item row="1" column="1">
+                      <widget class="QToolButton" name="btn_color_result_info_label">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="text">
+                        <string/>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="0" column="0">
+                      <widget class="QLabel" name="label_color_result_info_box">
+                       <property name="text">
+                        <string>Information background</string>
+                       </property>
+                      </widget>
+                     </item>
                     </layout>
                    </item>
                   </layout>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </widget>
+            <widget class="QWidget" name="param_background_box">
+             <property name="geometry">
+              <rect>
+               <x>0</x>
+               <y>0</y>
+               <width>443</width>
+               <height>285</height>
+              </rect>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <attribute name="label">
+              <string>Background</string>
+             </attribute>
+             <layout class="QVBoxLayout" name="verticalLayout_11">
+              <item>
+               <layout class="QFormLayout" name="Background">
+                <item row="0" column="0">
+                 <widget class="QLabel" name="label_scenario_background">
+                  <property name="text">
+                   <string>Background</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="1">
+                 <widget class="QComboBox" name="comboBox_scenario_name">
+                  <item>
+                   <property name="text">
+                    <string>Solid Color</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>Real Scenario</string>
+                   </property>
+                  </item>
+                 </widget>
+                </item>
+                <item row="1" column="0">
+                 <widget class="QLabel" name="label_color_background">
+                  <property name="text">
+                   <string>Color</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="1">
+                 <widget class="QToolButton" name="btn_color_background">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="0">
+                 <widget class="QPushButton" name="btn_browse_scenario">
+                  <property name="text">
+                   <string>Browse</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="1">
+                 <widget class="QLineEdit" name="lineEdit_scenario">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>16777215</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                    <stylestrategy>PreferAntialias</stylestrategy>
+                   </font>
+                  </property>
+                  <property name="layoutDirection">
+                   <enum>Qt::LeftToRight</enum>
+                  </property>
+                  <property name="autoFillBackground">
+                   <bool>false</bool>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                  </property>
                  </widget>
                 </item>
                </layout>
@@ -691,7 +1064,7 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>515</width>
+               <width>429</width>
                <height>463</height>
               </rect>
              </property>
@@ -915,8 +1288,8 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>529</width>
-               <height>315</height>
+               <width>429</width>
+               <height>297</height>
               </rect>
              </property>
              <attribute name="label">

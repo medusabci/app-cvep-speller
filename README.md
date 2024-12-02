@@ -40,6 +40,9 @@ Colors:
 
 - The colors functionality allows you to use different colors for the GUI and the encoding of the binary m-sequences. Try it out!
 
+Background: 
+- This feature allows you to personalize your background with a choice between a solid color or a realistic scene. Simply upload an image from your gallery to set it as your background.
+
 Model training:
 
 - Use the button “Train model” to train the decoding model. Signal processing is entirely based on the “reference processing pipeline” for c-VEP-BCIs based on circular shifting (check this out to know more).

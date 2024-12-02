@@ -111,7 +111,6 @@ class AppController(TCPServer):
         msg["photodiodeEnabled"] =  \
             self.app_settings.run_settings.enable_photodiode
         msg["matrices"] = self.app_settings.get_dict_matrices()
-        msg["color_background"] = self.app_settings.colors.color_background
         msg["color_target_box"] = self.app_settings.colors.color_target_box
         msg["color_highlight_result_box"] =  \
             self.app_settings.colors.color_highlight_result_box
@@ -124,9 +123,16 @@ class AppController(TCPServer):
         msg["color_fps_good"] = self.app_settings.colors.color_fps_good
         msg["color_fps_bad"] = self.app_settings.colors.color_fps_bad
         msg["color_box_0"] = self.app_settings.colors.color_box_0
+        msg["color_op_box_0"] = self.app_settings.colors.color_op_box_0
         msg["color_box_1"] = self.app_settings.colors.color_box_1
+        msg["color_op_box_1"] = self.app_settings.colors.color_op_box_1
         msg["color_text_0"] = self.app_settings.colors.color_text_0
+        msg["color_op_text_0"] = self.app_settings.colors.color_op_text_0
         msg["color_text_1"] = self.app_settings.colors.color_text_1
+        msg["color_op_text_1"] = self.app_settings.colors.color_op_text_1
+        msg["scenario_name"] = self.app_settings.background.scenario_name
+        msg["color_background"] = self.app_settings.background.color_background
+        msg["scenario_path"] = self.app_settings.background.scenario_path
 
         self.send_command(msg)
 

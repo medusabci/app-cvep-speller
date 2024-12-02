@@ -63,6 +63,32 @@ class Config(QtWidgets.QDialog, ui_main_file):
         self.changes_made = False
         self.notifications = NotificationStack(parent=self, timer_ms=500)
 
+        # Adjust parameters depending on default option
+        if self.comboBox_mode.currentText() == 'Online':
+            self.train_test_box.setCurrentIndex(1)
+            self.lineEdit_session.setText('Test')
+            self.label_cvep_model.setVisible(True)
+            self.label_test_cycles.setVisible(True)
+            self.spinBox_testcycles.setVisible(True)
+            self.lineEdit_cvepmodel.setVisible(True)
+            self.btn_browse_cvepmodel.setVisible(True)
+            self.label_train_trials.setVisible(False)
+            self.label_train_cycles.setVisible(False)
+            self.spinBox_traincycles.setVisible(False)
+            self.spinBox_traintrials.setVisible(False)
+        else:
+            self.train_test_box.setCurrentIndex(0)
+            self.lineEdit_session.setText('Train')
+            self.label_cvep_model.setVisible(False)
+            self.label_test_cycles.setVisible(False)
+            self.spinBox_testcycles.setVisible(False)
+            self.lineEdit_cvepmodel.setVisible(False)
+            self.btn_browse_cvepmodel.setVisible(False)
+            self.label_train_trials.setVisible(True)
+            self.label_train_cycles.setVisible(True)
+            self.spinBox_traincycles.setVisible(True)
+            self.spinBox_traintrials.setVisible(True)
+
         # Connect signals
         self.btn_reset.clicked.connect(self.reset)
         self.btn_save.clicked.connect(self.save)
@@ -75,6 +101,7 @@ class Config(QtWidgets.QDialog, ui_main_file):
             self.on_seqlen_changed)
         self.spinBox_fpsresolution.valueChanged.connect(
             self.on_fpsresolution_changed)
+        self.comboBox_mode.currentIndexChanged.connect(self.on_mode_changed)
 
         # Color buttons
         self.btn_color_box0.clicked.connect(self.open_color_dialog(
@@ -85,8 +112,6 @@ class Config(QtWidgets.QDialog, ui_main_file):
             self.btn_color_text0))
         self.btn_color_text1.clicked.connect(
             self.open_color_dialog(self.btn_color_text1))
-        self.btn_color_background.clicked.connect(self.open_color_dialog(
-            self.btn_color_background))
         self.btn_color_target_box.clicked.connect(self.open_color_dialog(
             self.btn_color_target_box))
         self.btn_color_highlight_result_box.clicked.connect(
@@ -101,6 +126,19 @@ class Config(QtWidgets.QDialog, ui_main_file):
             self.open_color_dialog(self.btn_color_result_info_label))
         self.btn_color_result_info_text.clicked.connect(
             self.open_color_dialog(self.btn_color_result_info_text))
+
+        # Background buttons
+        if self.comboBox_scenario_name.currentText() == "Solid Color":
+            self.lineEdit_scenario.setVisible(False)
+            self.btn_browse_scenario.setVisible(False)
+        elif self.comboBox_scenario_name.currentText() == "Real Scenario":
+            self.label_color_background.setVisible(False)
+            self.btn_color_background.setVisible(False)
+
+        self.comboBox_scenario_name.currentIndexChanged.connect(self.on_background_changed)
+        self.btn_browse_scenario.clicked.connect(self.browse_scenario)
+        self.btn_color_background.clicked.connect(self.open_color_dialog(
+            self.btn_color_background))
 
         # Set settings to GUI
         self.set_settings_to_gui()
@@ -157,8 +195,28 @@ class Config(QtWidgets.QDialog, ui_main_file):
     def on_mode_changed(self):
         if self.comboBox_mode.currentText() == 'Online':
             self.train_test_box.setCurrentIndex(1)
+            self.lineEdit_session.setText('Test')
+            self.label_cvep_model.setVisible(True)
+            self.label_test_cycles.setVisible(True)
+            self.spinBox_testcycles.setVisible(True)
+            self.lineEdit_cvepmodel.setVisible(True)
+            self.btn_browse_cvepmodel.setVisible(True)
+            self.label_train_trials.setVisible(False)
+            self.label_train_cycles.setVisible(False)
+            self.spinBox_traincycles.setVisible(False)
+            self.spinBox_traintrials.setVisible(False)
         else:
             self.train_test_box.setCurrentIndex(0)
+            self.lineEdit_session.setText('Train')
+            self.label_cvep_model.setVisible(False)
+            self.label_test_cycles.setVisible(False)
+            self.spinBox_testcycles.setVisible(False)
+            self.lineEdit_cvepmodel.setVisible(False)
+            self.btn_browse_cvepmodel.setVisible(False)
+            self.label_train_trials.setVisible(True)
+            self.label_train_cycles.setVisible(True)
+            self.spinBox_traincycles.setVisible(True)
+            self.spinBox_traintrials.setVisible(True)
 
     def on_seqlen_changed(self):
         mseqlen = int(self.comboBox_seqlength.currentText())
@@ -196,6 +254,22 @@ class Config(QtWidgets.QDialog, ui_main_file):
         self.lineEdit_tau.setText(str(tau))
         self.lineEdit_cycleduration.setText(str(cycle_dur))
 
+    def on_background_changed(self):
+        if self.comboBox_scenario_name.currentText() == "Solid Color":
+            self.btn_color_background.setVisible(True)
+            self.label_color_background.setVisible(True)
+            self.lineEdit_scenario.setVisible(False)
+            self.btn_browse_scenario.setVisible(False)
+            gui_utils.modify_property(self.btn_color_background,
+                                      'background-color',
+                                      self.settings.background.color_background[:7])
+
+        elif self.comboBox_scenario_name.currentText() == "Real Scenario":
+            self.btn_color_background.setVisible(False)
+            self.label_color_background.setVisible(False)
+            self.lineEdit_scenario.setVisible(True)
+            self.btn_browse_scenario.setVisible(True)
+
     def set_settings_to_gui(self):
         # Run settings
         self.lineEdit_user.setText(self.settings.run_settings.user)
@@ -226,36 +300,45 @@ class Config(QtWidgets.QDialog, ui_main_file):
         # Colors
         gui_utils.modify_property(self.btn_color_box0, 'background-color',
                                   self.settings.colors.color_box_0[:7])
+        self.spinBox_op_box_0.setValue(self.settings.colors.color_op_box_0)
         gui_utils.modify_property(self.btn_color_box1, 'background-color',
                                   self.settings.colors.color_box_1[:7])
+        self.spinBox_op_box_1.setValue(self.settings.colors.color_op_box_1)
         gui_utils.modify_property(self.btn_color_text0, 'background-color',
                                   self.settings.colors.color_text_0[:7])
+        self.spinBox_op_text_0.setValue(self.settings.colors.color_op_text_0)
         gui_utils.modify_property(self.btn_color_text1, 'background-color',
                                   self.settings.colors.color_text_1[:7])
-        gui_utils.modify_property(self.btn_color_background, 'background-color',
-                                  self.settings.colors.color_background[:7])
+        self.spinBox_op_text_1.setValue(self.settings.colors.color_op_text_1)
         gui_utils.modify_property(self.btn_color_target_box, 'background-color',
                                   self.settings.colors.color_target_box[:7])
         gui_utils.modify_property(self.btn_color_highlight_result_box,
                                   'background-color',
-                                  self.settings.colors.color_highlight_result_box[
-                                  :7])
-        gui_utils.modify_property(self.btn_color_fps_good, 'background-color',
+                                  self.settings.colors.color_highlight_result_box[:7])
+        gui_utils.modify_property(self.btn_color_fps_good,
+                            'background-color',
                                   self.settings.colors.color_fps_good[:7])
-        gui_utils.modify_property(self.btn_color_fps_bad, 'background-color',
+        gui_utils.modify_property(self.btn_color_fps_bad,
+                                  'background-color',
                                   self.settings.colors.color_fps_bad[:7])
         gui_utils.modify_property(self.btn_color_result_info_box,
                                   'background-color',
-                                  self.settings.colors.color_result_info_box[
-                                  :7])
+                                  self.settings.colors.color_result_info_box[:7])
         gui_utils.modify_property(self.btn_color_result_info_label,
                                   'background-color',
-                                  self.settings.colors.color_result_info_label[
-                                  :7])
+                                  self.settings.colors.color_result_info_label[:7])
         gui_utils.modify_property(self.btn_color_result_info_text,
                                   'background-color',
-                                  self.settings.colors.color_result_info_text[
-                                  :7])
+                                  self.settings.colors.color_result_info_text[:7])
+
+        # Background
+        self.comboBox_scenario_name.setCurrentText(self.settings.background.scenario_name)
+        gui_utils.modify_property(self.btn_color_background,
+                                  'background-color',
+                                  self.settings.background.color_background[:7])
+        self.lineEdit_scenario.setText(
+            self.settings.background.scenario_path)
+
 
         # Useful PyQt policies
         policy_max_pre = QSizePolicy(QSizePolicy.Maximum, QSizePolicy.Preferred)
@@ -345,7 +428,7 @@ class Config(QtWidgets.QDialog, ui_main_file):
             new_tab = QtWidgets.QFrame()
             new_tab.setLayout(global_layout)
             gui_utils.modify_property(new_tab, 'background-color',
-                                      self.settings.colors.color_background[:7])
+                                      self.settings.background.color_background[:7])
             self.update_tab(self.widget_nested_test, m, new_tab)
         self.spinBox_nrow.setValue(self.settings.matrices['test'][0].n_row)
         self.spinBox_ncol.setValue(self.settings.matrices['test'][0].n_col)
@@ -434,7 +517,7 @@ class Config(QtWidgets.QDialog, ui_main_file):
             new_tab = QtWidgets.QFrame()
             new_tab.setLayout(global_layout)
             gui_utils.modify_property(new_tab, 'background-color',
-                                      self.settings.colors.color_background[:7])
+                                      self.settings.background.color_background[:7])
             self.update_tab(self.widget_nested_train, m, new_tab)
 
         # Filter cutoffs according to fps_resolution
@@ -513,14 +596,16 @@ class Config(QtWidgets.QDialog, ui_main_file):
         # Colors
         self.settings.colors.color_box_0 = gui_utils.get_property(
             self.btn_color_box0, 'background-color')
+        self.settings.colors.color_op_box_0 = self.spinBox_op_box_0.value()
         self.settings.colors.color_box_1 = gui_utils.get_property(
             self.btn_color_box1, 'background-color')
+        self.settings.colors.color_op_box_1 = self.spinBox_op_box_1.value()
         self.settings.colors.color_text_0 = gui_utils.get_property(
             self.btn_color_text0, 'background-color')
+        self.settings.colors.color_op_text_0 = self.spinBox_op_text_0.value()
         self.settings.colors.color_text_1 = gui_utils.get_property(
             self.btn_color_text1, 'background-color')
-        self.settings.colors.color_background = gui_utils.get_property(
-            self.btn_color_background, 'background-color')
+        self.settings.colors.color_op_text_1 = self.spinBox_op_text_1.value()
         self.settings.colors.color_target_box = gui_utils.get_property(
             self.btn_color_target_box, 'background-color')
         self.settings.colors.color_highlight_result_box = gui_utils.get_property(
@@ -535,6 +620,12 @@ class Config(QtWidgets.QDialog, ui_main_file):
             self.btn_color_result_info_label, 'background-color')
         self.settings.colors.color_result_info_text = gui_utils.get_property(
             self.btn_color_result_info_text, 'background-color')
+
+        # Background
+        self.settings.background.scenario_name = self.comboBox_scenario_name.currentText()
+        self.settings.background.color_background = gui_utils.get_property(
+            self.btn_color_background, 'background-color')
+        self.settings.background.scenario_path = self.lineEdit_scenario.text()
 
     def update_gui(self):
         self.get_settings_from_gui()
@@ -721,6 +812,17 @@ class Config(QtWidgets.QDialog, ui_main_file):
                                                          dir=directory,
                                                          filter=filt)
         self.lineEdit_cvepmodel.setText(filepath[0])
+
+    def browse_scenario(self):
+        filt = "Image (*.jpg *.jpeg *.png)"
+        directory = os.path.dirname(__file__) + "/background/"
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+            print('Created directory %s!' % directory)
+        filepath = QtWidgets.QFileDialog.getOpenFileName(caption="Scenario",
+                                                         dir=directory,
+                                                         filter=filt)
+        self.lineEdit_scenario.setText(filepath[0])
 
     def update_test_matrix(self):
         # Get the parameters

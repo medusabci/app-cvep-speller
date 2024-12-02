@@ -40,21 +40,21 @@ ScriptsOnlyBuild:
     - Class: 104
       Script: {instanceID: 0}
     - Class: 114
-      Script: {instanceID: 1574}
+      Script: {instanceID: 1560}
     - Class: 114
-      Script: {instanceID: 1762}
+      Script: {instanceID: 1748}
     - Class: 114
-      Script: {instanceID: 2104}
+      Script: {instanceID: 2090}
     - Class: 114
-      Script: {instanceID: 2400}
+      Script: {instanceID: 2386}
     - Class: 114
-      Script: {instanceID: 2512}
+      Script: {instanceID: 2498}
     - Class: 114
-      Script: {instanceID: 2680}
+      Script: {instanceID: 2666}
     - Class: 114
-      Script: {instanceID: 2864}
+      Script: {instanceID: 2850}
     - Class: 114
-      Script: {instanceID: 19304}
+      Script: {instanceID: 19278}
     - Class: 115
       Script: {instanceID: 0}
     - Class: 128
@@ -140,7 +140,7 @@ ScriptsOnlyBuild:
     className: Shadow
   - hash:
       serializedVersion: 2
-      Hash: d195ca178f92016a33f78d0a6ff7ad9f
+      Hash: 514eb0ff8ab479669f4eb26a3b752d04
     assemblyName: Assembly-CSharp.dll
     namespaceName: 
     className: Manager
@@ -513,4 +513,5 @@ ScriptsOnlyBuild:
   platform: 19
   scenePathNames:
   - Assets/Scenes/SampleScene.unity
-  playerPath: D:/app-cvep-speller/unity/c-VEP Speller.exe
+  playerPath: D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP
+    Speller.exe

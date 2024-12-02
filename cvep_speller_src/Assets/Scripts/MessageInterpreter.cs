@@ -92,6 +92,16 @@ public class MessageInterpreter
         public string color_text_0;
         public string color_text_1;
 
+        //Opacity
+        public float color_op_box_0;
+        public float color_op_box_1;
+        public float color_op_text_0;
+        public float color_op_text_1;
+
+        //Scenario
+        public string scenario_name;
+        public string scenario_path;
+
         public static ParameterDecoder getParametersFromJSON(string jsonString)
         {
             ParameterDecoder p = JsonConvert.DeserializeObject<ParameterDecoder>(jsonString);

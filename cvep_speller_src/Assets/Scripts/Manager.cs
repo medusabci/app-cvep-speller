@@ -17,6 +17,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
+using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -98,11 +99,11 @@ public class Manager : MonoBehaviour
     // Colors
     public Color32 defaultBoxColor = new Color32(255, 255, 255, 255);
     public Color32 highlightBoxColor = new Color32(75, 75, 75, 255);
-    public Color32 targetBoxColor = new Color32(255, 25, 91, 255);
     public Color32 defaultTextColor = new Color32(183, 183, 183, 255);
-    public Color32 highlightTextColor = new Color32(255, 255, 255, 255);
+    public Color32 targetBoxColor = new Color32(255, 25, 91, 255);
+    public Color32 targetTextColor = new Color32(255, 25, 91, 255);
     public Color32 highlightResultBoxColor = new Color32(3, 252, 90, 255);
-    public Color32 backgroundColor = new Color32(183, 183, 183, 255);
+    public Color32 highlightResultTextColor = new Color32(3, 252, 90, 255);
     public Color32 goodFPSColor = new Color32(94, 229, 125, 255);
     public Color32 badFPSColor = new Color32(180, 50, 40, 255);
     public Color32 resultBoxColor = new Color32(140, 140, 140, 255);
@@ -112,6 +113,17 @@ public class Manager : MonoBehaviour
     public Color32 colorBox1 = new Color32(0, 0, 0, 255);
     public Color32 colorText0 = new Color32(0, 0, 0, 255);
     public Color32 colorText1 = new Color32(255, 255, 255, 255);
+
+    // Opacity
+    public float colorOpBox0 = 100.0f;
+    public float colorOpBox1 = 100.0f;
+    public float colorOpText0 = 100.0f;
+    public float colorOpText1 = 100.0f;
+
+    // Scenarios
+    private Image backgroundScenario;
+    public string scenarioName;
+    public string scenarioPath;
 
     // FPS counter
     private float updateCount = 0;
@@ -284,6 +296,7 @@ public class Manager : MonoBehaviour
                 {
                     concatenateNewResult(lastResult);
                     matrixTest[lastResultCoords[1], lastResultCoords[2]].GetComponent<Image>().color = highlightResultBoxColor;
+                    matrixTest[lastResultCoords[1], lastResultCoords[2]].transform.Find("CellText").GetComponent<Text>().color = highlightResultTextColor;
                     lastResult = "";
                 }
             }
@@ -292,6 +305,7 @@ public class Manager : MonoBehaviour
             {
                 // Default color
                 matrixTest[lastResultCoords[1], lastResultCoords[2]].GetComponent<Image>().color = defaultBoxColor;
+                matrixTest[lastResultCoords[1], lastResultCoords[2]].transform.Find("CellText").GetComponent<Text>().color = defaultTextColor;
             }
 
             if (resultstate == STATE_RESULT_END)
@@ -688,20 +702,74 @@ public class Manager : MonoBehaviour
             photodiodeCell.SetActive(false);
         }
 
-        // Set up the default colors
+        // Set up the default background
         mainCamera = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
-        mainCamera.backgroundColor = hexToColor(parameters.color_background);
         mainCanvas = GameObject.Find("Canvas").GetComponent<Canvas>();
+        backgroundScenario = GameObject.Find("Background Scenario").GetComponent<Image>();
+        scenarioName = parameters.scenario_name;
+        scenarioPath = parameters.scenario_path;
+        if (String.Equals(scenarioName, "Solid Color", StringComparison.OrdinalIgnoreCase))
+        {
+            backgroundScenario.color = hexToColor(parameters.color_background);
+        }
+        else
+        {
+            Texture2D texture = new Texture2D(2, 2);
+            texture.LoadImage(File.ReadAllBytes(scenarioPath));
+            backgroundScenario.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(texture.width / 2, texture.height / 2));
+        }
 
-        Image resultBox = GameObject.Find("ResultBox").GetComponent<Image>();
-        resultBox.color = hexToColor(parameters.color_result_info_box);
+        // Set up the default colors
+        resultBoxColor = hexToColor(parameters.color_result_info_box);
+        resultLabelColor = hexToColor(parameters.color_result_info_label);
+        resultTextColor = hexToColor(parameters.color_result_info_text);
+
+        goodFPSColor = hexToColor(parameters.color_fps_good);
+        badFPSColor = hexToColor(parameters.color_fps_bad);
+
+        GameObject.Find("ResultBox").GetComponent<Image>().color = resultBoxColor;
         GameObject.Find("ResultLabel").GetComponent<Text>().color = resultLabelColor;
         GameObject.Find("ResultText").GetComponent<Text>().color = resultTextColor;
 
         colorBox0 = hexToColor(parameters.color_box_0);
+        colorOpBox0 = parameters.color_op_box_0;
+        colorBox0.a = (byte)Mathf.Round(colorOpBox0 / 100 * 255);
         colorBox1 = hexToColor(parameters.color_box_1);
+        colorOpBox1 = parameters.color_op_box_1;
+        colorBox1.a = (byte)Mathf.Round(colorOpBox1 / 100 * 255);
         colorText0 = hexToColor(parameters.color_text_0);
+        colorOpText0 = parameters.color_op_text_0;
+        colorText0.a = (byte)Mathf.Round(colorOpText0 / 100 * 255);
         colorText1 = hexToColor(parameters.color_text_1);
+        colorOpText1 = parameters.color_op_text_1;
+        colorText1.a = (byte)Mathf.Round(colorOpText1 / 100 * 255);
+
+        defaultBoxColor.a = (byte)Mathf.Round(Mathf.Max(colorOpBox0, colorOpBox1) / 100 * 255);
+        defaultTextColor.a = (byte)Mathf.Round(Mathf.Max(colorOpText0, colorOpText1) / 100 * 255);
+
+        targetBoxColor = hexToColor(parameters.color_target_box);
+        targetTextColor = targetBoxColor;
+        targetBoxColor.a = (byte)Mathf.Round(Mathf.Max(colorOpBox0, colorOpBox1) / 100 * 255);
+        if (targetBoxColor.a == 0)
+        {
+            targetTextColor.a = (byte)Mathf.Round(Mathf.Max(colorOpText0, colorOpText1) / 100 * 255);
+        }
+        else
+        {
+            targetTextColor = defaultTextColor;
+        }
+
+        highlightResultBoxColor = hexToColor(parameters.color_highlight_result_box);
+        highlightResultTextColor = highlightResultBoxColor;
+        highlightResultBoxColor.a = (byte)Mathf.Round(Mathf.Max(colorOpBox0, colorOpBox1) / 100 * 255);
+        if (highlightResultBoxColor.a == 0)
+        {
+            highlightResultTextColor.a = (byte)Mathf.Round(Mathf.Max(colorOpText0, colorOpText1) / 100 * 255);
+        }
+        else
+        {
+            highlightResultTextColor = defaultTextColor;
+        }
 
         // TEST MATRIX
         //      matrixTest                  -> Test matrix containing the GameObjects (i.e., each cell that contains the box and the text)
@@ -833,11 +901,13 @@ public class Manager : MonoBehaviour
         else if (innerstate == STATE_RUNNING_TARGET)
         {
             matrixTrain[0, currentTrainSequence].GetComponent<Image>().color = targetBoxColor;
+            matrixTrain[0, currentTrainSequence].transform.Find("CellText").GetComponent<Text>().color = targetTextColor;
         }
         // Target loop, second: Standby
         else if (innerstate == STATE_RUNNING_IDDLE2 && mustHighlightTarget)
         {
             matrixTrain[0, currentTrainSequence].GetComponent<Image>().color = defaultBoxColor;
+            matrixTrain[0, currentTrainSequence].transform.Find("CellText").GetComponent<Text>().color = defaultTextColor;
             mustHighlightTarget = false;
         }
         // Target loop, third: flickering

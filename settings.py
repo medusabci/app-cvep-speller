@@ -10,13 +10,14 @@ import json
 class Settings(SerializableComponent):
 
     def __init__(self, connection_settings=None, run_settings=None,
-                 timings=None, colors=None, matrices=None):
+                 timings=None, colors=None, background=None, matrices=None):
         self.connection_settings = connection_settings if \
             connection_settings is not None else ConnectionSettings()
         self.run_settings = run_settings if \
             run_settings is not None else RunSettings()
         self.timings = timings if timings is not None else Timings()
         self.colors = colors if colors is not None else Colors()
+        self.background = background if background is not None else Background()
 
         self.matrices = matrices
         if matrices is None:
@@ -39,7 +40,8 @@ class Settings(SerializableComponent):
                      'run_settings': self.run_settings.__dict__,
                      'timings': self.timings.__dict__,
                      'matrices': matrices_dict,
-                     'colors': self.colors.__dict__
+                     'colors': self.colors.__dict__,
+                     'background': self.background.__dict__
                      }
         return sett_dict
 
@@ -50,6 +52,7 @@ class Settings(SerializableComponent):
         run_sett = RunSettings(**settings_dict['run_settings'])
         timings = Timings(**settings_dict['timings'])
         colors = Colors(**settings_dict['colors'])
+        background = Background(**settings_dict['background'])
         # Train matrices
         train_matrices = []
         for m in settings_dict['matrices']['train']:
@@ -84,6 +87,7 @@ class Settings(SerializableComponent):
                         run_settings=run_sett,
                         timings=timings,
                         colors=colors,
+                        background=background,
                         matrices=matrices)
 
     def set_matrices(self, train_matrices, test_matrices):
@@ -231,8 +235,7 @@ class Timings:
 
 class Colors:
 
-    def __init__(self, color_background='#a3bec7',
-                 color_target_box='#ff195bff',
+    def __init__(self, color_target_box='#ff195bff',
                  color_highlight_result_box='#03fc5aff',
                  color_result_info_box='#8c8c8cff',
                  color_result_info_label='#b7b7b7ff',
@@ -240,10 +243,13 @@ class Colors:
                  color_fps_good='#5ee57dff',
                  color_fps_bad='#b43228ff',
                  color_box_0='#000000',
+                 color_op_box_0=100,
                  color_box_1='#ffffff',
+                 color_op_box_1=100,
                  color_text_0='#ffffff',
-                 color_text_1='#000000'):
-        self.color_background = color_background
+                 color_op_text_0=100,
+                 color_text_1='#000000',
+                 color_op_text_1=100):
         self.color_target_box = color_target_box
         self.color_highlight_result_box = color_highlight_result_box
         self.color_result_info_box = color_result_info_box
@@ -252,9 +258,13 @@ class Colors:
         self.color_fps_good = color_fps_good
         self.color_fps_bad = color_fps_bad
         self.color_box_0 = color_box_0
+        self.color_op_box_0 = color_op_box_0
         self.color_box_1 = color_box_1
+        self.color_op_box_1 = color_op_box_1
         self.color_text_0 = color_text_0
+        self.color_op_text_0 = color_op_text_0
         self.color_text_1 = color_text_1
+        self.color_op_text_1 = color_op_text_1
 
     @staticmethod
     def concat_dict(dict_):
@@ -263,6 +273,11 @@ class Colors:
             concat.append([str(key), str(dict_[key])])
         return concat
 
+class Background:
+    def __init__(self, scenario_name='Solid Color', color_background='#a3bec7', scenario_path=os.path.dirname(__file__) + "/background/Scenario-Example.jpg"):
+        self.scenario_name = scenario_name
+        self.color_background = color_background
+        self.scenario_path = scenario_path
 
 class CVEPMatrix:
 

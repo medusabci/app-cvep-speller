@@ -1,149 +1,574 @@
 { "cat":"", "pid":12345, "tid":0, "ts":0, "ph":"M", "name":"process_name", "args": { "name":"bee_backend" } }
-,{ "pid":12345, "tid":0, "ts":1721208683220148, "dur":6749, "ph":"X", "name": "DriverInitData",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":0, "ts":1721208683226909, "dur":142, "ph":"X", "name": "Tundra",  "args": { "detail":"RemoveStaleOutputs" }}
-,{ "pid":12345, "tid":0, "ts":1721208683227086, "dur":14, "ph":"X", "name": "Tundra",  "args": { "detail":"PrepareNodes" }}
-,{ "pid":12345, "tid":0, "ts":1721208683227102, "dur":291, "ph":"X", "name": "Tundra",  "args": { "detail":"BuildQueueInit" }}
-,{ "pid":12345, "tid":0, "ts":1721208683227405, "dur":1040, "ph":"X", "name": "EnqueueRequestedNodes",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":0, "ts":1721208683228446, "dur":2, "ph":"X", "name": "SortWorkingStack",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":0, "ts":1721208683243752, "dur":4922, "ph":"X", "name": "JoinBuildThread",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":0, "ts":1721208683248674, "dur":9, "ph":"X", "name": "ThreadStateDestroy",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":0, "ts":1721208683248683, "dur":1, "ph":"X", "name": "JoinBuildThread",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":0, "ts":1721208683248684, "dur":7, "ph":"X", "name": "ThreadStateDestroy",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":0, "ts":1721208683248691, "dur":1, "ph":"X", "name": "JoinBuildThread",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":0, "ts":1721208683248692, "dur":5, "ph":"X", "name": "ThreadStateDestroy",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":0, "ts":1721208683248697, "dur":1337, "ph":"X", "name": "JoinBuildThread",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":0, "ts":1721208683250034, "dur":8, "ph":"X", "name": "ThreadStateDestroy",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":0, "ts":1721208683250042, "dur":1, "ph":"X", "name": "JoinBuildThread",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":0, "ts":1721208683250043, "dur":4, "ph":"X", "name": "ThreadStateDestroy",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":0, "ts":1721208683250047, "dur":1, "ph":"X", "name": "JoinBuildThread",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":0, "ts":1721208683250048, "dur":4, "ph":"X", "name": "ThreadStateDestroy",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":0, "ts":1721208683250052, "dur":1, "ph":"X", "name": "JoinBuildThread",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":0, "ts":1721208683250053, "dur":4, "ph":"X", "name": "ThreadStateDestroy",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":0, "ts":1721208683250057, "dur":1, "ph":"X", "name": "JoinBuildThread",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":0, "ts":1721208683250058, "dur":4, "ph":"X", "name": "ThreadStateDestroy",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":0, "ts":1721208683250062, "dur":1, "ph":"X", "name": "JoinBuildThread",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":0, "ts":1721208683250063, "dur":4, "ph":"X", "name": "ThreadStateDestroy",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":0, "ts":1721208683250067, "dur":1, "ph":"X", "name": "JoinBuildThread",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":0, "ts":1721208683250068, "dur":3, "ph":"X", "name": "ThreadStateDestroy",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":0, "ts":1721208683250071, "dur":1, "ph":"X", "name": "JoinBuildThread",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":0, "ts":1721208683250072, "dur":5, "ph":"X", "name": "ThreadStateDestroy",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":0, "ts":1721208683250077, "dur":1, "ph":"X", "name": "JoinBuildThread",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":0, "ts":1721208683250078, "dur":3, "ph":"X", "name": "ThreadStateDestroy",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":0, "ts":1721208683250081, "dur":1, "ph":"X", "name": "JoinBuildThread",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":0, "ts":1721208683250082, "dur":4, "ph":"X", "name": "ThreadStateDestroy",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":0, "ts":1721208683250086, "dur":1, "ph":"X", "name": "JoinBuildThread",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":0, "ts":1721208683250087, "dur":4, "ph":"X", "name": "ThreadStateDestroy",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":0, "ts":1721208683250091, "dur":1, "ph":"X", "name": "JoinBuildThread",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":0, "ts":1721208683250092, "dur":4, "ph":"X", "name": "ThreadStateDestroy",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":0, "ts":1721208683250096, "dur":1, "ph":"X", "name": "JoinBuildThread",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":0, "ts":1721208683250097, "dur":3, "ph":"X", "name": "ThreadStateDestroy",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":0, "ts":1721208683250100, "dur":0, "ph":"X", "name": "SharedResourceDestroy",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":0, "ts":1721208683250101, "dur":18, "ph":"X", "name": "BuildQueueDestroyTail",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":0, "ts":1721208683250127, "dur":752, "ph":"X", "name": "Tundra",  "args": { "detail":"Write AllBuiltNodes" }}
-,{ "pid":12345, "tid":1, "ts":1721208683227751, "dur":750, "ph":"X", "name": "FirstLock",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":1, "ts":1721208683228503, "dur":767, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":1, "ts":1721208683229270, "dur":500, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":1, "ts":1721208683229770, "dur":610, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":1, "ts":1721208683230380, "dur":413, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":1, "ts":1721208683230793, "dur":734, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":1, "ts":1721208683231527, "dur":17116, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":2, "ts":1721208683227543, "dur":916, "ph":"X", "name": "FirstLock",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":2, "ts":1721208683228461, "dur":574, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":2, "ts":1721208683229035, "dur":611, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":2, "ts":1721208683229647, "dur":1248, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":2, "ts":1721208683230895, "dur":478, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":2, "ts":1721208683231373, "dur":13007, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":3, "ts":1721208683227537, "dur":918, "ph":"X", "name": "FirstLock",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":3, "ts":1721208683228456, "dur":15284, "ph":"X", "name": "CheckDagSignatures",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":4, "ts":1721208683227919, "dur":730, "ph":"X", "name": "FirstLock",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":4, "ts":1721208683228650, "dur":470, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":4, "ts":1721208683229120, "dur":502, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":4, "ts":1721208683229622, "dur":1769, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":4, "ts":1721208683231391, "dur":18618, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":5, "ts":1721208683227567, "dur":898, "ph":"X", "name": "FirstLock",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":5, "ts":1721208683228466, "dur":624, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":5, "ts":1721208683229090, "dur":483, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":5, "ts":1721208683229573, "dur":791, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":5, "ts":1721208683230365, "dur":399, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":5, "ts":1721208683230764, "dur":487, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":5, "ts":1721208683231251, "dur":15502, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":6, "ts":1721208683227594, "dur":876, "ph":"X", "name": "FirstLock",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":6, "ts":1721208683228472, "dur":600, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":6, "ts":1721208683229072, "dur":438, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":6, "ts":1721208683229511, "dur":539, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":6, "ts":1721208683230050, "dur":406, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":6, "ts":1721208683230457, "dur":384, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":6, "ts":1721208683230841, "dur":680, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":6, "ts":1721208683231521, "dur":17558, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":7, "ts":1721208683227622, "dur":854, "ph":"X", "name": "FirstLock",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":7, "ts":1721208683228477, "dur":669, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":7, "ts":1721208683229146, "dur":412, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":7, "ts":1721208683229558, "dur":552, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":7, "ts":1721208683230110, "dur":429, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":7, "ts":1721208683230540, "dur":538, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":7, "ts":1721208683231078, "dur":686, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":7, "ts":1721208683231764, "dur":269, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":7, "ts":1721208683232033, "dur":11726, "ph":"X", "name": "WaitingForWork", "cname":"thread_state_sleeping",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":8, "ts":1721208683227643, "dur":839, "ph":"X", "name": "FirstLock",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":8, "ts":1721208683228484, "dur":989, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":8, "ts":1721208683229474, "dur":1641, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":8, "ts":1721208683231115, "dur":690, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":8, "ts":1721208683231806, "dur":275, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":8, "ts":1721208683232082, "dur":11665, "ph":"X", "name": "WaitingForWork", "cname":"thread_state_sleeping",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":9, "ts":1721208683227723, "dur":766, "ph":"X", "name": "FirstLock",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":9, "ts":1721208683228491, "dur":630, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":9, "ts":1721208683229121, "dur":903, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":9, "ts":1721208683230024, "dur":441, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":9, "ts":1721208683230465, "dur":383, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":9, "ts":1721208683230848, "dur":502, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":9, "ts":1721208683231350, "dur":13398, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":10, "ts":1721208683227745, "dur":749, "ph":"X", "name": "FirstLock",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":10, "ts":1721208683228496, "dur":1295, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":10, "ts":1721208683229791, "dur":547, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":10, "ts":1721208683230338, "dur":549, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":10, "ts":1721208683230888, "dur":433, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":10, "ts":1721208683231321, "dur":14466, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":11, "ts":1721208683227836, "dur":685, "ph":"X", "name": "FirstLock",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":11, "ts":1721208683228524, "dur":512, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":11, "ts":1721208683229037, "dur":472, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":11, "ts":1721208683229510, "dur":703, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":11, "ts":1721208683230213, "dur":760, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":11, "ts":1721208683230973, "dur":684, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":11, "ts":1721208683231658, "dur":16648, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":12, "ts":1721208683227855, "dur":671, "ph":"X", "name": "FirstLock",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":12, "ts":1721208683228527, "dur":529, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":12, "ts":1721208683229056, "dur":575, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":12, "ts":1721208683229632, "dur":639, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":12, "ts":1721208683230271, "dur":1276, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":12, "ts":1721208683231547, "dur":16851, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":13, "ts":1721208683227869, "dur":670, "ph":"X", "name": "FirstLock",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":13, "ts":1721208683228541, "dur":485, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":13, "ts":1721208683229027, "dur":476, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":13, "ts":1721208683229503, "dur":586, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":13, "ts":1721208683230089, "dur":427, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":13, "ts":1721208683230516, "dur":452, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":13, "ts":1721208683230968, "dur":430, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":13, "ts":1721208683231398, "dur":17324, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":14, "ts":1721208683227945, "dur":706, "ph":"X", "name": "FirstLock",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":14, "ts":1721208683228653, "dur":679, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":14, "ts":1721208683229333, "dur":406, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":14, "ts":1721208683229742, "dur":1236, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":14, "ts":1721208683230978, "dur":807, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":14, "ts":1721208683231786, "dur":341, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":14, "ts":1721208683232128, "dur":11623, "ph":"X", "name": "WaitingForWork", "cname":"thread_state_sleeping",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":15, "ts":1721208683227895, "dur":648, "ph":"X", "name": "FirstLock",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":15, "ts":1721208683228546, "dur":567, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":15, "ts":1721208683229114, "dur":859, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":15, "ts":1721208683229973, "dur":418, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":15, "ts":1721208683230391, "dur":414, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":15, "ts":1721208683230805, "dur":1013, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":15, "ts":1721208683231818, "dur":233, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":15, "ts":1721208683232051, "dur":11702, "ph":"X", "name": "WaitingForWork", "cname":"thread_state_sleeping",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":16, "ts":1721208683227969, "dur":700, "ph":"X", "name": "FirstLock",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":16, "ts":1721208683228669, "dur":625, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":16, "ts":1721208683229294, "dur":474, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":16, "ts":1721208683229768, "dur":548, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":16, "ts":1721208683230317, "dur":841, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":16, "ts":1721208683231158, "dur":13418, "ph":"X", "name": "EarlyStatNonGeneratedFile",  "args": { "detail":"" }}
-,{ "pid":12345, "tid":0, "ts":1721208683251515, "dur":524, "ph":"X", "name": "ProfilerWriteOutput" }
+,{ "pid":12345, "tid":0, "ts":1732883052209108, "dur":552, "ph":"X", "name": "DriverInitData",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":0, "ts":1732883052209671, "dur":121, "ph":"X", "name": "Tundra",  "args": { "detail":"RemoveStaleOutputs" }}
+,{ "pid":12345, "tid":0, "ts":1732883052209813, "dur":17, "ph":"X", "name": "Tundra",  "args": { "detail":"PrepareNodes" }}
+,{ "pid":12345, "tid":0, "ts":1732883052209832, "dur":554, "ph":"X", "name": "Tundra",  "args": { "detail":"BuildQueueInit" }}
+,{ "pid":12345, "tid":0, "ts":1732883052210404, "dur":396, "ph":"X", "name": "EnqueueRequestedNodes",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":0, "ts":1732883052210800, "dur":1, "ph":"X", "name": "SortWorkingStack",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":0, "ts":1732883053181881, "dur":272, "ph":"X", "name": "JoinBuildThread",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":0, "ts":1732883053182153, "dur":76, "ph":"X", "name": "ThreadStateDestroy",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":0, "ts":1732883053182229, "dur":31276, "ph":"X", "name": "JoinBuildThread",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":0, "ts":1732883053213505, "dur":16, "ph":"X", "name": "ThreadStateDestroy",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":0, "ts":1732883053213521, "dur":2, "ph":"X", "name": "JoinBuildThread",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":0, "ts":1732883053213523, "dur":26, "ph":"X", "name": "ThreadStateDestroy",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":0, "ts":1732883053213550, "dur":1, "ph":"X", "name": "JoinBuildThread",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":0, "ts":1732883053213551, "dur":5, "ph":"X", "name": "ThreadStateDestroy",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":0, "ts":1732883053213556, "dur":1, "ph":"X", "name": "JoinBuildThread",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":0, "ts":1732883053213558, "dur":5, "ph":"X", "name": "ThreadStateDestroy",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":0, "ts":1732883053213563, "dur":1, "ph":"X", "name": "JoinBuildThread",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":0, "ts":1732883053213564, "dur":5, "ph":"X", "name": "ThreadStateDestroy",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":0, "ts":1732883053213569, "dur":2, "ph":"X", "name": "JoinBuildThread",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":0, "ts":1732883053213571, "dur":4, "ph":"X", "name": "ThreadStateDestroy",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":0, "ts":1732883053213575, "dur":2, "ph":"X", "name": "JoinBuildThread",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":0, "ts":1732883053213577, "dur":4, "ph":"X", "name": "ThreadStateDestroy",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":0, "ts":1732883053213581, "dur":1, "ph":"X", "name": "JoinBuildThread",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":0, "ts":1732883053213582, "dur":5, "ph":"X", "name": "ThreadStateDestroy",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":0, "ts":1732883053213587, "dur":2, "ph":"X", "name": "JoinBuildThread",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":0, "ts":1732883053213589, "dur":5, "ph":"X", "name": "ThreadStateDestroy",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":0, "ts":1732883053213594, "dur":1, "ph":"X", "name": "JoinBuildThread",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":0, "ts":1732883053213595, "dur":6, "ph":"X", "name": "ThreadStateDestroy",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":0, "ts":1732883053213601, "dur":1, "ph":"X", "name": "JoinBuildThread",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":0, "ts":1732883053213602, "dur":4, "ph":"X", "name": "ThreadStateDestroy",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":0, "ts":1732883053213606, "dur":2, "ph":"X", "name": "JoinBuildThread",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":0, "ts":1732883053213608, "dur":5, "ph":"X", "name": "ThreadStateDestroy",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":0, "ts":1732883053213613, "dur":1, "ph":"X", "name": "JoinBuildThread",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":0, "ts":1732883053213614, "dur":6, "ph":"X", "name": "ThreadStateDestroy",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":0, "ts":1732883053213620, "dur":1, "ph":"X", "name": "JoinBuildThread",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":0, "ts":1732883053213621, "dur":5, "ph":"X", "name": "ThreadStateDestroy",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":0, "ts":1732883053213626, "dur":1, "ph":"X", "name": "JoinBuildThread",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":0, "ts":1732883053213627, "dur":7, "ph":"X", "name": "ThreadStateDestroy",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":0, "ts":1732883053213634, "dur":2, "ph":"X", "name": "JoinBuildThread",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":0, "ts":1732883053213636, "dur":6, "ph":"X", "name": "ThreadStateDestroy",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":0, "ts":1732883053213642, "dur":1, "ph":"X", "name": "JoinBuildThread",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":0, "ts":1732883053213643, "dur":6, "ph":"X", "name": "ThreadStateDestroy",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":0, "ts":1732883053213649, "dur":1, "ph":"X", "name": "JoinBuildThread",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":0, "ts":1732883053213650, "dur":5, "ph":"X", "name": "ThreadStateDestroy",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":0, "ts":1732883053213655, "dur":2, "ph":"X", "name": "JoinBuildThread",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":0, "ts":1732883053213657, "dur":5, "ph":"X", "name": "ThreadStateDestroy",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":0, "ts":1732883053213662, "dur":1, "ph":"X", "name": "JoinBuildThread",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":0, "ts":1732883053213663, "dur":6, "ph":"X", "name": "ThreadStateDestroy",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":0, "ts":1732883053213669, "dur":1, "ph":"X", "name": "JoinBuildThread",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":0, "ts":1732883053213670, "dur":5, "ph":"X", "name": "ThreadStateDestroy",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":0, "ts":1732883053213675, "dur":1, "ph":"X", "name": "JoinBuildThread",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":0, "ts":1732883053213676, "dur":5, "ph":"X", "name": "ThreadStateDestroy",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":0, "ts":1732883053213681, "dur":1, "ph":"X", "name": "JoinBuildThread",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":0, "ts":1732883053213682, "dur":6, "ph":"X", "name": "ThreadStateDestroy",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":0, "ts":1732883053213688, "dur":0, "ph":"X", "name": "SharedResourceDestroy",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":0, "ts":1732883053213704, "dur":2, "ph":"X", "name": "BuildQueueDestroyTail",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":0, "ts":1732883053213721, "dur":1302, "ph":"X", "name": "Tundra",  "args": { "detail":"Write AllBuiltNodes" }}
+,{ "pid":12345, "tid":1, "ts":1732883052420368, "dur":0, "ph":"X", "name": "FirstLock",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":1, "ts":1732883052420369, "dur":37, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/MonoBleedingEdge/EmbedRuntime/mono-2.0-bdwgc.dll" }}
+,{ "pid":12345, "tid":1, "ts":1732883052420406, "dur":22, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":1, "ts":1732883052420437, "dur":1, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":1, "ts":1732883052420730, "dur":13707, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/MonoBleedingEdge/EmbedRuntime/mono-2.0-bdwgc.dll" }}
+,{ "pid":12345, "tid":1, "ts":1732883052434451, "dur":11, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.TLSModule.dll" }}
+,{ "pid":12345, "tid":1, "ts":1732883052434463, "dur":77, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":1, "ts":1732883052434544, "dur":0, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":1, "ts":1732883052435487, "dur":1855, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.TLSModule.dll" }}
+,{ "pid":12345, "tid":1, "ts":1732883052437350, "dur":99, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.JSONSerializeModule.dll" }}
+,{ "pid":12345, "tid":1, "ts":1732883052437449, "dur":141, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":1, "ts":1732883052437594, "dur":0, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":1, "ts":1732883052437601, "dur":2914, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.JSONSerializeModule.dll" }}
+,{ "pid":12345, "tid":1, "ts":1732883052440524, "dur":10, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.AIModule.dll" }}
+,{ "pid":12345, "tid":1, "ts":1732883052440534, "dur":122, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":1, "ts":1732883052440661, "dur":1, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":1, "ts":1732883052440669, "dur":3842, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.AIModule.dll" }}
+,{ "pid":12345, "tid":1, "ts":1732883052444521, "dur":11, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/globalgamemanagers" }}
+,{ "pid":12345, "tid":1, "ts":1732883052444536, "dur":0, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":1, "ts":1732883052444542, "dur":1831, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/globalgamemanagers" }}
+,{ "pid":12345, "tid":1, "ts":1732883052446382, "dur":735528, "ph":"X", "name": "WaitingForWork", "cname":"thread_state_sleeping",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":2, "ts":1732883052420322, "dur":1, "ph":"X", "name": "FirstLock",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":2, "ts":1732883052420323, "dur":27, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/MonoBleedingEdge/etc/mono/2.0/Browsers/Compat.browser" }}
+,{ "pid":12345, "tid":2, "ts":1732883052420350, "dur":84, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":2, "ts":1732883052420439, "dur":2, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":2, "ts":1732883052420936, "dur":11286, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/MonoBleedingEdge/etc/mono/2.0/Browsers/Compat.browser" }}
+,{ "pid":12345, "tid":2, "ts":1732883052432230, "dur":11, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.UnityWebRequestTextureModule.dll" }}
+,{ "pid":12345, "tid":2, "ts":1732883052432241, "dur":124, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":2, "ts":1732883052432369, "dur":0, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":2, "ts":1732883052432703, "dur":1712, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.UnityWebRequestTextureModule.dll" }}
+,{ "pid":12345, "tid":2, "ts":1732883052434432, "dur":746698, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.UI.dll" }}
+,{ "pid":12345, "tid":2, "ts":1732883053181130, "dur":31, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":2, "ts":1732883053181167, "dur":1, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":2, "ts":1732883053181177, "dur":621, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.UI.dll" }}
+,{ "pid":12345, "tid":2, "ts":1732883053181809, "dur":1, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"Player" }}
+,{ "pid":12345, "tid":2, "ts":1732883053181810, "dur":0, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":3, "ts":1732883052420322, "dur":1, "ph":"X", "name": "FirstLock",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":3, "ts":1732883052420323, "dur":31, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/MonoBleedingEdge/etc/mono/2.0/web.config" }}
+,{ "pid":12345, "tid":3, "ts":1732883052420354, "dur":56, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":3, "ts":1732883052420415, "dur":1, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":3, "ts":1732883052420715, "dur":11392, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/MonoBleedingEdge/etc/mono/2.0/web.config" }}
+,{ "pid":12345, "tid":3, "ts":1732883052432118, "dur":11, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.WindModule.dll" }}
+,{ "pid":12345, "tid":3, "ts":1732883052432129, "dur":178, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":3, "ts":1732883052432311, "dur":1, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":3, "ts":1732883052432603, "dur":991, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.WindModule.dll" }}
+,{ "pid":12345, "tid":3, "ts":1732883052433601, "dur":12, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.UmbraModule.dll" }}
+,{ "pid":12345, "tid":3, "ts":1732883052433614, "dur":135, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":3, "ts":1732883052433755, "dur":1, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":3, "ts":1732883052435155, "dur":1572, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.UmbraModule.dll" }}
+,{ "pid":12345, "tid":3, "ts":1732883052436738, "dur":9, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.Physics2DModule.dll" }}
+,{ "pid":12345, "tid":3, "ts":1732883052436747, "dur":168, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":3, "ts":1732883052436919, "dur":0, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":3, "ts":1732883052436930, "dur":2551, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.Physics2DModule.dll" }}
+,{ "pid":12345, "tid":3, "ts":1732883052439494, "dur":9, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.ClusterInputModule.dll" }}
+,{ "pid":12345, "tid":3, "ts":1732883052439503, "dur":136, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":3, "ts":1732883052439643, "dur":1, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":3, "ts":1732883052439651, "dur":2942, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.ClusterInputModule.dll" }}
+,{ "pid":12345, "tid":3, "ts":1732883052442603, "dur":10, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/mscorlib.dll" }}
+,{ "pid":12345, "tid":3, "ts":1732883052442613, "dur":29, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":3, "ts":1732883052442646, "dur":0, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":3, "ts":1732883052442653, "dur":5118, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/mscorlib.dll" }}
+,{ "pid":12345, "tid":3, "ts":1732883052447781, "dur":734096, "ph":"X", "name": "WaitingForWork", "cname":"thread_state_sleeping",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":4, "ts":1732883052420331, "dur":1, "ph":"X", "name": "FirstLock",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":4, "ts":1732883052420332, "dur":25, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/MonoBleedingEdge/etc/mono/2.0/settings.map" }}
+,{ "pid":12345, "tid":4, "ts":1732883052420357, "dur":34, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":4, "ts":1732883052420396, "dur":1, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":4, "ts":1732883052420716, "dur":11425, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/MonoBleedingEdge/etc/mono/2.0/settings.map" }}
+,{ "pid":12345, "tid":4, "ts":1732883052432150, "dur":12, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.VirtualTexturingModule.dll" }}
+,{ "pid":12345, "tid":4, "ts":1732883052432162, "dur":161, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":4, "ts":1732883052432343, "dur":1, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":4, "ts":1732883052432650, "dur":1197, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.VirtualTexturingModule.dll" }}
+,{ "pid":12345, "tid":4, "ts":1732883052433856, "dur":8, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.UIModule.dll" }}
+,{ "pid":12345, "tid":4, "ts":1732883052433864, "dur":28, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":4, "ts":1732883052433896, "dur":0, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":4, "ts":1732883052435192, "dur":2106, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.UIModule.dll" }}
+,{ "pid":12345, "tid":4, "ts":1732883052437309, "dur":8, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.NVIDIAModule.dll" }}
+,{ "pid":12345, "tid":4, "ts":1732883052437317, "dur":117, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":4, "ts":1732883052437439, "dur":1, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":4, "ts":1732883052437446, "dur":3042, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.NVIDIAModule.dll" }}
+,{ "pid":12345, "tid":4, "ts":1732883052440497, "dur":9, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.AndroidJNIModule.dll" }}
+,{ "pid":12345, "tid":4, "ts":1732883052440506, "dur":31, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":4, "ts":1732883052440542, "dur":0, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":4, "ts":1732883052440549, "dur":3106, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.AndroidJNIModule.dll" }}
+,{ "pid":12345, "tid":4, "ts":1732883052443665, "dur":9, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Resources/unity_builtin_extra" }}
+,{ "pid":12345, "tid":4, "ts":1732883052443683, "dur":1, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":4, "ts":1732883052443698, "dur":2434, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Resources/unity_builtin_extra" }}
+,{ "pid":12345, "tid":4, "ts":1732883052446145, "dur":735727, "ph":"X", "name": "WaitingForWork", "cname":"thread_state_sleeping",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":5, "ts":1732883052420331, "dur":1, "ph":"X", "name": "FirstLock",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":5, "ts":1732883052420332, "dur":30, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/MonoBleedingEdge/etc/mono/2.0/machine.config" }}
+,{ "pid":12345, "tid":5, "ts":1732883052420363, "dur":64, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":5, "ts":1732883052420439, "dur":1, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":5, "ts":1732883052420722, "dur":11429, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/MonoBleedingEdge/etc/mono/2.0/machine.config" }}
+,{ "pid":12345, "tid":5, "ts":1732883052432161, "dur":11, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.VideoModule.dll" }}
+,{ "pid":12345, "tid":5, "ts":1732883052432172, "dur":162, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":5, "ts":1732883052432340, "dur":1, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":5, "ts":1732883052432655, "dur":1548, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.VideoModule.dll" }}
+,{ "pid":12345, "tid":5, "ts":1732883052434210, "dur":12, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.UIElementsNativeModule.dll" }}
+,{ "pid":12345, "tid":5, "ts":1732883052434222, "dur":215, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":5, "ts":1732883052434442, "dur":0, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":5, "ts":1732883052435341, "dur":1995, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.UIElementsNativeModule.dll" }}
+,{ "pid":12345, "tid":5, "ts":1732883052437345, "dur":86, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.LocalizationModule.dll" }}
+,{ "pid":12345, "tid":5, "ts":1732883052437432, "dur":39, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":5, "ts":1732883052437475, "dur":1, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":5, "ts":1732883052437493, "dur":2898, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.LocalizationModule.dll" }}
+,{ "pid":12345, "tid":5, "ts":1732883052440400, "dur":9, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.AnimationModule.dll" }}
+,{ "pid":12345, "tid":5, "ts":1732883052440409, "dur":125, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":5, "ts":1732883052440538, "dur":0, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":5, "ts":1732883052440555, "dur":25223, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.AnimationModule.dll" }}
+,{ "pid":12345, "tid":5, "ts":1732883052465789, "dur":716100, "ph":"X", "name": "WaitingForWork", "cname":"thread_state_sleeping",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":6, "ts":1732883052361167, "dur":0, "ph":"X", "name": "FirstLock",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":6, "ts":1732883052361168, "dur":26, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/MonoBleedingEdge/etc/mono/4.5/settings.map" }}
+,{ "pid":12345, "tid":6, "ts":1732883052361194, "dur":16, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":6, "ts":1732883052361216, "dur":1, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":6, "ts":1732883052361242, "dur":70841, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/MonoBleedingEdge/etc/mono/4.5/settings.map" }}
+,{ "pid":12345, "tid":6, "ts":1732883052432101, "dur":20, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.XRModule.dll" }}
+,{ "pid":12345, "tid":6, "ts":1732883052432121, "dur":199, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":6, "ts":1732883052432325, "dur":1, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":6, "ts":1732883052432717, "dur":2693, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.XRModule.dll" }}
+,{ "pid":12345, "tid":6, "ts":1732883052435424, "dur":10, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.TerrainModule.dll" }}
+,{ "pid":12345, "tid":6, "ts":1732883052435434, "dur":64, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":6, "ts":1732883052435503, "dur":1, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":6, "ts":1732883052435512, "dur":2452, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.TerrainModule.dll" }}
+,{ "pid":12345, "tid":6, "ts":1732883052437975, "dur":13, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.ImageConversionModule.dll" }}
+,{ "pid":12345, "tid":6, "ts":1732883052437988, "dur":119, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":6, "ts":1732883052438113, "dur":0, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":6, "ts":1732883052438121, "dur":3352, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.ImageConversionModule.dll" }}
+,{ "pid":12345, "tid":6, "ts":1732883052441484, "dur":10, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/System.Security.dll" }}
+,{ "pid":12345, "tid":6, "ts":1732883052441495, "dur":105, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":6, "ts":1732883052441605, "dur":0, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":6, "ts":1732883052441613, "dur":8290, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/System.Security.dll" }}
+,{ "pid":12345, "tid":6, "ts":1732883052449914, "dur":731982, "ph":"X", "name": "WaitingForWork", "cname":"thread_state_sleeping",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":7, "ts":1732883052365210, "dur":0, "ph":"X", "name": "FirstLock",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":7, "ts":1732883052365211, "dur":39, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/MonoBleedingEdge/etc/mono/4.5/machine.config" }}
+,{ "pid":12345, "tid":7, "ts":1732883052365250, "dur":15, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":7, "ts":1732883052365270, "dur":1, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":7, "ts":1732883052365288, "dur":66824, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/MonoBleedingEdge/etc/mono/4.5/machine.config" }}
+,{ "pid":12345, "tid":7, "ts":1732883052432127, "dur":18, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.VRModule.dll" }}
+,{ "pid":12345, "tid":7, "ts":1732883052432145, "dur":218, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":7, "ts":1732883052432368, "dur":0, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":7, "ts":1732883052432759, "dur":2867, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.VRModule.dll" }}
+,{ "pid":12345, "tid":7, "ts":1732883052435642, "dur":11, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.StreamingModule.dll" }}
+,{ "pid":12345, "tid":7, "ts":1732883052435653, "dur":77, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":7, "ts":1732883052435735, "dur":1, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":7, "ts":1732883052435769, "dur":2778, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.StreamingModule.dll" }}
+,{ "pid":12345, "tid":7, "ts":1732883052438559, "dur":12, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.DSPGraphModule.dll" }}
+,{ "pid":12345, "tid":7, "ts":1732883052438571, "dur":262, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":7, "ts":1732883052438838, "dur":1, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":7, "ts":1732883052438846, "dur":3183, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.DSPGraphModule.dll" }}
+,{ "pid":12345, "tid":7, "ts":1732883052442048, "dur":37, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/System.Numerics.dll" }}
+,{ "pid":12345, "tid":7, "ts":1732883052442085, "dur":106, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":7, "ts":1732883052442196, "dur":1, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":7, "ts":1732883052442205, "dur":3923, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/System.Numerics.dll" }}
+,{ "pid":12345, "tid":7, "ts":1732883052446143, "dur":735754, "ph":"X", "name": "WaitingForWork", "cname":"thread_state_sleeping",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":8, "ts":1732883052375175, "dur":0, "ph":"X", "name": "FirstLock",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":8, "ts":1732883052375176, "dur":26, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/MonoBleedingEdge/etc/mono/4.5/DefaultWsdlHelpGenerator.aspx" }}
+,{ "pid":12345, "tid":8, "ts":1732883052375202, "dur":16, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":8, "ts":1732883052375223, "dur":1, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":8, "ts":1732883052375252, "dur":61363, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/MonoBleedingEdge/etc/mono/4.5/DefaultWsdlHelpGenerator.aspx" }}
+,{ "pid":12345, "tid":8, "ts":1732883052436629, "dur":13, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.PhysicsModule.dll" }}
+,{ "pid":12345, "tid":8, "ts":1732883052436642, "dur":275, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":8, "ts":1732883052436921, "dur":1, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":8, "ts":1732883052436930, "dur":3369, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.PhysicsModule.dll" }}
+,{ "pid":12345, "tid":8, "ts":1732883052440310, "dur":12, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.ARModule.dll" }}
+,{ "pid":12345, "tid":8, "ts":1732883052440322, "dur":90, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":8, "ts":1732883052440417, "dur":0, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":8, "ts":1732883052440423, "dur":3370, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.ARModule.dll" }}
+,{ "pid":12345, "tid":8, "ts":1732883052443803, "dur":1135, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/RuntimeInitializeOnLoads.json" }}
+,{ "pid":12345, "tid":8, "ts":1732883052444938, "dur":109, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":8, "ts":1732883052445071, "dur":0, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":8, "ts":1732883052445080, "dur":2152, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/RuntimeInitializeOnLoads.json" }}
+,{ "pid":12345, "tid":8, "ts":1732883052447244, "dur":734632, "ph":"X", "name": "WaitingForWork", "cname":"thread_state_sleeping",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":9, "ts":1732883052385384, "dur":0, "ph":"X", "name": "FirstLock",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":9, "ts":1732883052385385, "dur":29, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/MonoBleedingEdge/etc/mono/4.0/Browsers/Compat.browser" }}
+,{ "pid":12345, "tid":9, "ts":1732883052385414, "dur":26, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":9, "ts":1732883052385445, "dur":1, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":9, "ts":1732883052385792, "dur":46581, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/MonoBleedingEdge/etc/mono/4.0/Browsers/Compat.browser" }}
+,{ "pid":12345, "tid":9, "ts":1732883052432389, "dur":22, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.UnityCurlModule.dll" }}
+,{ "pid":12345, "tid":9, "ts":1732883052432411, "dur":98, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":9, "ts":1732883052432514, "dur":1, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":9, "ts":1732883052432810, "dur":3062, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.UnityCurlModule.dll" }}
+,{ "pid":12345, "tid":9, "ts":1732883052435893, "dur":12, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.SharedInternalsModule.dll" }}
+,{ "pid":12345, "tid":9, "ts":1732883052435905, "dur":68, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":9, "ts":1732883052435978, "dur":0, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":9, "ts":1732883052435985, "dur":3334, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.SharedInternalsModule.dll" }}
+,{ "pid":12345, "tid":9, "ts":1732883052439331, "dur":12, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.ClusterRendererModule.dll" }}
+,{ "pid":12345, "tid":9, "ts":1732883052439343, "dur":53, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":9, "ts":1732883052439402, "dur":0, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":9, "ts":1732883052439410, "dur":3173, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.ClusterRendererModule.dll" }}
+,{ "pid":12345, "tid":9, "ts":1732883052442596, "dur":11, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/Newtonsoft.Json.dll" }}
+,{ "pid":12345, "tid":9, "ts":1732883052442608, "dur":42, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":9, "ts":1732883052442656, "dur":1, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":9, "ts":1732883052442665, "dur":4458, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/Newtonsoft.Json.dll" }}
+,{ "pid":12345, "tid":9, "ts":1732883052447137, "dur":734745, "ph":"X", "name": "WaitingForWork", "cname":"thread_state_sleeping",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":10, "ts":1732883052397239, "dur":1, "ph":"X", "name": "FirstLock",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":10, "ts":1732883052397241, "dur":44, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/MonoBleedingEdge/etc/mono/4.0/web.config" }}
+,{ "pid":12345, "tid":10, "ts":1732883052397285, "dur":15, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":10, "ts":1732883052397306, "dur":0, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":10, "ts":1732883052397333, "dur":34813, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/MonoBleedingEdge/etc/mono/4.0/web.config" }}
+,{ "pid":12345, "tid":10, "ts":1732883052432163, "dur":17, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.VFXModule.dll" }}
+,{ "pid":12345, "tid":10, "ts":1732883052432180, "dur":220, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":10, "ts":1732883052432417, "dur":1, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":10, "ts":1732883052432786, "dur":2794, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.VFXModule.dll" }}
+,{ "pid":12345, "tid":10, "ts":1732883052435593, "dur":15, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.SubstanceModule.dll" }}
+,{ "pid":12345, "tid":10, "ts":1732883052435608, "dur":121, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":10, "ts":1732883052435734, "dur":1, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":10, "ts":1732883052435768, "dur":3186, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.SubstanceModule.dll" }}
+,{ "pid":12345, "tid":10, "ts":1732883052438966, "dur":74, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.dll" }}
+,{ "pid":12345, "tid":10, "ts":1732883052439041, "dur":100, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":10, "ts":1732883052439145, "dur":1, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":10, "ts":1732883052439153, "dur":3030, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.dll" }}
+,{ "pid":12345, "tid":10, "ts":1732883052442208, "dur":31, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/System.Core.dll" }}
+,{ "pid":12345, "tid":10, "ts":1732883052442239, "dur":111, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":10, "ts":1732883052442370, "dur":1, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":10, "ts":1732883052442378, "dur":4290, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/System.Core.dll" }}
+,{ "pid":12345, "tid":10, "ts":1732883052446756, "dur":735146, "ph":"X", "name": "WaitingForWork", "cname":"thread_state_sleeping",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":11, "ts":1732883052405257, "dur":0, "ph":"X", "name": "FirstLock",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":11, "ts":1732883052405257, "dur":34, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/MonoBleedingEdge/etc/mono/4.0/settings.map" }}
+,{ "pid":12345, "tid":11, "ts":1732883052405291, "dur":13, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":11, "ts":1732883052405310, "dur":0, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":11, "ts":1732883052405334, "dur":31422, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/MonoBleedingEdge/etc/mono/4.0/settings.map" }}
+,{ "pid":12345, "tid":11, "ts":1732883052436769, "dur":12, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.PerformanceReportingModule.dll" }}
+,{ "pid":12345, "tid":11, "ts":1732883052436781, "dur":140, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":11, "ts":1732883052436926, "dur":1, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":11, "ts":1732883052436955, "dur":2693, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.PerformanceReportingModule.dll" }}
+,{ "pid":12345, "tid":11, "ts":1732883052439661, "dur":12, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.ClothModule.dll" }}
+,{ "pid":12345, "tid":11, "ts":1732883052439674, "dur":99, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":11, "ts":1732883052439793, "dur":1, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":11, "ts":1732883052439801, "dur":3881, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.ClothModule.dll" }}
+,{ "pid":12345, "tid":11, "ts":1732883052443720, "dur":104, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/ScriptingAssemblies.json" }}
+,{ "pid":12345, "tid":11, "ts":1732883052443824, "dur":272, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":11, "ts":1732883052444102, "dur":0, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":11, "ts":1732883052444255, "dur":5273, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/ScriptingAssemblies.json" }}
+,{ "pid":12345, "tid":11, "ts":1732883052449540, "dur":732350, "ph":"X", "name": "WaitingForWork", "cname":"thread_state_sleeping",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":12, "ts":1732883052406502, "dur":0, "ph":"X", "name": "FirstLock",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":12, "ts":1732883052406503, "dur":32, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/MonoBleedingEdge/etc/mono/4.0/machine.config" }}
+,{ "pid":12345, "tid":12, "ts":1732883052406535, "dur":29, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":12, "ts":1732883052406570, "dur":0, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":12, "ts":1732883052406587, "dur":25593, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/MonoBleedingEdge/etc/mono/4.0/machine.config" }}
+,{ "pid":12345, "tid":12, "ts":1732883052432193, "dur":16, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.VehiclesModule.dll" }}
+,{ "pid":12345, "tid":12, "ts":1732883052432209, "dur":182, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":12, "ts":1732883052432415, "dur":1, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":12, "ts":1732883052432797, "dur":2855, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.VehiclesModule.dll" }}
+,{ "pid":12345, "tid":12, "ts":1732883052435675, "dur":15, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.SpriteShapeModule.dll" }}
+,{ "pid":12345, "tid":12, "ts":1732883052435690, "dur":40, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":12, "ts":1732883052435755, "dur":1, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":12, "ts":1732883052435763, "dur":2580, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.SpriteShapeModule.dll" }}
+,{ "pid":12345, "tid":12, "ts":1732883052438355, "dur":10, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.GameCenterModule.dll" }}
+,{ "pid":12345, "tid":12, "ts":1732883052438365, "dur":34, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":12, "ts":1732883052438420, "dur":1, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":12, "ts":1732883052438428, "dur":156090, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.GameCenterModule.dll" }}
+,{ "pid":12345, "tid":12, "ts":1732883052594538, "dur":587368, "ph":"X", "name": "WaitingForWork", "cname":"thread_state_sleeping",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":13, "ts":1732883052420311, "dur":0, "ph":"X", "name": "FirstLock",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":13, "ts":1732883052420312, "dur":34, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/MonoBleedingEdge/etc/mono/4.0/DefaultWsdlHelpGenerator.aspx" }}
+,{ "pid":12345, "tid":13, "ts":1732883052420346, "dur":29, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":13, "ts":1732883052420381, "dur":1, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":13, "ts":1732883052420418, "dur":16164, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/MonoBleedingEdge/etc/mono/4.0/DefaultWsdlHelpGenerator.aspx" }}
+,{ "pid":12345, "tid":13, "ts":1732883052436595, "dur":13, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.ProfilerModule.dll" }}
+,{ "pid":12345, "tid":13, "ts":1732883052436608, "dur":318, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":13, "ts":1732883052436952, "dur":0, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":13, "ts":1732883052436960, "dur":3092, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.ProfilerModule.dll" }}
+,{ "pid":12345, "tid":13, "ts":1732883052440062, "dur":11, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.AudioModule.dll" }}
+,{ "pid":12345, "tid":13, "ts":1732883052440073, "dur":104, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":13, "ts":1732883052440182, "dur":1, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":13, "ts":1732883052440190, "dur":3365, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.AudioModule.dll" }}
+,{ "pid":12345, "tid":13, "ts":1732883052443567, "dur":316338, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/Assembly-CSharp.dll" }}
+,{ "pid":12345, "tid":13, "ts":1732883052759906, "dur":42, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":13, "ts":1732883052759956, "dur":1, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":13, "ts":1732883052759968, "dur":698, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/Assembly-CSharp.dll" }}
+,{ "pid":12345, "tid":13, "ts":1732883052760678, "dur":421206, "ph":"X", "name": "WaitingForWork", "cname":"thread_state_sleeping",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":14, "ts":1732883052420376, "dur":0, "ph":"X", "name": "FirstLock",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":14, "ts":1732883052420377, "dur":40, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/UnityPlayer.dll" }}
+,{ "pid":12345, "tid":14, "ts":1732883052420418, "dur":22, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":14, "ts":1732883052420449, "dur":0, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":14, "ts":1732883052420472, "dur":20953, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/UnityPlayer.dll" }}
+,{ "pid":12345, "tid":14, "ts":1732883052441436, "dur":12, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/System.ServiceModel.Internals.dll" }}
+,{ "pid":12345, "tid":14, "ts":1732883052441448, "dur":45, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":14, "ts":1732883052441498, "dur":1, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":14, "ts":1732883052441505, "dur":3116, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/System.ServiceModel.Internals.dll" }}
+,{ "pid":12345, "tid":14, "ts":1732883052444641, "dur":74, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/boot.config" }}
+,{ "pid":12345, "tid":14, "ts":1732883052444715, "dur":155, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":14, "ts":1732883052444874, "dur":0, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":14, "ts":1732883052444880, "dur":1502, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/boot.config" }}
+,{ "pid":12345, "tid":14, "ts":1732883052446392, "dur":735523, "ph":"X", "name": "WaitingForWork", "cname":"thread_state_sleeping",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":15, "ts":1732883052420381, "dur":0, "ph":"X", "name": "FirstLock",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":15, "ts":1732883052420381, "dur":28, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/UnityCrashHandler64.exe" }}
+,{ "pid":12345, "tid":15, "ts":1732883052420409, "dur":17, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":15, "ts":1732883052420438, "dur":1, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":15, "ts":1732883052420455, "dur":14059, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/UnityCrashHandler64.exe" }}
+,{ "pid":12345, "tid":15, "ts":1732883052434524, "dur":8, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.TilemapModule.dll" }}
+,{ "pid":12345, "tid":15, "ts":1732883052434532, "dur":77, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":15, "ts":1732883052434612, "dur":0, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":15, "ts":1732883052435509, "dur":2176, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.TilemapModule.dll" }}
+,{ "pid":12345, "tid":15, "ts":1732883052437700, "dur":9, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.InputLegacyModule.dll" }}
+,{ "pid":12345, "tid":15, "ts":1732883052437709, "dur":32, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":15, "ts":1732883052437745, "dur":0, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":15, "ts":1732883052437753, "dur":2843, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.InputLegacyModule.dll" }}
+,{ "pid":12345, "tid":15, "ts":1732883052440605, "dur":8, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.AccessibilityModule.dll" }}
+,{ "pid":12345, "tid":15, "ts":1732883052440613, "dur":37, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":15, "ts":1732883052440653, "dur":1, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":15, "ts":1732883052440661, "dur":3304, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.AccessibilityModule.dll" }}
+,{ "pid":12345, "tid":15, "ts":1732883052443979, "dur":9, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/level0" }}
+,{ "pid":12345, "tid":15, "ts":1732883052443991, "dur":0, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":15, "ts":1732883052443997, "dur":997, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/level0" }}
+,{ "pid":12345, "tid":15, "ts":1732883052445003, "dur":736871, "ph":"X", "name": "WaitingForWork", "cname":"thread_state_sleeping",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":16, "ts":1732883052323005, "dur":1, "ph":"X", "name": "FirstLock",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":16, "ts":1732883052323006, "dur":1291, "ph":"X", "name": "CheckDagSignatures",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":16, "ts":1732883052324306, "dur":1, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"WriteText Library/Bee/artifacts/WinPlayerBuildProgram/Data/app.info" }}
+,{ "pid":12345, "tid":16, "ts":1732883052324307, "dur":11, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":16, "ts":1732883052324322, "dur":1, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/app.info" }}
+,{ "pid":12345, "tid":16, "ts":1732883052324324, "dur":14, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":16, "ts":1732883052324392, "dur":0, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":16, "ts":1732883052324677, "dur":107227, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/app.info" }}
+,{ "pid":12345, "tid":16, "ts":1732883052431907, "dur":12, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Resources/unity default resources" }}
+,{ "pid":12345, "tid":16, "ts":1732883052431919, "dur":19, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":16, "ts":1732883052431942, "dur":0, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":16, "ts":1732883052432392, "dur":2669, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Resources/unity default resources" }}
+,{ "pid":12345, "tid":16, "ts":1732883052435072, "dur":9, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.TerrainPhysicsModule.dll" }}
+,{ "pid":12345, "tid":16, "ts":1732883052435081, "dur":78, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":16, "ts":1732883052435163, "dur":29, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":16, "ts":1732883052435199, "dur":1940, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.TerrainPhysicsModule.dll" }}
+,{ "pid":12345, "tid":16, "ts":1732883052437147, "dur":8, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.ParticleSystemModule.dll" }}
+,{ "pid":12345, "tid":16, "ts":1732883052437155, "dur":56, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":16, "ts":1732883052437216, "dur":1, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":16, "ts":1732883052437223, "dur":3035, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.ParticleSystemModule.dll" }}
+,{ "pid":12345, "tid":16, "ts":1732883052440266, "dur":9, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.AssetBundleModule.dll" }}
+,{ "pid":12345, "tid":16, "ts":1732883052440275, "dur":42, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":16, "ts":1732883052440321, "dur":0, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":16, "ts":1732883052440327, "dur":3347, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.AssetBundleModule.dll" }}
+,{ "pid":12345, "tid":16, "ts":1732883052443685, "dur":11, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/sharedassets0.assets" }}
+,{ "pid":12345, "tid":16, "ts":1732883052443699, "dur":1, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":16, "ts":1732883052443705, "dur":700, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/sharedassets0.assets" }}
+,{ "pid":12345, "tid":16, "ts":1732883052444435, "dur":9, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/globalgamemanagers.assets" }}
+,{ "pid":12345, "tid":16, "ts":1732883052444448, "dur":1, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":16, "ts":1732883052444454, "dur":1772, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/globalgamemanagers.assets" }}
+,{ "pid":12345, "tid":16, "ts":1732883052446235, "dur":735638, "ph":"X", "name": "WaitingForWork", "cname":"thread_state_sleeping",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":17, "ts":1732883052429236, "dur":1, "ph":"X", "name": "FirstLock",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":17, "ts":1732883052429237, "dur":377, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller.exe" }}
+,{ "pid":12345, "tid":17, "ts":1732883052429614, "dur":15, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":17, "ts":1732883052429649, "dur":0, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":17, "ts":1732883052429663, "dur":2736, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller.exe" }}
+,{ "pid":12345, "tid":17, "ts":1732883052432412, "dur":18, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.UnityAnalyticsModule.dll" }}
+,{ "pid":12345, "tid":17, "ts":1732883052432430, "dur":118, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":17, "ts":1732883052432553, "dur":0, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":17, "ts":1732883052432900, "dur":3052, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.UnityAnalyticsModule.dll" }}
+,{ "pid":12345, "tid":17, "ts":1732883052435959, "dur":9, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.ScreenCaptureModule.dll" }}
+,{ "pid":12345, "tid":17, "ts":1732883052435968, "dur":74, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":17, "ts":1732883052436046, "dur":0, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":17, "ts":1732883052436064, "dur":3170, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.ScreenCaptureModule.dll" }}
+,{ "pid":12345, "tid":17, "ts":1732883052439244, "dur":9, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.CrashReportingModule.dll" }}
+,{ "pid":12345, "tid":17, "ts":1732883052439254, "dur":133, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":17, "ts":1732883052439392, "dur":0, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":17, "ts":1732883052439401, "dur":2839, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.CrashReportingModule.dll" }}
+,{ "pid":12345, "tid":17, "ts":1732883052442249, "dur":11, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/System.Configuration.dll" }}
+,{ "pid":12345, "tid":17, "ts":1732883052442260, "dur":84, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":17, "ts":1732883052442352, "dur":0, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":17, "ts":1732883052442360, "dur":19263, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/System.Configuration.dll" }}
+,{ "pid":12345, "tid":17, "ts":1732883052461634, "dur":720260, "ph":"X", "name": "WaitingForWork", "cname":"thread_state_sleeping",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":18, "ts":1732883052420343, "dur":0, "ph":"X", "name": "FirstLock",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":18, "ts":1732883052420344, "dur":39, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/MonoBleedingEdge/etc/mono/2.0/DefaultWsdlHelpGenerator.aspx" }}
+,{ "pid":12345, "tid":18, "ts":1732883052420383, "dur":62, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":18, "ts":1732883052420450, "dur":0, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":18, "ts":1732883052420741, "dur":11454, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/MonoBleedingEdge/etc/mono/2.0/DefaultWsdlHelpGenerator.aspx" }}
+,{ "pid":12345, "tid":18, "ts":1732883052432204, "dur":11, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.UnityWebRequestWWWModule.dll" }}
+,{ "pid":12345, "tid":18, "ts":1732883052432216, "dur":155, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":18, "ts":1732883052432375, "dur":0, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":18, "ts":1732883052432727, "dur":2036, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.UnityWebRequestWWWModule.dll" }}
+,{ "pid":12345, "tid":18, "ts":1732883052434771, "dur":8, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.TextRenderingModule.dll" }}
+,{ "pid":12345, "tid":18, "ts":1732883052434779, "dur":167, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":18, "ts":1732883052434951, "dur":0, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":18, "ts":1732883052435541, "dur":2177, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.TextRenderingModule.dll" }}
+,{ "pid":12345, "tid":18, "ts":1732883052437727, "dur":9, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.IMGUIModule.dll" }}
+,{ "pid":12345, "tid":18, "ts":1732883052437736, "dur":117, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":18, "ts":1732883052437858, "dur":0, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":18, "ts":1732883052437865, "dur":3309, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.IMGUIModule.dll" }}
+,{ "pid":12345, "tid":18, "ts":1732883052441187, "dur":234344, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/Unity.TextMeshPro.dll" }}
+,{ "pid":12345, "tid":18, "ts":1732883052675532, "dur":37, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":18, "ts":1732883052675575, "dur":1, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":18, "ts":1732883052675585, "dur":716, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/Unity.TextMeshPro.dll" }}
+,{ "pid":12345, "tid":18, "ts":1732883052676311, "dur":505576, "ph":"X", "name": "WaitingForWork", "cname":"thread_state_sleeping",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":19, "ts":1732883052420347, "dur":0, "ph":"X", "name": "FirstLock",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":19, "ts":1732883052420347, "dur":34, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/MonoBleedingEdge/etc/mono/config" }}
+,{ "pid":12345, "tid":19, "ts":1732883052420381, "dur":38, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":19, "ts":1732883052420439, "dur":3, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":19, "ts":1732883052420482, "dur":11756, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/MonoBleedingEdge/etc/mono/config" }}
+,{ "pid":12345, "tid":19, "ts":1732883052432246, "dur":9, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.UnityWebRequestAudioModule.dll" }}
+,{ "pid":12345, "tid":19, "ts":1732883052432255, "dur":147, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":19, "ts":1732883052432412, "dur":1, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":19, "ts":1732883052432740, "dur":2165, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.UnityWebRequestAudioModule.dll" }}
+,{ "pid":12345, "tid":19, "ts":1732883052434914, "dur":11, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.TextCoreTextEngineModule.dll" }}
+,{ "pid":12345, "tid":19, "ts":1732883052434925, "dur":169, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":19, "ts":1732883052435099, "dur":1, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":19, "ts":1732883052435562, "dur":2617, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.TextCoreTextEngineModule.dll" }}
+,{ "pid":12345, "tid":19, "ts":1732883052438190, "dur":8, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.GridModule.dll" }}
+,{ "pid":12345, "tid":19, "ts":1732883052438198, "dur":48, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":19, "ts":1732883052438250, "dur":0, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":19, "ts":1732883052438257, "dur":3093, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.GridModule.dll" }}
+,{ "pid":12345, "tid":19, "ts":1732883052441358, "dur":9, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/System.Xml.dll" }}
+,{ "pid":12345, "tid":19, "ts":1732883052441367, "dur":121, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":19, "ts":1732883052441491, "dur":1, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":19, "ts":1732883052441499, "dur":4867, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/System.Xml.dll" }}
+,{ "pid":12345, "tid":19, "ts":1732883052446377, "dur":735494, "ph":"X", "name": "WaitingForWork", "cname":"thread_state_sleeping",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":20, "ts":1732883052420355, "dur":0, "ph":"X", "name": "FirstLock",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":20, "ts":1732883052420356, "dur":19, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/MonoBleedingEdge/etc/mono/browscap.ini" }}
+,{ "pid":12345, "tid":20, "ts":1732883052420376, "dur":26, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":20, "ts":1732883052420408, "dur":0, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":20, "ts":1732883052420433, "dur":11946, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/MonoBleedingEdge/etc/mono/browscap.ini" }}
+,{ "pid":12345, "tid":20, "ts":1732883052432390, "dur":19, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.UnityConnectModule.dll" }}
+,{ "pid":12345, "tid":20, "ts":1732883052432409, "dur":56, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":20, "ts":1732883052432469, "dur":0, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":20, "ts":1732883052432670, "dur":1750, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.UnityConnectModule.dll" }}
+,{ "pid":12345, "tid":20, "ts":1732883052434431, "dur":9, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.UIElementsModule.dll" }}
+,{ "pid":12345, "tid":20, "ts":1732883052434441, "dur":95, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":20, "ts":1732883052434540, "dur":0, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":20, "ts":1732883052435444, "dur":2224, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.UIElementsModule.dll" }}
+,{ "pid":12345, "tid":20, "ts":1732883052437677, "dur":12, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.InputModule.dll" }}
+,{ "pid":12345, "tid":20, "ts":1732883052437689, "dur":51, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":20, "ts":1732883052437744, "dur":0, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":20, "ts":1732883052437750, "dur":2965, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.InputModule.dll" }}
+,{ "pid":12345, "tid":20, "ts":1732883052440725, "dur":102029, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/Unity.Timeline.dll" }}
+,{ "pid":12345, "tid":20, "ts":1732883052542756, "dur":33, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":20, "ts":1732883052542796, "dur":1, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":20, "ts":1732883052542806, "dur":625, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/Unity.Timeline.dll" }}
+,{ "pid":12345, "tid":20, "ts":1732883052543442, "dur":638471, "ph":"X", "name": "WaitingForWork", "cname":"thread_state_sleeping",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":21, "ts":1732883052420358, "dur":0, "ph":"X", "name": "FirstLock",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":21, "ts":1732883052420359, "dur":35, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/MonoBleedingEdge/EmbedRuntime/MonoPosixHelper.dll" }}
+,{ "pid":12345, "tid":21, "ts":1732883052420395, "dur":19, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":21, "ts":1732883052420437, "dur":0, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":21, "ts":1732883052420702, "dur":11591, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/MonoBleedingEdge/EmbedRuntime/MonoPosixHelper.dll" }}
+,{ "pid":12345, "tid":21, "ts":1732883052432301, "dur":12, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.UnityWebRequestAssetBundleModule.dll" }}
+,{ "pid":12345, "tid":21, "ts":1732883052432313, "dur":94, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":21, "ts":1732883052432412, "dur":1, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":21, "ts":1732883052432768, "dur":2708, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.UnityWebRequestAssetBundleModule.dll" }}
+,{ "pid":12345, "tid":21, "ts":1732883052435486, "dur":10, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.SubsystemsModule.dll" }}
+,{ "pid":12345, "tid":21, "ts":1732883052435496, "dur":49, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":21, "ts":1732883052435549, "dur":1, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":21, "ts":1732883052435557, "dur":2545, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.SubsystemsModule.dll" }}
+,{ "pid":12345, "tid":21, "ts":1732883052438112, "dur":9, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.HotReloadModule.dll" }}
+,{ "pid":12345, "tid":21, "ts":1732883052438121, "dur":124, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":21, "ts":1732883052438249, "dur":0, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":21, "ts":1732883052438256, "dur":3080, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.HotReloadModule.dll" }}
+,{ "pid":12345, "tid":21, "ts":1732883052441349, "dur":8, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/System.Xml.Linq.dll" }}
+,{ "pid":12345, "tid":21, "ts":1732883052441357, "dur":130, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":21, "ts":1732883052441491, "dur":0, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":21, "ts":1732883052441498, "dur":2876, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/System.Xml.Linq.dll" }}
+,{ "pid":12345, "tid":21, "ts":1732883052444386, "dur":10, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/globalgamemanagers.assets.resS" }}
+,{ "pid":12345, "tid":21, "ts":1732883052444400, "dur":0, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":21, "ts":1732883052444406, "dur":4771, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/globalgamemanagers.assets.resS" }}
+,{ "pid":12345, "tid":21, "ts":1732883052449187, "dur":732721, "ph":"X", "name": "WaitingForWork", "cname":"thread_state_sleeping",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":22, "ts":1732883052326491, "dur":0, "ph":"X", "name": "FirstLock",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":22, "ts":1732883052326492, "dur":28, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/MonoBleedingEdge/etc/mono/mconfig/config.xml" }}
+,{ "pid":12345, "tid":22, "ts":1732883052326520, "dur":22, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":22, "ts":1732883052326547, "dur":1, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":22, "ts":1732883052326865, "dur":105551, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/MonoBleedingEdge/etc/mono/mconfig/config.xml" }}
+,{ "pid":12345, "tid":22, "ts":1732883052432426, "dur":10, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.UNETModule.dll" }}
+,{ "pid":12345, "tid":22, "ts":1732883052432436, "dur":79, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":22, "ts":1732883052432540, "dur":1, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":22, "ts":1732883052432889, "dur":2919, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.UNETModule.dll" }}
+,{ "pid":12345, "tid":22, "ts":1732883052435824, "dur":9, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.SpriteMaskModule.dll" }}
+,{ "pid":12345, "tid":22, "ts":1732883052435834, "dur":46, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":22, "ts":1732883052435884, "dur":0, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":22, "ts":1732883052435890, "dur":3210, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.SpriteMaskModule.dll" }}
+,{ "pid":12345, "tid":22, "ts":1732883052439109, "dur":7, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.DirectorModule.dll" }}
+,{ "pid":12345, "tid":22, "ts":1732883052439117, "dur":157, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":22, "ts":1732883052439290, "dur":1, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":22, "ts":1732883052439297, "dur":2893, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.DirectorModule.dll" }}
+,{ "pid":12345, "tid":22, "ts":1732883052442205, "dur":12, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/System.dll" }}
+,{ "pid":12345, "tid":22, "ts":1732883052442217, "dur":41, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":22, "ts":1732883052442262, "dur":0, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":22, "ts":1732883052442278, "dur":4274, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/System.dll" }}
+,{ "pid":12345, "tid":22, "ts":1732883052446561, "dur":735339, "ph":"X", "name": "WaitingForWork", "cname":"thread_state_sleeping",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":23, "ts":1732883052335044, "dur":1, "ph":"X", "name": "FirstLock",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":23, "ts":1732883052335045, "dur":29, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/MonoBleedingEdge/etc/mono/4.5/Browsers/Compat.browser" }}
+,{ "pid":12345, "tid":23, "ts":1732883052335074, "dur":23, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":23, "ts":1732883052335102, "dur":0, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":23, "ts":1732883052335333, "dur":96997, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/MonoBleedingEdge/etc/mono/4.5/Browsers/Compat.browser" }}
+,{ "pid":12345, "tid":23, "ts":1732883052432340, "dur":11, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.UnityTestProtocolModule.dll" }}
+,{ "pid":12345, "tid":23, "ts":1732883052432352, "dur":210, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":23, "ts":1732883052432567, "dur":1, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":23, "ts":1732883052432923, "dur":3100, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.UnityTestProtocolModule.dll" }}
+,{ "pid":12345, "tid":23, "ts":1732883052436032, "dur":11, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.RuntimeInitializeOnLoadManagerInitializerModule.dll" }}
+,{ "pid":12345, "tid":23, "ts":1732883052436043, "dur":87, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":23, "ts":1732883052436134, "dur":1, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":23, "ts":1732883052436142, "dur":3100, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.RuntimeInitializeOnLoadManagerInitializerModule.dll" }}
+,{ "pid":12345, "tid":23, "ts":1732883052439252, "dur":9, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.CoreModule.dll" }}
+,{ "pid":12345, "tid":23, "ts":1732883052439261, "dur":127, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":23, "ts":1732883052439392, "dur":0, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":23, "ts":1732883052439401, "dur":3940, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.CoreModule.dll" }}
+,{ "pid":12345, "tid":23, "ts":1732883052443350, "dur":8, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/Mono.Security.dll" }}
+,{ "pid":12345, "tid":23, "ts":1732883052443359, "dur":210, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":23, "ts":1732883052443574, "dur":1, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":23, "ts":1732883052443581, "dur":2685, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/Mono.Security.dll" }}
+,{ "pid":12345, "tid":23, "ts":1732883052446275, "dur":735616, "ph":"X", "name": "WaitingForWork", "cname":"thread_state_sleeping",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":24, "ts":1732883052355019, "dur":0, "ph":"X", "name": "FirstLock",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":24, "ts":1732883052355021, "dur":34, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/MonoBleedingEdge/etc/mono/4.5/web.config" }}
+,{ "pid":12345, "tid":24, "ts":1732883052355056, "dur":15, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":24, "ts":1732883052355077, "dur":1, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":24, "ts":1732883052355101, "dur":77126, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/MonoBleedingEdge/etc/mono/4.5/web.config" }}
+,{ "pid":12345, "tid":24, "ts":1732883052432239, "dur":13, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.UnityWebRequestModule.dll" }}
+,{ "pid":12345, "tid":24, "ts":1732883052432252, "dur":56, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":24, "ts":1732883052432313, "dur":1, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":24, "ts":1732883052432698, "dur":2244, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.UnityWebRequestModule.dll" }}
+,{ "pid":12345, "tid":24, "ts":1732883052434953, "dur":9, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.TextCoreFontEngineModule.dll" }}
+,{ "pid":12345, "tid":24, "ts":1732883052434962, "dur":135, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":24, "ts":1732883052435101, "dur":0, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":24, "ts":1732883052435603, "dur":2614, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.TextCoreFontEngineModule.dll" }}
+,{ "pid":12345, "tid":24, "ts":1732883052438227, "dur":8, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.GIModule.dll" }}
+,{ "pid":12345, "tid":24, "ts":1732883052438235, "dur":157, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":24, "ts":1732883052438397, "dur":1, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":24, "ts":1732883052438404, "dur":3289, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/UnityEngine.GIModule.dll" }}
+,{ "pid":12345, "tid":24, "ts":1732883052441701, "dur":8, "ph":"X", "name": "CheckInputSignature",  "args": { "detail":"CopyFiles D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/System.Runtime.Serialization.dll" }}
+,{ "pid":12345, "tid":24, "ts":1732883052441709, "dur":202, "ph":"X", "name": "OutputFilesMissingFor",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":24, "ts":1732883052441915, "dur":1, "ph":"X", "name": "StoreTimestampsOfNonGeneratedInputFiles",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":24, "ts":1732883052441923, "dur":3440, "ph":"X", "name": "CopyFiles",  "args": { "detail":"D:/Usuarios/GIB/Documents/MEDUSA/v2024/src/accounts/AnaMF1/apps/cvep_speller/c-VEP Speller_Data/Managed/System.Runtime.Serialization.dll" }}
+,{ "pid":12345, "tid":24, "ts":1732883052445374, "dur":736504, "ph":"X", "name": "WaitingForWork", "cname":"thread_state_sleeping",  "args": { "detail":"" }}
+,{ "pid":12345, "tid":0, "ts":1732883053215767, "dur":1687, "ph":"X", "name": "ProfilerWriteOutput" }
 ,
