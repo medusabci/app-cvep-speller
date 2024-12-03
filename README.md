@@ -38,7 +38,7 @@ Encoding and matrix
 
 Colors:
 
-- The colors functionality allows you to use different colors for the GUI and the encoding of the binary m-sequences. Try it out!
+- The colors functionality allows you to use different colors for the GUI and the encoding of the binary m-sequences.  Additionally, you can adjust the opacity level to ensure your commands blend seamlessly with the background scenario. Try it out!
 
 Background: 
 - This feature allows you to personalize your background with a choice between a solid color or a realistic scene. Simply upload an image from your gallery to set it as your background.
