@@ -65,7 +65,6 @@ class Config(QtWidgets.QDialog, ui_main_file):
 
         # Adjust parameters depending on default option
         if self.comboBox_mode.currentText() == 'Online':
-            self.train_test_box.setCurrentIndex(1)
             self.lineEdit_session.setText('Test')
             self.label_cvep_model.setVisible(True)
             self.label_test_cycles.setVisible(True)
@@ -77,7 +76,6 @@ class Config(QtWidgets.QDialog, ui_main_file):
             self.spinBox_traincycles.setVisible(False)
             self.spinBox_traintrials.setVisible(False)
         else:
-            self.train_test_box.setCurrentIndex(0)
             self.lineEdit_session.setText('Train')
             self.label_cvep_model.setVisible(False)
             self.label_test_cycles.setVisible(False)
@@ -96,7 +94,7 @@ class Config(QtWidgets.QDialog, ui_main_file):
         self.btn_done.clicked.connect(self.done)
         self.btn_train_model.clicked.connect(self.train_model)
         self.btn_browse_cvepmodel.clicked.connect(self.browse_model)
-        self.btn_update_matrix.clicked.connect(self.update_test_matrix)
+        self.btn_update_matrix.clicked.connect(self.update_matrix)
         self.comboBox_seqlength.currentTextChanged.connect(
             self.on_seqlen_changed)
         self.spinBox_fpsresolution.valueChanged.connect(
@@ -194,7 +192,6 @@ class Config(QtWidgets.QDialog, ui_main_file):
 
     def on_mode_changed(self):
         if self.comboBox_mode.currentText() == 'Online':
-            self.train_test_box.setCurrentIndex(1)
             self.lineEdit_session.setText('Test')
             self.label_cvep_model.setVisible(True)
             self.label_test_cycles.setVisible(True)
@@ -206,7 +203,6 @@ class Config(QtWidgets.QDialog, ui_main_file):
             self.spinBox_traincycles.setVisible(False)
             self.spinBox_traintrials.setVisible(False)
         else:
-            self.train_test_box.setCurrentIndex(0)
             self.lineEdit_session.setText('Train')
             self.label_cvep_model.setVisible(False)
             self.label_test_cycles.setVisible(False)
@@ -346,21 +342,21 @@ class Config(QtWidgets.QDialog, ui_main_file):
                                      QSizePolicy.Expanding)
         policy_fix_fix = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
 
-        # Test matrices
+        # Matrices
         # Create the required number of tabs
-        n_extra = len(self.settings.matrices['test']) - \
-                  self.widget_nested_test.count()
+        n_extra = len(self.settings.matrices) - \
+                  self.widget_nested_matrices.count()
         for t in range(1, n_extra + 1):
-            mtx_widget_ = QtWidgets.QWidget(self.widget_nested_test)
-            mtx_idx_ = self.nested_box.count() - 1
-            self.widget_nested_test.insertTab(mtx_idx_, mtx_widget_,
+            mtx_widget_ = QtWidgets.QWidget(self.widget_nested_matrices)
+            mtx_idx_ = self.widget_nested_matrices.count() + 1
+            self.widget_nested_matrices.addTab(mtx_widget_,
                                               'Matrix #' + str(mtx_idx_))
-            self.widget_nested_test.setCurrentIndex(0)
-        # Create each test matrix
-        for m in range(len(self.settings.matrices['test'])):
+        self.widget_nested_matrices.setCurrentIndex(0)
+        # Create each matrix
+        for m in range(len(self.settings.matrices)):
             # Set the current index and create the general layout
-            curr_mtx = self.settings.matrices['test'][m]
-            self.widget_nested_test.setCurrentIndex(m)
+            curr_mtx = self.settings.matrices[m]
+            self.widget_nested_matrices.setCurrentIndex(m)
             global_layout = QtWidgets.QVBoxLayout()
             # Create the result text frame
             result_frame = QtWidgets.QFrame()
@@ -429,102 +425,16 @@ class Config(QtWidgets.QDialog, ui_main_file):
             new_tab.setLayout(global_layout)
             gui_utils.modify_property(new_tab, 'background-color',
                                       self.settings.background.color_background[:7])
-            self.update_tab(self.widget_nested_test, m, new_tab)
-        self.spinBox_nrow.setValue(self.settings.matrices['test'][0].n_row)
-        self.spinBox_ncol.setValue(self.settings.matrices['test'][0].n_col)
+            self.update_tab(self.widget_nested_matrices, m, new_tab)
 
-        # Train matrices
-        # Create the required number of tabs
-        n_extra = len(self.settings.matrices['train']) - \
-                  self.widget_nested_train.count()
-        for t in range(1, n_extra + 1):
-            mtx_widget_ = QtWidgets.QWidget(self.widget_nested_train)
-            mtx_idx_ = self.nested_box.count() - 1
-            self.widget_nested_train.insertTab(mtx_idx_, mtx_widget_,
-                                               'Matrix #' + str(mtx_idx_))
-            self.widget_nested_train.setCurrentIndex(0)
-        # Create each training matrix
-        for m in range(len(self.settings.matrices['train'])):
-            # Set the current index and create the general layout
-            curr_mtx = self.settings.matrices['train'][m]
-            self.widget_nested_train.setCurrentIndex(m)
-            global_layout = QtWidgets.QVBoxLayout()
-            # Create the result text frame
-            result_frame = QtWidgets.QFrame()
-            result_text = QtWidgets.QLabel('B C I')
-            result_text.setObjectName('label_result_text')
-            result_text.setAlignment(QtCore.Qt.AlignLeft)
-            result_title = QtWidgets.QLabel('RESULT ')
-            result_title.setObjectName('label_result_title')
-            result_title.setAlignment(QtCore.Qt.AlignLeft)
-            result_title.setSizePolicy(policy_max_pre)
-            fps_monitor = QtWidgets.QLabel(
-                'FPS @%iHz' % self.settings.run_settings.fps_resolution)
-            fps_monitor.setObjectName('label_fps')
-            fps_monitor.setAlignment(QtCore.Qt.AlignRight)
-            result_layout = QtWidgets.QHBoxLayout()
-            result_layout.addWidget(result_title)
-            result_layout.addWidget(result_text)
-            result_layout.addWidget(fps_monitor)
-            result_frame.setLayout(result_layout)
-            global_layout.addWidget(result_frame)
-            # Customize the result text
-            gui_utils.modify_properties(
-                result_title, {
-                    "font-style": "italic",
-                    "color": self.settings.colors.color_result_info_text[:7]
-                })
-            gui_utils.modify_property(
-                result_frame, "background-color",
-                self.settings.colors.color_result_info_box[:7])
-            gui_utils.modify_property(
-                fps_monitor, "color",
-                self.settings.colors.color_fps_good[:7])
-            # Create a new layout for the commands
-            new_layout = QtWidgets.QGridLayout()
-            new_layout.setContentsMargins(0, 0, 0, 0)
-            new_layout.setSpacing(10)
-            new_layout.setContentsMargins(10, 10, 10, 10)
-            # Add buttons as commands
-            for r in range(curr_mtx.n_row):
-                for c in range(curr_mtx.n_col):
-                    key_ = curr_mtx.matrix_list[r][c].sequence[0]
-                    temp_button = QtWidgets.QToolButton()
-                    temp_button.setObjectName('btn_command')
-                    temp_button.setSizePolicy(policy_max_max)
-                    temp_button.setText(curr_mtx.matrix_list[r][c].text)
-                    temp_button.setMinimumSize(60, 60)
-                    temp_button.clicked.connect(
-                        self.btn_command_on_click(r, c))
-                    box_color_ = self.settings.colors.color_box_0 if \
-                        key_ == 0 else self.settings.colors.color_box_1
-                    text_color_ = self.settings.colors.color_text_0 if \
-                        key_ == 0 else self.settings.colors.color_text_1
-                    gui_utils.modify_properties(
-                        temp_button, {
-                            "background-color": box_color_,
-                            "font-family": 'sans-serif, Helvetica, Arial',
-                            'font-size': '30px',
-                            'color': text_color_,
-                            'border': 'transparent'
-                        })
-                    new_layout.addWidget(temp_button, r, c)
-            global_layout.addLayout(new_layout)
-            global_layout.setSpacing(0)
-            global_layout.setContentsMargins(0, 0, 0, 0)
-
-            # Update the tab
-            new_tab = QtWidgets.QFrame()
-            new_tab.setLayout(global_layout)
-            gui_utils.modify_property(new_tab, 'background-color',
-                                      self.settings.background.color_background[:7])
-            self.update_tab(self.widget_nested_train, m, new_tab)
+        self.spinBox_nrow.setValue(self.settings.matrices[0].n_row)
+        self.spinBox_ncol.setValue(self.settings.matrices[0].n_col)
 
         # Filter cutoffs according to fps_resolution
         self.update_table_cutoffs()
 
-        # Sequence length in test
-        seqlen = len(self.settings.matrices['test'][0].item_list[0].sequence)
+        # Sequence length
+        seqlen = len(self.settings.matrices[0].item_list[0].sequence)
         index = self.comboBox_seqlength.findText(str(seqlen), Qt.MatchFixedString)
         self.comboBox_seqlength.setCurrentIndex(index)
 
@@ -532,20 +442,20 @@ class Config(QtWidgets.QDialog, ui_main_file):
         def set_config():
             # This function is required in order to accept passing arguments
             # (function factory)
-            current_index = self.widget_nested_test.currentIndex()
+            current_index = self.widget_nested_matrices.currentIndex()
             target_dialog = TargetConfigDialog(
-                self.settings.matrices['test'][current_index].
+                self.settings.matrices[current_index].
                     matrix_list[row][col], current_index)
             if target_dialog.exec_():
                 # Get the returned values
-                self.settings.matrices['test'][
+                self.settings.matrices[
                     current_index].matrix_list[row][col].set_text(
                     target_dialog.input_target_text.text())
-                self.settings.matrices['test'][
+                self.settings.matrices[
                     current_index].matrix_list[row][col].set_label(
                     target_dialog.input_target_label.text())
                 seq = eval(target_dialog.input_target_sequence.text())
-                self.settings.matrices['test'][
+                self.settings.matrices[
                     current_index].matrix_list[row][col].set_sequence(
                     seq)
 
@@ -824,7 +734,7 @@ class Config(QtWidgets.QDialog, ui_main_file):
                                                          filter=filt)
         self.lineEdit_scenario.setText(filepath[0])
 
-    def update_test_matrix(self):
+    def update_matrix(self):
         # Get the parameters
         n_row = int(self.spinBox_nrow.value())
         n_col = int(self.spinBox_ncol.value())
@@ -853,11 +763,9 @@ class Config(QtWidgets.QDialog, ui_main_file):
 
         # Compute the matrices
         self.get_settings_from_gui()
-        train_matrices, test_matrices, lags_info = \
+        self.settings.matrices = \
             self.settings.standard_single_sequence_matrices(
             n_row=n_row, n_col=n_col, mseqlen=mseqlen)
-        self.settings.matrices = {'train': train_matrices, 'test':
-            test_matrices}
 
         # Update the gui
         self.set_settings_to_gui()
@@ -866,11 +774,11 @@ class Config(QtWidgets.QDialog, ui_main_file):
         order = int(self.lineEdit_order.text())
         seed = self.lineEdit_seed.text()
         monitor_rate = float(self.spinBox_fpsresolution.value())
-        current_index = self.widget_nested_test.currentIndex()
+        current_index = self.widget_nested_matrices.currentIndex()
         visualize_dialog = VisualizeEncodingDialog(
             n_row=n_row, n_col=n_col, base=2, order=order,
-            monitor_rate=monitor_rate, item_list=self.settings.matrices[
-                'test'][current_index].item_list, lags_info=lags_info)
+            monitor_rate=monitor_rate, item_list=self.settings.matrices[current_index].item_list,
+            lags_info=lags_info)
         visualize_dialog.exec_()
 
     # --------------------- Colors ------------------------

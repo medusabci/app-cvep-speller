@@ -21,25 +21,17 @@ class Settings(SerializableComponent):
 
         self.matrices = matrices
         if matrices is None:
-            train_matrices, test_matrices, _ = \
-                self.standard_single_sequence_matrices()
-            self.matrices = {'train': train_matrices,
-                             'test': test_matrices}
+            self.matrices = self.standard_single_sequence_matrices()
 
     def to_serializable_obj(self):
-        train_matrices = []
-        test_matrices = []
-        for matrix in self.matrices['train']:
-            train_matrices.append(matrix.serialize())
-        for matrix in self.matrices['test']:
-            test_matrices.append(matrix.serialize())
-        matrices_dict = {'train': train_matrices,
-                         'test': test_matrices
-                         }
+        matrices = []
+        for matrix in self.matrices:
+            matrices.append(matrix.serialize())
+
         sett_dict = {'connection_settings': self.connection_settings.__dict__,
                      'run_settings': self.run_settings.__dict__,
                      'timings': self.timings.__dict__,
-                     'matrices': matrices_dict,
+                     'matrices': matrices,
                      'colors': self.colors.__dict__,
                      'background': self.background.__dict__
                      }
@@ -53,54 +45,25 @@ class Settings(SerializableComponent):
         timings = Timings(**settings_dict['timings'])
         colors = Colors(**settings_dict['colors'])
         background = Background(**settings_dict['background'])
-        # Train matrices
-        train_matrices = []
-        for m in settings_dict['matrices']['train']:
-            item_list = list()
-            for i in m['item_list']:
-                target = CVEPTarget(text=i['text'],
-                                    label=i['label'],
-                                    sequence=i['sequence'])
-                item_list.append(target)
-            matrix = CVEPMatrix(n_row=m['n_row'], n_col=m['n_col'])
-            matrix.item_list = item_list
-            matrix.organize_matrix()
-            train_matrices.append(matrix)
-        # Train matrices
-        test_matrices = []
-        for m in settings_dict['matrices']['test']:
-            item_list = list()
-            for i in m['item_list']:
-                target = CVEPTarget(text=i['text'],
-                                    label=i['label'],
-                                    sequence=i['sequence'])
-                item_list.append(target)
-            matrix = CVEPMatrix(n_row=m['n_row'], n_col=m['n_col'])
-            matrix.item_list = item_list
-            matrix.organize_matrix()
-            test_matrices.append(matrix)
-        # Merge both
-        matrices = {'train': train_matrices,
-                    'test': test_matrices
-                    }
+        # Matrices
+        item_list = list()
+        m = settings_dict['matrices']
+        for i in m['item_list']:
+            target = CVEPTarget(text=i['text'],
+                                label=i['label'],
+                                sequence=i['sequence'],
+                                lag=i['lag'])
+            item_list.append(target)
+        matrix = CVEPMatrix(n_row=m['n_row'], n_col=m['n_col'], info_lags=m['info_lags'])
+        matrix.item_list = item_list
+        matrix.organize_matrix()
+        matrices.append(matrix)
         return Settings(connection_settings=conn_sett,
                         run_settings=run_sett,
                         timings=timings,
                         colors=colors,
                         background=background,
                         matrices=matrices)
-
-    def set_matrices(self, train_matrices, test_matrices):
-        self.matrices = {'train': train_matrices,
-                         'test': test_matrices}
-
-    def get_dict_matrices(self):
-        m_dict = {'train': [], 'test': []}
-        for m in self.matrices['train']:
-            m_dict['train'].append(m.serialize())
-        for m in self.matrices['test']:
-            m_dict['test'].append(m.serialize())
-        return m_dict
 
     @staticmethod
     def get_coords_from_labels(labels, matrices):
@@ -152,8 +115,7 @@ class Settings(SerializableComponent):
                 '_abcdefghijklmnopqrstuvwxyz'
         comms *= 20
         comms_ = comms[:no_commands]
-        lags = np.linspace(0, mseqlen, no_commands + 1)[:-1].astype(int)
-        # lags_ = list(range(no_commands))
+        lags = np.linspace(0, mseqlen, no_commands + 1)[:-1].astype(int).tolist()
 
         # M-sequence generation
         if mseqlen == 31:
@@ -174,30 +136,20 @@ class Settings(SerializableComponent):
                              mseqlen)
         seq = m_seq.sequence
 
-        # Set up the test matrix
-        test_matrix = CVEPMatrix(n_row, n_col)
-        for idx, c in enumerate(comms_):
-            # seq_ = circular_shift(sequence=seq, lag=lags_[idx] * tau)
-            seq_ = circular_shift(sequence=seq, lag=lags[idx])
-            target = CVEPTarget(text=c, label=c, sequence=seq_)
-            test_matrix.append(target)
-        test_matrix.organize_matrix()
-
-        # Set up the train matrix (1x1 without lag)
-        train_matrix = CVEPMatrix(1, 1)
-        seq_ = circular_shift(sequence=seq, lag=0)
-        target = CVEPTarget(text='0', label='0', sequence=seq_)
-        train_matrix.append(target)
-        train_matrix.organize_matrix()
-
-        # Return
-        test_matrices = [test_matrix]
-        train_matrices = [train_matrix]
-        lags_info = {
+        info_lags = {
             'tau': tau,
             'lags': lags
         }
-        return train_matrices, test_matrices, lags_info
+        # Set up the matrix
+        matrix = CVEPMatrix(n_row, n_col, info_lags=info_lags)
+        for idx, c in enumerate(comms_):
+            seq_ = circular_shift(sequence=seq, lag=lags[idx])
+            target = CVEPTarget(text=c, label=c, sequence=seq_)
+            matrix.append(target)
+        matrix.organize_matrix()
+
+        matrices = [matrix]
+        return matrices
 
 
 class ConnectionSettings:
@@ -281,7 +233,7 @@ class Background:
 
 class CVEPMatrix:
 
-    def __init__(self, n_row=-1, n_col=-1):
+    def __init__(self, n_row=-1, n_col=-1, info_lags=None):
         """ Class that represents a c-VEP matrix.
 
         Attribute `item_list` encompasses a vector of commands, while
@@ -297,9 +249,13 @@ class CVEPMatrix:
         n_col: int
             (Optional, default:-1) Number of columns of the output matrix.
             If -1, `n_col` will be taken from the class.
+        info_lags : dict()
+            (Optional, default: None) Sometimes is useful to store additional
+            info such as tau or lag positions for circular shifted c-VEPs.
         """
         self.n_row = n_row
         self.n_col = n_col
+        self.info_lags = info_lags
 
         self.item_list = []  # Vector of targets
         self.matrix_list = []  # Matrix of targets.
@@ -378,6 +334,7 @@ class CVEPMatrix:
             items.append(i.to_dict())
         return {"n_row": self.n_row,
                 "n_col": self.n_col,
+                "info_lags": self.info_lags,
                 "item_list": items}
 
 

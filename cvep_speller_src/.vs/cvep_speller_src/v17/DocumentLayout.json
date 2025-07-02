@@ -1,13 +1,13 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "D:\\Usuarios\\GIB\\Documents\\MEDUSA\\v2024\\src\\accounts\\AnaMF1\\apps\\cvep_speller\\cvep_speller_src\\",
+  "WorkspaceRootPath": "D:\\Usuarios\\GIB\\Documents\\MEDUSA\\medusa-platform\\src\\accounts\\AnaMF1\\apps\\cvep_speller\\cvep_speller_src\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{4EB32F8D-D6BB-ED97-0F98-2F90D48C7E58}|Assembly-CSharp.csproj|d:\\usuarios\\gib\\documents\\medusa\\v2024\\src\\accounts\\anamf1\\apps\\cvep_speller\\cvep_speller_src\\assets\\scripts\\manager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{4EB32F8D-D6BB-ED97-0F98-2F90D48C7E58}|Assembly-CSharp.csproj|d:\\usuarios\\gib\\documents\\medusa\\medusa-platform\\src\\accounts\\anamf1\\apps\\cvep_speller\\cvep_speller_src\\assets\\scripts\\manager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{4EB32F8D-D6BB-ED97-0F98-2F90D48C7E58}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\manager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{4EB32F8D-D6BB-ED97-0F98-2F90D48C7E58}|Assembly-CSharp.csproj|D:\\Usuarios\\GIB\\Documents\\MEDUSA\\v2024\\src\\accounts\\AnaMF1\\apps\\cvep_speller\\cvep_speller_src\\assets\\scripts\\messageinterpreter.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{4EB32F8D-D6BB-ED97-0F98-2F90D48C7E58}|Assembly-CSharp.csproj|D:\\Usuarios\\GIB\\Documents\\MEDUSA\\medusa-platform\\src\\accounts\\AnaMF1\\apps\\cvep_speller\\cvep_speller_src\\assets\\scripts\\messageinterpreter.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{4EB32F8D-D6BB-ED97-0F98-2F90D48C7E58}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\messageinterpreter.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
@@ -18,31 +18,32 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 1,
+          "SelectedChildIndex": 0,
           "Children": [
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "MessageInterpreter.cs",
-              "DocumentMoniker": "D:\\Usuarios\\GIB\\Documents\\MEDUSA\\v2024\\src\\accounts\\AnaMF1\\apps\\cvep_speller\\cvep_speller_src\\Assets\\Scripts\\MessageInterpreter.cs",
-              "RelativeDocumentMoniker": "Assets\\Scripts\\MessageInterpreter.cs",
-              "ToolTip": "D:\\Usuarios\\GIB\\Documents\\MEDUSA\\v2024\\src\\accounts\\AnaMF1\\apps\\cvep_speller\\cvep_speller_src\\Assets\\Scripts\\MessageInterpreter.cs",
-              "RelativeToolTip": "Assets\\Scripts\\MessageInterpreter.cs",
-              "ViewState": "AQIAAEYAAAAAAAAAAAAqwGUAAAAkAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-27T12:54:17.364Z"
-            },
             {
               "$type": "Document",
               "DocumentIndex": 0,
               "Title": "Manager.cs",
-              "DocumentMoniker": "D:\\Usuarios\\GIB\\Documents\\MEDUSA\\v2024\\src\\accounts\\AnaMF1\\apps\\cvep_speller\\cvep_speller_src\\Assets\\Scripts\\Manager.cs",
+              "DocumentMoniker": "D:\\Usuarios\\GIB\\Documents\\MEDUSA\\medusa-platform\\src\\accounts\\AnaMF1\\apps\\cvep_speller\\cvep_speller_src\\Assets\\Scripts\\Manager.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\Manager.cs",
-              "ToolTip": "D:\\Usuarios\\GIB\\Documents\\MEDUSA\\v2024\\src\\accounts\\AnaMF1\\apps\\cvep_speller\\cvep_speller_src\\Assets\\Scripts\\Manager.cs",
+              "ToolTip": "D:\\Usuarios\\GIB\\Documents\\MEDUSA\\medusa-platform\\src\\accounts\\AnaMF1\\apps\\cvep_speller\\cvep_speller_src\\Assets\\Scripts\\Manager.cs",
               "RelativeToolTip": "Assets\\Scripts\\Manager.cs",
-              "ViewState": "AQIAAEkCAAAAAAAAAAAqwGECAABCAAAA",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAAQAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-11-27T12:54:11.164Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "MessageInterpreter.cs",
+              "DocumentMoniker": "D:\\Usuarios\\GIB\\Documents\\MEDUSA\\medusa-platform\\src\\accounts\\AnaMF1\\apps\\cvep_speller\\cvep_speller_src\\Assets\\Scripts\\MessageInterpreter.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\MessageInterpreter.cs",
+              "ToolTip": "D:\\Usuarios\\GIB\\Documents\\MEDUSA\\medusa-platform\\src\\accounts\\AnaMF1\\apps\\cvep_speller\\cvep_speller_src\\Assets\\Scripts\\MessageInterpreter.cs",
+              "RelativeToolTip": "Assets\\Scripts\\MessageInterpreter.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAGYAAAAkAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-11-27T12:54:17.364Z",
               "EditorCaption": ""
             }
           ]

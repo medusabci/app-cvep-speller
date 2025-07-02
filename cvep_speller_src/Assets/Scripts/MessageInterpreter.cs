@@ -61,9 +61,9 @@ public class MessageInterpreter
      * Check out the associated app_controller.py.
      **/
     public class ParameterDecoder
-    {        
+    {
         // Matrices
-        public BothMatrices matrices;
+        public List<Matrix> matrices { get; set; }
 
         // RunSettings
         public string mode;
@@ -106,12 +106,6 @@ public class MessageInterpreter
         {
             ParameterDecoder p = JsonConvert.DeserializeObject<ParameterDecoder>(jsonString);
             return p;
-        }
-
-        public class BothMatrices
-        {
-            public List<Matrix> train { get; set; }
-            public List<Matrix> test { get; set; }
         }
 
         public class Matrix

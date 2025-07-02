@@ -132,12 +132,12 @@ public class Manager : MonoBehaviour
     private float updateFixedUpdateCountPerSecond;
 
     // Other attributes
-    private List<List<int[]>> matrixTrainItemSequence, matrixTestItemSequence;
-    private int matrixTestCurrentTimeShift, matrixTrainCurrentTimeShift;
+    private List<List<int[]>> matrixItemSequence;
+    private int matrixCurrentTimeShift;
     private Dictionary<int, Color32> cellColorsByValue, textColorsByValue;
-    private string[,] matrixTrainLabels, matrixTestLabels;
-    private MessageInterpreter.ParameterDecoder.BothMatrices matrices;
-    private int matrixTestSequenceLength, matrixTrainSequenceLength;
+    private string[,] matrixLabels;
+    private List<MessageInterpreter.ParameterDecoder.Matrix> matrices;
+    private int matrixSequenceLength;
 
     private Vector2 lastScreenSize;
     static int currentTestTarget = 0;
@@ -150,8 +150,8 @@ public class Manager : MonoBehaviour
     private int[,] matrixTrainLags, matrixTrainLagsInit, matrixTrainSequenceIdx;
     private Camera mainCamera;
     private Canvas mainCanvas;
-    private GameObject[,] matrixTest, matrixTrain;
-    private GameObject fpsMonitorText, informationBox, informationText, debugText, mainTestCell, mainTrainCell, resultBox, resultText, photodiodeCell;
+    private GameObject[,] matrix;
+    private GameObject fpsMonitorText, informationBox, informationText, debugText, mainCell, resultBox, resultText, photodiodeCell;
     private float cellSize;
     private float width, height;
     private int[,] testTarget, trainTarget;
@@ -207,10 +207,8 @@ public class Manager : MonoBehaviour
         resultText = GameObject.Find("ResultText");
 
         // Hide main test and training cells 
-        mainTestCell = GameObject.Find("Test_Cell_Main");
-        mainTestCell.SetActive(false);
-        mainTrainCell = GameObject.Find("Train_Cell_Main");
-        mainTrainCell.SetActive(false);
+        mainCell = GameObject.Find("Cell_Main");
+        mainCell.SetActive(false);
 
         // Find the photodiode cell object
         photodiodeCell = GameObject.Find("Photodiode_Cell");
@@ -295,8 +293,8 @@ public class Manager : MonoBehaviour
                 if (!String.IsNullOrEmpty(lastResult))
                 {
                     concatenateNewResult(lastResult);
-                    matrixTest[lastResultCoords[1], lastResultCoords[2]].GetComponent<Image>().color = highlightResultBoxColor;
-                    matrixTest[lastResultCoords[1], lastResultCoords[2]].transform.Find("CellText").GetComponent<Text>().color = highlightResultTextColor;
+                    matrix[lastResultCoords[1], lastResultCoords[2]].GetComponent<Image>().color = highlightResultBoxColor;
+                    matrix[lastResultCoords[1], lastResultCoords[2]].transform.Find("CellText").GetComponent<Text>().color = highlightResultTextColor;
                     lastResult = "";
                 }
             }
@@ -304,8 +302,8 @@ public class Manager : MonoBehaviour
             if (resultstate == STATE_RESULT_IDDLE)
             {
                 // Default color
-                matrixTest[lastResultCoords[1], lastResultCoords[2]].GetComponent<Image>().color = defaultBoxColor;
-                matrixTest[lastResultCoords[1], lastResultCoords[2]].transform.Find("CellText").GetComponent<Text>().color = defaultTextColor;
+                matrix[lastResultCoords[1], lastResultCoords[2]].GetComponent<Image>().color = defaultBoxColor;
+                matrix[lastResultCoords[1], lastResultCoords[2]].transform.Find("CellText").GetComponent<Text>().color = defaultTextColor;
             }
 
             if (resultstate == STATE_RESULT_END)
@@ -432,30 +430,16 @@ public class Manager : MonoBehaviour
         }
     }
 
-    // This function resets the train matrix by unflashing everything
-    void resetTrainMatrix()
+    // This function resets the matrix by unflashing everything
+    void resetMatrix()
     {
-        matrixTrainCurrentTimeShift = 0;
-        for (int r = 0; r < matrixTrain.GetLength(0); r++)
+        matrixCurrentTimeShift = 0;
+        for (int r = 0; r < matrix.GetLength(0); r++)
         {
-            for (int c = 0; c < matrixTrain.GetLength(1); c++)
+            for (int c = 0; c < matrix.GetLength(1); c++)
             {
-                matrixTrain[r, c].GetComponent<Image>().color = defaultBoxColor;
-                matrixTrain[r, c].transform.GetChild(0).GetComponent<Text>().color = defaultTextColor;
-            }
-        }
-    }
-
-    // This function resets the test matrix by unflashing everything
-    void resetTestMatrix()
-    {
-        matrixTestCurrentTimeShift = 0;
-        for (int r = 0; r < matrixTest.GetLength(0); r++)
-        {
-            for (int c = 0; c < matrixTest.GetLength(1); c++)
-            {
-                matrixTest[r, c].GetComponent<Image>().color = defaultBoxColor;
-                matrixTest[r, c].transform.GetChild(0).GetComponent<Text>().color = defaultTextColor;
+                matrix[r, c].GetComponent<Image>().color = defaultBoxColor;
+                matrix[r, c].transform.GetChild(0).GetComponent<Text>().color = defaultTextColor;
             }
         }
     } 
@@ -505,61 +489,32 @@ public class Manager : MonoBehaviour
             rowSeparator = (height - cellSize * nRows) / (nRows + 1);
         }
 
-        // TEST MATRIX
+        // MATRIX
 
         // Compute the coordinate of the first cell 
-        int testRows = matrixTest.GetLength(0);
-        int testCols = matrixTest.GetLength(1);
-        float x0 = (width - (cellSize * testCols + colSeparator * (testCols - 1))) / 2;
-        float y0 = (height + (cellSize * testRows + rowSeparator * (testRows - 1))) / 2;
+        int Rows = matrix.GetLength(0);
+        int Cols = matrix.GetLength(1);
+        float x0 = (width - (cellSize * Cols + colSeparator * (Cols - 1))) / 2;
+        float y0 = (height + (cellSize * Rows + rowSeparator * (Rows - 1))) / 2;
         Vector2 origin = new Vector2(x0, y0);
 
         // Move all cells
-        for (int r = 0; r < matrixTest.GetLength(0); r++)
+        for (int r = 0; r < matrix.GetLength(0); r++)
         {
             float y_ = origin.y - r * (cellSize + rowSeparator);
-            for (int c = 0; c < matrixTest.GetLength(1); c++)
+            for (int c = 0; c < matrix.GetLength(1); c++)
             {
                 float x_ = origin.x + c * (cellSize + colSeparator);
                 
                 // Move and scale each command box
-                RectTransform rt = matrixTest[r, c].GetComponent<RectTransform>();
+                RectTransform rt = matrix[r, c].GetComponent<RectTransform>();
                 rt.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, cellSize);
                 rt.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, cellSize);
-                matrixTest[r, c].transform.position = new Vector2(x_, y_);
+                matrix[r, c].transform.position = new Vector2(x_, y_);
 
                 // Adapt the text of each command label
                 float st_ = cellSize / optimalCellSize;
-                matrixTest[r, c].transform.GetChild(0).GetComponent<Text>().GetComponent<RectTransform>().localScale = new Vector3(st_, st_, 1f);
-            }
-        }
-
-        // TRAIN MATRIX
-        
-        // Compute the coordinate of the first cell 
-        int trainRows = matrixTrain.GetLength(0);
-        int trainCols = matrixTrain.GetLength(1);
-        x0 = (width - (cellSize * trainCols + colSeparator * (trainCols - 1))) / 2;
-        y0 = (height + (cellSize * trainRows + rowSeparator * (trainRows - 1))) / 2;
-        origin = new Vector2(x0, y0);
-
-        // Move all cells (training matrix)
-        for (int r = 0; r < trainRows; r++)
-        {
-            float y_ = origin.y - r * (cellSize + rowSeparator);
-            for (int c = 0; c < trainCols; c++)
-            {
-                float x_ = origin.x + c * (cellSize + colSeparator);
-                
-                // Move and scale each command box
-                RectTransform rt = matrixTrain[r, c].GetComponent<RectTransform>();
-                rt.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, cellSize);
-                rt.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, cellSize);
-                matrixTrain[r, c].transform.position = new Vector2(x_, y_);
-
-                // Adapt the text of each command label
-                float st_ = cellSize / optimalCellSize;
-                matrixTrain[r, c].transform.GetChild(0).GetComponent<Text>().GetComponent<RectTransform>().localScale = new Vector3(st_, st_, 1f);
+                matrix[r, c].transform.GetChild(0).GetComponent<Text>().GetComponent<RectTransform>().localScale = new Vector3(st_, st_, 1f);
             }
         }        
     }
@@ -580,26 +535,14 @@ public class Manager : MonoBehaviour
         }
     }
 
-    // This function controls the visibility of the training matrix
-    void setTrainMatrixVisible(bool shouldBeVisible)
+    // This function controls the visibility of the matrix
+    void setMatrixVisible(bool shouldBeVisible)
     {
-        for (int r = 0; r < matrixTrain.GetLength(0); r++)
+        for (int r = 0; r < matrix.GetLength(0); r++)
         {
-            for (int c = 0; c < matrixTrain.GetLength(1); c++)
+            for (int c = 0; c < matrix.GetLength(1); c++)
             {
-                matrixTrain[r, c].SetActive(shouldBeVisible);
-            }
-        }
-    }
-
-    // This function controls the visibility of the test matrix
-    void setTestMatrixVisible(bool shouldBeVisible)
-    {
-        for (int r = 0; r < matrixTest.GetLength(0); r++)
-        {
-            for (int c = 0; c < matrixTest.GetLength(1); c++)
-            {
-                matrixTest[r, c].SetActive(shouldBeVisible);
+                matrix[r, c].SetActive(shouldBeVisible);
             }
         }
     }
@@ -771,79 +714,40 @@ public class Manager : MonoBehaviour
             highlightResultTextColor = defaultTextColor;
         }
 
-        // TEST MATRIX
-        //      matrixTest                  -> Test matrix containing the GameObjects (i.e., each cell that contains the box and the text)
-        //      matrixTestLabels            -> Label of each command
-        //      matrixTestItemSequence      -> Matrix that contains the sequence of each cell
-        //      matrixTestCurrentTimeShift  -> Counter that controls the position inside the encoding sequence at each monitor refresh
+        // MATRIX
+        //      matrix             -> Test matrix containing the GameObjects (i.e., each cell that contains the box and the text)
+        //      matrixLabels            -> Label of each command
+        //      matrixItemSequence      -> Matrix that contains the sequence of each cell
+        //      matrixCurrentTimeShift  -> Counter that controls the position inside the encoding sequence at each monitor refresh
 
         // Find the matrix
-        GameObject matrixTestObject = GameObject.FindGameObjectWithTag("MatrixTest");
-        int testNRow = matrices.test[currentMatrixIdx].n_row;
-        int testNCol = matrices.test[currentMatrixIdx].n_col;
-        matrixTest = new GameObject[testNRow, testNCol];
-        mainTestCell.SetActive(false);
+        GameObject matrixObject = GameObject.FindGameObjectWithTag("Matrix");
+        int NRow = matrices[currentMatrixIdx].n_row;
+        int NCol = matrices[currentMatrixIdx].n_col;
+        matrix = new GameObject[NRow, NCol];
+        mainCell.SetActive(false);
 
         // Create the matrix by duplicating the first cell
         int idx = 0;
-        matrixTestLabels = new string[testNRow, testNCol];
-        matrixTestItemSequence = new List<List<int[]>> ();
-        matrixTestCurrentTimeShift = 0;
-        matrixTestSequenceLength = matrices.test[currentMatrixIdx].item_list[0].sequence.GetLength(0);   // All the items must have the same sequence length
-        for (int r = 0; r < testNRow; r++)
+        matrixLabels = new string[NRow, NCol];
+        matrixItemSequence = new List<List<int[]>> ();
+        matrixCurrentTimeShift = 0;
+        matrixSequenceLength = matrices[currentMatrixIdx].item_list[0].sequence.GetLength(0);   // All the items must have the same sequence length
+        for (int r = 0; r < NRow; r++)
         {
-            matrixTestItemSequence.Add(new List<int[]>());
-            for (int c = 0; c < testNCol; c++)
+            matrixItemSequence.Add(new List<int[]>());
+            for (int c = 0; c <NCol; c++)
             {
-                matrixTest[r, c] = Instantiate(mainTestCell, new Vector2(0, 0), new Quaternion(), matrixTestObject.transform);
-                matrixTest[r, c].name = "Test_Cell_" + r.ToString() + "_" + c.ToString();
-                matrixTest[r, c].transform.GetChild(0).GetComponent<Text>().text = matrices.test[currentMatrixIdx].item_list[idx].text;
-                matrixTestItemSequence[r].Insert(c, matrices.test[currentMatrixIdx].item_list[idx].sequence);
-                matrixTestLabels[r, c] = matrices.test[currentMatrixIdx].item_list[idx].text;
+                matrix[r, c] = Instantiate(mainCell, new Vector2(0, 0), new Quaternion(), matrixObject.transform);
+                matrix[r, c].name = "Cell_" + r.ToString() + "_" + c.ToString();
+                matrix[r, c].transform.GetChild(0).GetComponent<Text>().text = matrices[currentMatrixIdx].item_list[idx].text;
+                matrixItemSequence[r].Insert(c, matrices[currentMatrixIdx].item_list[idx].sequence);
+                matrixLabels[r, c] = matrices[currentMatrixIdx].item_list[idx].text;
                 idx++;
             }
         }
 
-        // TRAINING MATRIX (only different sequences)
-
-        // Find the matrix
-        GameObject matrixTrainObject = GameObject.FindGameObjectWithTag("MatrixTrain");
-        int trainNRow = matrices.train[currentMatrixIdx].n_row;
-        int trainNCol = matrices.train[currentMatrixIdx].n_col;
-        matrixTrain = new GameObject[trainNRow, trainNCol];
-        mainTrainCell.SetActive(false);
-
-        // Create the matrix by duplicating the first cell
-        idx = 0;
-        matrixTrainLabels = new string[trainNRow, trainNCol];
-        matrixTrainItemSequence = new List<List<int[]>>();
-        matrixTrainCurrentTimeShift = 0;
-        matrixTrainSequenceLength = matrices.train[currentMatrixIdx].item_list[0].sequence.GetLength(0); ;   // All the items must have the same sequence length
-        for (int r = 0; r < trainNRow; r++)
-        {
-            matrixTrainItemSequence.Add(new List<int[]>());
-            for (int c = 0; c < trainNCol; c++)
-            {
-                matrixTrain[r, c] = Instantiate(mainTrainCell, new Vector2(0, 0), new Quaternion(), matrixTrainObject.transform);
-                matrixTrain[r, c].name = "Train_Cell_" + r.ToString() + "_" + c.ToString();
-                matrixTrain[r, c].transform.GetChild(0).GetComponent<Text>().text = matrices.train[currentMatrixIdx].item_list[idx].label;
-                matrixTrainItemSequence[r].Insert(c, matrices.train[currentMatrixIdx].item_list[idx].sequence);
-                matrixTrainLabels[r, c] = matrices.train[currentMatrixIdx].item_list[idx].label;
-                idx++;
-            }
-        }
-
-        // Detect what should be the initial matrix (training or test)
-        if (String.Equals(mode, "Train", StringComparison.OrdinalIgnoreCase))
-        {
-            setTestMatrixVisible(false);
-            setTrainMatrixVisible(true);
-        }
-        else
-        {
-            setTestMatrixVisible(true);
-            setTrainMatrixVisible(false);
-        }
+        setMatrixVisible(true);
 
         // Resize event to set up all positions
         onScreenSizeChange((float)Screen.width, (float)Screen.height);
@@ -859,8 +763,8 @@ public class Manager : MonoBehaviour
     void onSelectedCommand(int[] selectionCoords)
     {
         // Store the new result
-        int idx = rowColToMatrixIndexTest(selectionCoords[0], selectionCoords[1], selectionCoords[2]);
-        lastResult = matrices.test[selectionCoords[0]].item_list[idx].text;
+        int idx = rowColToMatrixIndex(selectionCoords[0], selectionCoords[1], selectionCoords[2]);
+        lastResult = matrices[selectionCoords[0]].item_list[idx].text;
         lastResultCoords = selectionCoords;
         state = STATE_SELECTION_RECEIVED;
         mustShowResult = true;
@@ -876,9 +780,9 @@ public class Manager : MonoBehaviour
     }
 
     // This function converts the coordinates of a row and column to the matrix index
-    int rowColToMatrixIndexTest(int matrixIdx, int row, int col)
+    int rowColToMatrixIndex(int matrixIdx, int row, int col)
     {
-        int idx = matrices.test[matrixIdx].n_col * row + col;
+        int idx = matrices[matrixIdx].n_col * row + col;
         return idx;
     }
 
@@ -900,21 +804,21 @@ public class Manager : MonoBehaviour
         // Target loop, first: Target shown
         else if (innerstate == STATE_RUNNING_TARGET)
         {
-            matrixTrain[0, currentTrainSequence].GetComponent<Image>().color = targetBoxColor;
-            matrixTrain[0, currentTrainSequence].transform.Find("CellText").GetComponent<Text>().color = targetTextColor;
+            matrix[0, currentTrainSequence].GetComponent<Image>().color = targetBoxColor;
+            matrix[0, currentTrainSequence].transform.Find("CellText").GetComponent<Text>().color = targetTextColor;
         }
         // Target loop, second: Standby
         else if (innerstate == STATE_RUNNING_IDDLE2 && mustHighlightTarget)
         {
-            matrixTrain[0, currentTrainSequence].GetComponent<Image>().color = defaultBoxColor;
-            matrixTrain[0, currentTrainSequence].transform.Find("CellText").GetComponent<Text>().color = defaultTextColor;
+            matrix[0, currentTrainSequence].GetComponent<Image>().color = defaultBoxColor;
+            matrix[0, currentTrainSequence].transform.Find("CellText").GetComponent<Text>().color = defaultTextColor;
             mustHighlightTarget = false;
         }
         // Target loop, third: flickering
         else if (innerstate == STATE_RUNNING_FLICKERING)
         {
             // First: check if a new trial is starting
-            if (matrixTrainCurrentTimeShift == 0)
+            if (matrixCurrentTimeShift == 0)
             {
                 // It is starting a new cycle, so the timestamp must be recorded and sent
                 if (cycleTrainCounter < trainCycles)
@@ -924,7 +828,7 @@ public class Manager : MonoBehaviour
                     sm.addValue("cycle", cycleTrainCounter);
                     sm.addValue("onset", currentTime);
                     sm.addValue("trial", currentTrainTarget); // TODO: SEVERAL TARGETS IN TRAINING
-                    sm.addValue("matrix_idx", 0);
+                    sm.addValue("matrix_idx", currentMatrixIdx);
                     sm.addValue("unit_idx", 0);
                     sm.addValue("level_idx", 0);
                     sm.addValue("command_idx", 0);
@@ -940,7 +844,7 @@ public class Manager : MonoBehaviour
             if (cycleTrainCounter > trainCycles)
             {
                 cycleTrainCounter = 0;
-                resetTrainMatrix();
+                resetMatrix();
 
                 // If all the targets have been done, notify the server
                 if (currentTrainTarget >= trainTrials - 1)
@@ -960,29 +864,29 @@ public class Manager : MonoBehaviour
             else
             {   
                 // Make the flashings
-                for (int r = 0; r < matrixTrain.GetLength(0); r++)
+                for (int r = 0; r < matrix.GetLength(0); r++)
                 {
-                    for (int c = 0; c < matrixTrain.GetLength(1); c++)
+                    for (int c = 0; c < matrix.GetLength(1); c++)
                     {
-                        int value = matrixTrainItemSequence[r][c][matrixTrainCurrentTimeShift];
+                        int value = matrixItemSequence[r][c][matrixCurrentTimeShift];
                         if (value == 0)
                         {
-                            matrixTrain[r, c].GetComponent<Image>().color = colorBox0;
-                            matrixTrain[r, c].transform.GetChild(0).GetComponent<Text>().color = colorText0;
+                            matrix[r, c].GetComponent<Image>().color = colorBox0;
+                            matrix[r, c].transform.GetChild(0).GetComponent<Text>().color = colorText0;
                         }
                         else
                         {
-                            matrixTrain[r, c].GetComponent<Image>().color = colorBox1;
-                            matrixTrain[r, c].transform.GetChild(0).GetComponent<Text>().color = colorText1;
+                            matrix[r, c].GetComponent<Image>().color = colorBox1;
+                            matrix[r, c].transform.GetChild(0).GetComponent<Text>().color = colorText1;
                         }
                     }
                 }
 
                 // Update the current index
-                matrixTrainCurrentTimeShift++;
-                if (matrixTrainCurrentTimeShift >= matrixTrainSequenceLength)
+                matrixCurrentTimeShift++;
+                if (matrixCurrentTimeShift >= matrixSequenceLength)
                 {
-                    matrixTrainCurrentTimeShift = 0;
+                    matrixCurrentTimeShift = 0;
                 }
             }
         }
@@ -1006,7 +910,7 @@ public class Manager : MonoBehaviour
         else if (innerstate == STATE_RUNNING_FLICKERING)
         {
             // First: check if the reference is starting a new trial
-            if (matrixTestCurrentTimeShift == 0)
+            if (matrixCurrentTimeShift == 0)
             {
                 // It is starting a new trial, so the timestamp must be recorded and sent
                 if (cycleTestCounter < testCycles)
@@ -1032,7 +936,7 @@ public class Manager : MonoBehaviour
             {
                 cycleTestCounter = 0;
                 currentTestTarget++;
-                resetTestMatrix();
+                resetMatrix();
 
                 // Request MEDUSA to process the trial
                 state = STATE_WAITING_SELECTION;
@@ -1042,29 +946,29 @@ public class Manager : MonoBehaviour
             else
             {
                 // Make the flashings
-                for (int r = 0; r < matrixTest.GetLength(0); r++)
+                for (int r = 0; r < matrix.GetLength(0); r++)
                 {
-                    for (int c = 0; c < matrixTest.GetLength(1); c++)
+                    for (int c = 0; c < matrix.GetLength(1); c++)
                     {
-                        int value = matrixTestItemSequence[r][c][matrixTestCurrentTimeShift];
+                        int value = matrixItemSequence[r][c][matrixCurrentTimeShift];
                         if (value == 0)
                         {
-                            matrixTest[r, c].GetComponent<Image>().color = colorBox0;
-                            matrixTest[r, c].transform.GetChild(0).GetComponent<Text>().color = colorText0;
+                            matrix[r, c].GetComponent<Image>().color = colorBox0;
+                            matrix[r, c].transform.GetChild(0).GetComponent<Text>().color = colorText0;
                         }
                         else
                         {
-                            matrixTest[r, c].GetComponent<Image>().color = colorBox1;
-                            matrixTest[r, c].transform.GetChild(0).GetComponent<Text>().color = colorText1;
+                            matrix[r, c].GetComponent<Image>().color = colorBox1;
+                            matrix[r, c].transform.GetChild(0).GetComponent<Text>().color = colorText1;
                         }
                     }
                 }
 
                 // Update the current index
-                matrixTestCurrentTimeShift++;
-                if (matrixTestCurrentTimeShift >= matrixTestSequenceLength)
+                matrixCurrentTimeShift++;
+                if (matrixCurrentTimeShift >= matrixSequenceLength)
                 {
-                    matrixTestCurrentTimeShift = 0;
+                    matrixCurrentTimeShift = 0;
                 }
             }
 

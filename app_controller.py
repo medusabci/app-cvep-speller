@@ -110,7 +110,7 @@ class AppController(TCPServer):
         msg["fpsResolution"] = self.app_settings.run_settings.fps_resolution
         msg["photodiodeEnabled"] =  \
             self.app_settings.run_settings.enable_photodiode
-        msg["matrices"] = self.app_settings.get_dict_matrices()
+        msg["matrices"] = self.app_settings.to_serializable_obj()['matrices']
         msg["color_target_box"] = self.app_settings.colors.color_target_box
         msg["color_highlight_result_box"] =  \
             self.app_settings.colors.color_highlight_result_box
