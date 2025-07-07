@@ -69,7 +69,7 @@ class Settings(SerializableComponent):
     def get_coords_from_labels(labels, matrices):
         coords = []
         for label in labels:
-            label_coord = []
+            label_coord = None
             for idx, matrix in enumerate(matrices):
                 target = matrix.get_target_from_label(label)
                 if len(target) > 1:
@@ -78,6 +78,8 @@ class Settings(SerializableComponent):
                 if len(target) > 0:
                     label_coord = [idx, target[0].row, target[0].col]
                     break
+            if label_coord is None:
+                raise ValueError("Label %s not found" % label)
             coords.append(label_coord)
         return coords
 
@@ -162,7 +164,7 @@ class RunSettings:
     def __init__(self, user="S0X", session="Train", run=1,
                  mode=TRAIN_MODE,
                  enable_photodiode=True,
-                 train_cycles=10, train_trials=5,
+                 train_cycles=10, train_target='AAAAA',
                  test_cycles=10,
                  cvep_model_path='',
                  fps_resolution=60):
@@ -172,7 +174,7 @@ class RunSettings:
         self.mode = mode
         self.enable_photodiode = enable_photodiode
         self.train_cycles = train_cycles
-        self.train_trials = train_trials
+        self.train_target = train_target
         self.test_cycles = test_cycles
         self.cvep_model_path = cvep_model_path
         self.fps_resolution = fps_resolution

@@ -139,6 +139,8 @@ public class Manager : MonoBehaviour
     private List<MessageInterpreter.ParameterDecoder.Matrix> matrices;
     private int matrixSequenceLength;
 
+    private List<List<int>> trainTargetCoords;
+
     private Vector2 lastScreenSize;
     static int currentTestTarget = 0;
     static int currentTrainTarget = 0;
@@ -629,7 +631,8 @@ public class Manager : MonoBehaviour
         tFinishText = parameters.tFinishText;
         photodiodeEnabled = parameters.photodiodeEnabled; // Using photodiode?
         trainCycles = parameters.trainCycles;
-        trainTrials = parameters.trainTrials;
+        trainTargetCoords = parameters.trainTargetCoords;
+        trainTrials =  trainTargetCoords.Count();
         testCycles = parameters.testCycles;
         matrices = parameters.matrices;
 
@@ -804,14 +807,20 @@ public class Manager : MonoBehaviour
         // Target loop, first: Target shown
         else if (innerstate == STATE_RUNNING_TARGET)
         {
-            matrix[0, currentTrainSequence].GetComponent<Image>().color = targetBoxColor;
-            matrix[0, currentTrainSequence].transform.Find("CellText").GetComponent<Text>().color = targetTextColor;
+            int target_row = trainTargetCoords[currentTrainTarget][1];
+            int target_col = trainTargetCoords[currentTrainTarget][2];
+
+            matrix[target_row, target_col].GetComponent<Image>().color = targetBoxColor;
+            matrix[target_row, target_col].transform.Find("CellText").GetComponent<Text>().color = targetTextColor;
         }
         // Target loop, second: Standby
         else if (innerstate == STATE_RUNNING_IDDLE2 && mustHighlightTarget)
         {
-            matrix[0, currentTrainSequence].GetComponent<Image>().color = defaultBoxColor;
-            matrix[0, currentTrainSequence].transform.Find("CellText").GetComponent<Text>().color = defaultTextColor;
+            int target_row = trainTargetCoords[currentTrainTarget][1];
+            int target_col = trainTargetCoords[currentTrainTarget][2];
+
+            matrix[target_row, target_col].GetComponent<Image>().color = defaultBoxColor;
+            matrix[target_row, target_col].transform.Find("CellText").GetComponent<Text>().color = defaultTextColor;
             mustHighlightTarget = false;
         }
         // Target loop, third: flickering
@@ -823,15 +832,20 @@ public class Manager : MonoBehaviour
                 // It is starting a new cycle, so the timestamp must be recorded and sent
                 if (cycleTrainCounter < trainCycles)
                 {
+                    int target_mtx = trainTargetCoords[currentTrainTarget][0];
+                    int target_row = trainTargetCoords[currentTrainTarget][1];
+                    int target_col = trainTargetCoords[currentTrainTarget][2];
+                    int target_idx = matrices[target_mtx].n_col * target_row + target_col;
+
                     double currentTime = getCurrentTimeStamp();
                     ServerMessage sm = new ServerMessage("train");
                     sm.addValue("cycle", cycleTrainCounter);
                     sm.addValue("onset", currentTime);
                     sm.addValue("trial", currentTrainTarget); // TODO: SEVERAL TARGETS IN TRAINING
-                    sm.addValue("matrix_idx", currentMatrixIdx);
-                    sm.addValue("unit_idx", 0);
-                    sm.addValue("level_idx", 0);
-                    sm.addValue("command_idx", 0);
+                    sm.addValue("matrix_idx",target_mtx);
+                    sm.addValue("unit_idx", target_row);
+                    sm.addValue("level_idx", target_col);
+                    sm.addValue("command_idx", target_idx);
                     sm.addValue("mode", "Train");
                     tcpClient.SendMessage(sm.ToJson());
                 }

@@ -102,7 +102,8 @@ class AppController(TCPServer):
         msg["event_type"] = "setParameters"
         msg["mode"] = self.app_settings.run_settings.mode
         msg["trainCycles"] = self.app_settings.run_settings.train_cycles
-        msg["trainTrials"] = self.app_settings.run_settings.train_trials
+        msg["trainTargetCoords"] = self.app_settings.get_coords_from_labels(
+            self.app_settings.run_settings.train_target, self.app_settings.matrices)
         msg["testCycles"] = self.app_settings.run_settings.test_cycles
         msg["tPrevText"] = self.app_settings.timings.t_prev_text
         msg["tPrevIddle"] = self.app_settings.timings.t_prev_iddle

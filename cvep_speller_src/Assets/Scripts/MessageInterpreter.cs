@@ -69,7 +69,7 @@ public class MessageInterpreter
         public string mode;
         public bool photodiodeEnabled;
         public int trainCycles;
-        public int trainTrials;
+        public List<List<int>> trainTargetCoords;
         public int testCycles;
         public float fpsResolution;
 
