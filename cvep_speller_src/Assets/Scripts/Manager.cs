@@ -36,11 +36,14 @@ public class Manager : MonoBehaviour
     public int currentMatrixIdx = 0;
     public int trainCycles = 10;
     public int trainTrials = 5;
+    private List<List<int>> trainTargetCoords;
     public int testCycles = 5;
+    public bool showPoint = true;
+    public int pointSize = 8;
 
     public float tPrevText = 1.0f;
     public float tPrevIddle = 0.5f;
-    private float tFinishText = 1.0f;
+    public float tFinishText = 1.0f;
 
     private MessageInterpreter.ParameterDecoder parameters = null;
 
@@ -98,27 +101,17 @@ public class Manager : MonoBehaviour
 
     // Colors
     public Color32 defaultBoxColor = new Color32(255, 255, 255, 255);
-    public Color32 highlightBoxColor = new Color32(75, 75, 75, 255);
     public Color32 defaultTextColor = new Color32(183, 183, 183, 255);
+    public Color32 highlightBoxColor = new Color32(75, 75, 75, 255);
     public Color32 targetBoxColor = new Color32(255, 25, 91, 255);
-    public Color32 targetTextColor = new Color32(255, 25, 91, 255);
     public Color32 highlightResultBoxColor = new Color32(3, 252, 90, 255);
-    public Color32 highlightResultTextColor = new Color32(3, 252, 90, 255);
     public Color32 goodFPSColor = new Color32(94, 229, 125, 255);
     public Color32 badFPSColor = new Color32(180, 50, 40, 255);
     public Color32 resultBoxColor = new Color32(140, 140, 140, 255);
     public Color32 resultLabelColor = new Color32(183, 183, 183, 255);
     public Color32 resultTextColor = new Color32(244, 246, 87, 255);
-    public Color32 colorBox0 = new Color32(255, 255, 255, 255);
-    public Color32 colorBox1 = new Color32(0, 0, 0, 255);
-    public Color32 colorText0 = new Color32(0, 0, 0, 255);
-    public Color32 colorText1 = new Color32(255, 255, 255, 255);
-
-    // Opacity
-    public float colorOpBox0 = 100.0f;
-    public float colorOpBox1 = 100.0f;
-    public float colorOpText0 = 100.0f;
-    public float colorOpText1 = 100.0f;
+    public Color32 pointColor = new Color32(128, 0, 0, 255);
+    private Dictionary<int, Color32> cellColorsByValue, textColorsByValue;
 
     // Scenarios
     private Image backgroundScenario;
@@ -134,12 +127,9 @@ public class Manager : MonoBehaviour
     // Other attributes
     private List<List<int[]>> matrixItemSequence;
     private int matrixCurrentTimeShift;
-    private Dictionary<int, Color32> cellColorsByValue, textColorsByValue;
     private string[,] matrixLabels;
     private List<MessageInterpreter.ParameterDecoder.Matrix> matrices;
     private int matrixSequenceLength;
-
-    private List<List<int>> trainTargetCoords;
 
     private Vector2 lastScreenSize;
     static int currentTestTarget = 0;
@@ -171,6 +161,13 @@ public class Manager : MonoBehaviour
     // TCP client
     private MedusaTCPClient tcpClient;
 
+    // Required for raster latencies (only works for Windows)
+    [DllImport("user32.dll", EntryPoint = "FindWindow")]
+    public static extern IntPtr FindWindow(System.String className, System.String windowName);
+    [DllImport("user32.dll", EntryPoint = "GetWindowRect")]
+    public static extern bool GetWindowRect(IntPtr hwnd, ref Rect rectangle);
+    public int lastWindowLeft = 0;
+    public int lastWindowTop = 0;
 
     /* ----------------------------------- UNITY LIFE-CYCLE FUNCTIONS ------------------------------------ */
 
@@ -208,7 +205,7 @@ public class Manager : MonoBehaviour
         resultBox = GameObject.Find("ResultBox");
         resultText = GameObject.Find("ResultText");
 
-        // Hide main test and training cells 
+        // Hide main cells 
         mainCell = GameObject.Find("Cell_Main");
         mainCell.SetActive(false);
 
@@ -266,6 +263,18 @@ public class Manager : MonoBehaviour
             Screen.SetResolution(450, 450, false);
         }
 
+        /* RESIZE EVENT */
+        Vector2 screenSize = new Vector2(Screen.width, Screen.height);
+        if (this.lastScreenSize != screenSize)
+        {
+            this.lastScreenSize = screenSize;
+            onScreenSizeChange((float)Screen.width, (float)Screen.height); //  Launch the event when the screen size change
+        }
+        else if (windowMoved())
+        {
+            notifyMovedItems();
+        }
+
         /* BEHAVIOR FOR DIFFERENT STATES */
         // If the TCP client just connected, request the parameters
         if (state == STATE_WAITING_CONNECTION && tcpClient.isConnected())
@@ -296,7 +305,6 @@ public class Manager : MonoBehaviour
                 {
                     concatenateNewResult(lastResult);
                     matrix[lastResultCoords[1], lastResultCoords[2]].GetComponent<Image>().color = highlightResultBoxColor;
-                    matrix[lastResultCoords[1], lastResultCoords[2]].transform.Find("CellText").GetComponent<Text>().color = highlightResultTextColor;
                     lastResult = "";
                 }
             }
@@ -305,7 +313,6 @@ public class Manager : MonoBehaviour
             {
                 // Default color
                 matrix[lastResultCoords[1], lastResultCoords[2]].GetComponent<Image>().color = defaultBoxColor;
-                matrix[lastResultCoords[1], lastResultCoords[2]].transform.Find("CellText").GetComponent<Text>().color = defaultTextColor;
             }
 
             if (resultstate == STATE_RESULT_END)
@@ -517,8 +524,14 @@ public class Manager : MonoBehaviour
                 // Adapt the text of each command label
                 float st_ = cellSize / optimalCellSize;
                 matrix[r, c].transform.GetChild(0).GetComponent<Text>().GetComponent<RectTransform>().localScale = new Vector3(st_, st_, 1f);
+
+                // Adapt the midpoint of each command box
+                matrix[r, c].transform.GetChild(1).GetComponent<Image>().GetComponent<RectTransform>().localScale = new Vector3(st_, st_, 1f);
             }
-        }        
+        }
+
+        // Notify MEDUSA about the position of each item for raster latencies correction
+        notifyMovedItems();
     }
     
     // This function sets the information text. IMPORTANT: only the main thread is allowed to run this function.
@@ -634,7 +647,11 @@ public class Manager : MonoBehaviour
         trainTargetCoords = parameters.trainTargetCoords;
         trainTrials =  trainTargetCoords.Count();
         testCycles = parameters.testCycles;
+        showPoint = parameters.showPoint;
+        pointSize = parameters.pointSize;
         matrices = parameters.matrices;
+        cellColorsByValue = parameters.cellColorsByValue;
+        textColorsByValue = parameters.textColorsByValue;
 
         currentMatrixIdx = 0;   // For now, only one matrix is supported
 
@@ -662,7 +679,7 @@ public class Manager : MonoBehaviour
         {
             Texture2D texture = new Texture2D(2, 2);
             texture.LoadImage(File.ReadAllBytes(scenarioPath));
-            backgroundScenario.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(texture.width / 2, texture.height / 2));
+            backgroundScenario.sprite = Sprite.Create(texture, new UnityEngine.Rect(0, 0, texture.width, texture.height), new Vector2(texture.width / 2, texture.height / 2));
         }
 
         // Set up the default colors
@@ -677,45 +694,11 @@ public class Manager : MonoBehaviour
         GameObject.Find("ResultLabel").GetComponent<Text>().color = resultLabelColor;
         GameObject.Find("ResultText").GetComponent<Text>().color = resultTextColor;
 
-        colorBox0 = hexToColor(parameters.color_box_0);
-        colorOpBox0 = parameters.color_op_box_0;
-        colorBox0.a = (byte)Mathf.Round(colorOpBox0 / 100 * 255);
-        colorBox1 = hexToColor(parameters.color_box_1);
-        colorOpBox1 = parameters.color_op_box_1;
-        colorBox1.a = (byte)Mathf.Round(colorOpBox1 / 100 * 255);
-        colorText0 = hexToColor(parameters.color_text_0);
-        colorOpText0 = parameters.color_op_text_0;
-        colorText0.a = (byte)Mathf.Round(colorOpText0 / 100 * 255);
-        colorText1 = hexToColor(parameters.color_text_1);
-        colorOpText1 = parameters.color_op_text_1;
-        colorText1.a = (byte)Mathf.Round(colorOpText1 / 100 * 255);
-
-        defaultBoxColor.a = (byte)Mathf.Round(Mathf.Max(colorOpBox0, colorOpBox1) / 100 * 255);
-        defaultTextColor.a = (byte)Mathf.Round(Mathf.Max(colorOpText0, colorOpText1) / 100 * 255);
-
         targetBoxColor = hexToColor(parameters.color_target_box);
-        targetTextColor = targetBoxColor;
-        targetBoxColor.a = (byte)Mathf.Round(Mathf.Max(colorOpBox0, colorOpBox1) / 100 * 255);
-        if (targetBoxColor.a == 0)
-        {
-            targetTextColor.a = (byte)Mathf.Round(Mathf.Max(colorOpText0, colorOpText1) / 100 * 255);
-        }
-        else
-        {
-            targetTextColor = defaultTextColor;
-        }
 
         highlightResultBoxColor = hexToColor(parameters.color_highlight_result_box);
-        highlightResultTextColor = highlightResultBoxColor;
-        highlightResultBoxColor.a = (byte)Mathf.Round(Mathf.Max(colorOpBox0, colorOpBox1) / 100 * 255);
-        if (highlightResultBoxColor.a == 0)
-        {
-            highlightResultTextColor.a = (byte)Mathf.Round(Mathf.Max(colorOpText0, colorOpText1) / 100 * 255);
-        }
-        else
-        {
-            highlightResultTextColor = defaultTextColor;
-        }
+
+        pointColor = hexToColor(parameters.color_point);
 
         // MATRIX
         //      matrix             -> Test matrix containing the GameObjects (i.e., each cell that contains the box and the text)
@@ -744,6 +727,9 @@ public class Manager : MonoBehaviour
                 matrix[r, c] = Instantiate(mainCell, new Vector2(0, 0), new Quaternion(), matrixObject.transform);
                 matrix[r, c].name = "Cell_" + r.ToString() + "_" + c.ToString();
                 matrix[r, c].transform.GetChild(0).GetComponent<Text>().text = matrices[currentMatrixIdx].item_list[idx].text;
+                matrix[r, c].transform.GetChild(1).GetComponent<Image>().color = pointColor;
+                matrix[r, c].transform.GetChild(1).GetComponent<RectTransform>().sizeDelta = new Vector2(pointSize, pointSize);
+                matrix[r, c].transform.GetChild(1).gameObject.SetActive(showPoint);
                 matrixItemSequence[r].Insert(c, matrices[currentMatrixIdx].item_list[idx].sequence);
                 matrixLabels[r, c] = matrices[currentMatrixIdx].item_list[idx].text;
                 idx++;
@@ -789,6 +775,38 @@ public class Manager : MonoBehaviour
         return idx;
     }
 
+    // This function informs MEDUSA about the positions of each element across the screen for raster latency correction
+    public void notifyMovedItems()
+    {
+        double currentTime = getCurrentTimeStamp();
+        ServerMessage sm = new ServerMessage("resize");
+        sm.addValue("resize_onset", currentTime);
+        sm.addValue("screen_size", new int[] { Screen.currentResolution.width, Screen.currentResolution.height });
+
+        ResizedMatrices resizedMatrices = new ResizedMatrices();
+        // Training items
+        int NRow = matrices[currentMatrixIdx].n_row;
+        int NCol = matrices[currentMatrixIdx].n_col;
+        int idx = 0;
+        for (int r = 0; r < NRow; r++)
+        {
+            for (int c = 0; c < NCol; c++)
+            {
+                int[] coord = new int[] { currentMatrixIdx, matrices[currentMatrixIdx].item_list[idx].row, matrices[currentMatrixIdx].item_list[idx].col };
+                RectTransform rt = matrix[r, c].GetComponent<RectTransform>();
+                int curr_center_x = (int)(rt.position.x + rt.sizeDelta.x / 2);
+                int curr_center_y = Screen.height - (int)(rt.position.y - rt.sizeDelta.y / 2);
+                int[] new_pos = estimatePixelPosition(curr_center_x, curr_center_y);
+                resizedMatrices.addItem(true, idx, coord, new_pos);
+                idx++;
+            }
+        }
+        sm.addValue("new_position", resizedMatrices);
+
+        // Send the message
+        tcpClient.SendMessage(sm.ToJson());
+    }
+
     /* ----------------------------------------- TRAIN-TEST LOOPS ----------------------------------------- */
 
     // Loop for "Train" mode: calibration with all the m-sequences
@@ -811,7 +829,7 @@ public class Manager : MonoBehaviour
             int target_col = trainTargetCoords[currentTrainTarget][2];
 
             matrix[target_row, target_col].GetComponent<Image>().color = targetBoxColor;
-            matrix[target_row, target_col].transform.Find("CellText").GetComponent<Text>().color = targetTextColor;
+            matrix[target_row, target_col].transform.Find("CellText").GetComponent<Text>().color = defaultTextColor;
         }
         // Target loop, second: Standby
         else if (innerstate == STATE_RUNNING_IDDLE2 && mustHighlightTarget)
@@ -841,7 +859,7 @@ public class Manager : MonoBehaviour
                     ServerMessage sm = new ServerMessage("train");
                     sm.addValue("cycle", cycleTrainCounter);
                     sm.addValue("onset", currentTime);
-                    sm.addValue("trial", currentTrainTarget); // TODO: SEVERAL TARGETS IN TRAINING
+                    sm.addValue("trial", currentTrainTarget); 
                     sm.addValue("matrix_idx",target_mtx);
                     sm.addValue("unit_idx", target_row);
                     sm.addValue("level_idx", target_col);
@@ -876,22 +894,21 @@ public class Manager : MonoBehaviour
                 }          
             }
             else
-            {   
+            {
                 // Make the flashings
                 for (int r = 0; r < matrix.GetLength(0); r++)
                 {
                     for (int c = 0; c < matrix.GetLength(1); c++)
                     {
                         int value = matrixItemSequence[r][c][matrixCurrentTimeShift];
-                        if (value == 0)
+                        if (cellColorsByValue.ContainsKey(value))
                         {
-                            matrix[r, c].GetComponent<Image>().color = colorBox0;
-                            matrix[r, c].transform.GetChild(0).GetComponent<Text>().color = colorText0;
+                            matrix[r, c].GetComponent<Image>().color = cellColorsByValue[value];
+                            matrix[r, c].transform.GetChild(0).GetComponent<Text>().color = textColorsByValue[value];
                         }
                         else
                         {
-                            matrix[r, c].GetComponent<Image>().color = colorBox1;
-                            matrix[r, c].transform.GetChild(0).GetComponent<Text>().color = colorText1;
+                            Debug.Log("ERROR: The dictionary has not the key " + value.ToString() + "!");
                         }
                     }
                 }
@@ -965,15 +982,14 @@ public class Manager : MonoBehaviour
                     for (int c = 0; c < matrix.GetLength(1); c++)
                     {
                         int value = matrixItemSequence[r][c][matrixCurrentTimeShift];
-                        if (value == 0)
+                        if (cellColorsByValue.ContainsKey(value))
                         {
-                            matrix[r, c].GetComponent<Image>().color = colorBox0;
-                            matrix[r, c].transform.GetChild(0).GetComponent<Text>().color = colorText0;
+                            matrix[r, c].GetComponent<Image>().color = cellColorsByValue[value];
+                            matrix[r, c].transform.GetChild(0).GetComponent<Text>().color = textColorsByValue[value];
                         }
                         else
                         {
-                            matrix[r, c].GetComponent<Image>().color = colorBox1;
-                            matrix[r, c].transform.GetChild(0).GetComponent<Text>().color = colorText1;
+                            Debug.Log("ERROR: The dictionary has not the key " + value.ToString() + "!");
                         }
                     }
                 }
@@ -1108,4 +1124,44 @@ public class Manager : MonoBehaviour
         }
         return new Color32(r, g, b, a);
     }
+
+    /* ------------------------------------------- RASTER LATENCIES UTILS ------------------------------------------- */
+    public bool windowMoved()
+    {
+        // Get the size and position of the window using native DLLs
+        Rect windowRect = new Rect();
+        GetWindowRect(FindWindow(null, Application.productName), ref windowRect);
+
+        // Update the info if the window has been moved
+        if (((int)windowRect.Left != lastWindowLeft) || ((int)windowRect.Top != lastWindowTop))
+        {
+            lastWindowLeft = windowRect.Left;
+            lastWindowTop = windowRect.Top;
+            return true;
+        }
+        return false;
+    }
+
+    // This function converts a x,y measured positions inside a window into global pixels in function of the monitor resolution
+    public int[] estimatePixelPosition(int x, int y)
+    {
+        // Get the size and position of the window using native DLLs
+        Rect windowRect = new Rect();
+        GetWindowRect(FindWindow(null, Application.productName), ref windowRect);
+
+        // Map the pixed positions x, y inside the window to the global monitor pixels (multiple screens supported)
+        int px_left = (windowRect.Left + x + 8) % Screen.currentResolution.width;
+        int header = windowRect.Bottom - windowRect.Top - Screen.height;
+        int px_top = (windowRect.Top + y + 8 + header) % Screen.currentResolution.height;
+        return new int[] { px_left, px_top };
+    }
+
+    public struct Rect
+    {
+        public int Left { get; set; }
+        public int Top { get; set; }
+        public int Right { get; set; }
+        public int Bottom { get; set; }
+    }
+
 }

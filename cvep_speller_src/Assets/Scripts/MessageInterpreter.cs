@@ -72,6 +72,9 @@ public class MessageInterpreter
         public List<List<int>> trainTargetCoords;
         public int testCycles;
         public float fpsResolution;
+        public bool showPoint;
+        public int pointSize;
+
 
         // Timings
         public float tPrevText;
@@ -79,7 +82,7 @@ public class MessageInterpreter
         public float tFinishText;
 
         // Colors
-        public string color_background;
+        public string color_point;
         public string color_target_box;
         public string color_highlight_result_box;
         public string color_result_info_box;
@@ -87,25 +90,46 @@ public class MessageInterpreter
         public string color_result_info_text;
         public string color_fps_good;
         public string color_fps_bad;
-        public string color_box_0;
-        public string color_box_1;
-        public string color_text_0;
-        public string color_text_1;
+        public Dictionary<int, string> color_box_dict;
+        public Dictionary<int, string> color_text_dict;
+        public Dictionary<int, int> opacity_box_dict;
+        public Dictionary<int, int> opacity_text_dict;
 
-        //Opacity
-        public float color_op_box_0;
-        public float color_op_box_1;
-        public float color_op_text_0;
-        public float color_op_text_1;
+        // Generated
+        public Dictionary<int, Color32> cellColorsByValue = new Dictionary<int, Color32>();
+        public Dictionary<int, Color32> textColorsByValue = new Dictionary<int, Color32>();
 
         //Scenario
+        public string color_background;
         public string scenario_name;
         public string scenario_path;
 
         public static ParameterDecoder getParametersFromJSON(string jsonString)
         {
             ParameterDecoder p = JsonConvert.DeserializeObject<ParameterDecoder>(jsonString);
+            p.convertHexColorDicts(); 
             return p;
+        }
+
+        // This function converts the HEX formatted color dict to a Color32 dict
+        public void convertHexColorDicts()
+        {
+            cellColorsByValue = new Dictionary<int, Color32>();
+            textColorsByValue = new Dictionary<int, Color32>();
+            foreach (KeyValuePair<int, string> color in color_box_dict)
+            {
+                int k = color.Key;
+                Color32 c = hexToColor(color.Value);
+                c.a = (byte)Mathf.RoundToInt(opacity_box_dict[k] * 2.55f);
+                cellColorsByValue.Add(k, c);
+            }
+            foreach (KeyValuePair<int, string> color in color_text_dict)
+            {
+                int k = color.Key;
+                Color32 c = hexToColor(color.Value);
+                c.a = (byte)Mathf.RoundToInt(opacity_text_dict[k] * 2.55f);
+                textColorsByValue.Add(k, c);
+            }
         }
 
         public class Matrix
@@ -182,5 +206,41 @@ public class ServerMessage
     public string ToJson()
     {
         return JsonConvert.SerializeObject(message);
+    }
+}
+public class ResizedMatrices
+{
+    public List<ResizedItem> train = new List<ResizedItem>();
+    public List<ResizedItem> test = new List<ResizedItem>();
+
+    public ResizedMatrices()
+    {
+
+    }
+
+    public void addItem(bool isTrain, int idx, int[] coord, int[] new_pos)
+    {
+        if (isTrain)
+        {
+            train.Add(new ResizedItem(idx, coord, new_pos));
+        }
+        else
+        {
+            test.Add(new ResizedItem(idx, coord, new_pos));
+        }
+    }
+
+    public class ResizedItem
+    {
+        public int idx;
+        public int[] coord;
+        public int[] new_pos;
+
+        public ResizedItem(int idx, int[] coord, int[] new_pos)
+        {
+            this.idx = idx;
+            this.coord = coord;
+            this.new_pos = new_pos;
+        }
     }
 }

@@ -1,5 +1,6 @@
 from medusa.components import SerializableComponent
 from medusa.bci.cvep_spellers import LFSR, LFSR_PRIMITIVE_POLYNOMIALS
+from gui import gui_utils as gu
 from .app_constants import *
 import numpy as np
 import os
@@ -16,12 +17,16 @@ class Settings(SerializableComponent):
         self.run_settings = run_settings if \
             run_settings is not None else RunSettings()
         self.timings = timings if timings is not None else Timings()
-        self.colors = colors if colors is not None else Colors()
+        self.colors = colors
         self.background = background if background is not None else Background()
-
         self.matrices = matrices
         if matrices is None:
-            self.matrices = self.standard_single_sequence_matrices()
+            self.matrices = self.build_with_pary_sequences()
+        if colors is None:
+            unique = self.get_unique_sequence_values()
+            c_box, op_box, c_text, op_text = Colors.generate_grey_color_dicts(unique)
+            self.colors = Colors(color_box_dict=c_box, opacity_box_dict=op_box,
+                                 color_text_dict=c_text, opacity_text_dict=op_text)
 
     def to_serializable_obj(self):
         matrices = []
@@ -46,6 +51,7 @@ class Settings(SerializableComponent):
         colors = Colors(**settings_dict['colors'])
         background = Background(**settings_dict['background'])
         # Matrices
+        matrices = []
         item_list = list()
         m = settings_dict['matrices']
         for i in m['item_list']:
@@ -65,6 +71,13 @@ class Settings(SerializableComponent):
                         background=background,
                         matrices=matrices)
 
+    def get_unique_sequence_values(self):
+        unique_values = []
+        for m in self.matrices:
+            for i in m.item_list:
+                unique_values += list(np.unique(i.sequence))
+        return list(np.unique(unique_values))
+
     @staticmethod
     def get_coords_from_labels(labels, matrices):
         coords = []
@@ -82,6 +95,103 @@ class Settings(SerializableComponent):
                 raise ValueError("Label %s not found" % label)
             coords.append(label_coord)
         return coords
+
+    @staticmethod
+    def build_with_pary_sequences(n_row=4, n_col=4, base=2, order=6):
+        """ Computes a predefined standard c-VEP matrix that modulates commands
+        using a single-sequence via circular shifting.
+
+        Parameter
+        -----------
+        n_row: int
+            Number of rows.
+        n_col: int
+            Number of columns.
+        base: int
+            Base of the sequence (must be prime).
+        order: int
+            Order of the sequence (length will be L = base^order - 1).
+
+        Returns
+        --------
+        matrix : CVEPMatrix
+            Structured matrix object.
+        """
+        # Number of commands supported
+        no_commands = n_row * n_col
+        mseqlen = base ** order - 1
+        tau = mseqlen / no_commands
+
+        # Init
+        comms = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789/*-+.,' \
+                '_abcdefghijklmnopqrstuvwxyz'
+        comms *= 20
+        comms_ = comms[:no_commands]
+
+        # M-sequence generation
+        if base not in LFSR_PRIMITIVE_POLYNOMIALS['base']:
+            raise ValueError('[cvep_speller/settings] Base %i not supported!'
+                             % base)
+        if order not in LFSR_PRIMITIVE_POLYNOMIALS['base'][base]['order']:
+            raise ValueError('[cvep_speller/settings] Cannot find any '
+                             'primitive polynomial of order %i for base %i'
+                             % (order, base))
+        poly_ = LFSR_PRIMITIVE_POLYNOMIALS['base'][base]['order'][order]
+        seq = LFSR(poly_, base=base).sequence
+        centered_seq = LFSR(poly_, base=base, center=True).sequence
+
+        # Optimize correlations
+        rxx_, tr_ = Settings.autocorr_circular(centered_seq)
+        rxx_ = rxx_ / np.max(np.abs(rxx_))
+        half_rxx = rxx_[int(len(rxx_)/2):]
+        min_p = - min(np.abs(np.unique(half_rxx)))
+        bad_indexes = np.where(half_rxx != min_p)[0][1:]
+        lags = np.linspace(0, len(seq), no_commands + 1)[:-1].astype(int)
+        if any(item in bad_indexes for item in lags):
+            # Need to optimize: there are non-minimal correlations
+            tau = (len(seq) - len(bad_indexes)) / no_commands
+            temp_lags = np.linspace(0, len(seq) - len(bad_indexes),
+                                    no_commands + 1).astype(int)[:-1]
+
+            good_idxs = np.arange(0, len(seq))
+            good_idxs = np.delete(good_idxs, bad_indexes)
+            lags = good_idxs[temp_lags]
+        info_lags = {
+            'tau': tau,
+            'lags': lags.tolist(),
+            'bad_lags': bad_indexes.tolist(),
+        }
+        if tau <= 1:
+            print('[cvep_speller/settings] Sequence length is not enough to '
+                  'encode all commands. Please, reduce the number of commands '
+                  '(%i) or increment the sequence length (supported lengths: '
+                  '31, 63, 127 or 255)' % no_commands)
+        if any(item in bad_indexes for item in lags):
+            print('[cvep_speller/settings] Could not find any optimal '
+                  'distributions of lags for this configuration!')
+
+        # Set up the matrix
+        matrix = CVEPMatrix(n_row, n_col, info_lags=info_lags)
+        for idx, c in enumerate(comms_):
+            seq_ = circular_shift(sequence=seq, lag=lags[idx])
+            target = CVEPTarget(text=c, label=c, sequence=seq_)
+            matrix.append(target)
+        matrix.organize_matrix()
+
+        matrices = [matrix]
+        return matrices
+
+    @staticmethod
+    def autocorr_circular(x):
+        """ With circular shifts (periodic correlation) """
+        N = len(x)
+        rxx = []
+        t = []
+        for i in range(-(N - 1), N):
+            rxx.append(np.sum(x * np.roll(x, i)))
+            t.append(i)
+        rxx = np.array(rxx)
+        return rxx, t
 
     @staticmethod
     def standard_single_sequence_matrices(n_row=4, n_col=4, mseqlen=63):
@@ -153,7 +263,6 @@ class Settings(SerializableComponent):
         matrices = [matrix]
         return matrices
 
-
 class ConnectionSettings:
 
     def __init__(self, ip="127.0.0.1", port=50000):
@@ -167,7 +276,9 @@ class RunSettings:
                  train_cycles=10, train_target='AAAAA',
                  test_cycles=10,
                  cvep_model_path='',
-                 fps_resolution=60):
+                 fps_resolution=60,
+                 show_point=True,
+                 point_size=8):
         self.user = user
         self.session = session
         self.run = run
@@ -178,6 +289,8 @@ class RunSettings:
         self.test_cycles = test_cycles
         self.cvep_model_path = cvep_model_path
         self.fps_resolution = fps_resolution
+        self.show_point = show_point
+        self.point_size = point_size
 
 class Timings:
 
@@ -185,7 +298,6 @@ class Timings:
         self.t_prev_text = t_prev_text
         self.t_prev_iddle = t_prev_iddle
         self.t_finish_text = t_finish_text
-
 
 class Colors:
 
@@ -196,14 +308,11 @@ class Colors:
                  color_result_info_text='#f4f657ff',
                  color_fps_good='#5ee57dff',
                  color_fps_bad='#b43228ff',
-                 color_box_0='#000000',
-                 color_op_box_0=100,
-                 color_box_1='#ffffff',
-                 color_op_box_1=100,
-                 color_text_0='#ffffff',
-                 color_op_text_0=100,
-                 color_text_1='#000000',
-                 color_op_text_1=100):
+                 color_point='#800000',
+                 color_box_dict=None,
+                 opacity_box_dict=None,
+                 color_text_dict=None,
+                 opacity_text_dict=None):
         self.color_target_box = color_target_box
         self.color_highlight_result_box = color_highlight_result_box
         self.color_result_info_box = color_result_info_box
@@ -211,14 +320,44 @@ class Colors:
         self.color_result_info_text = color_result_info_text
         self.color_fps_good = color_fps_good
         self.color_fps_bad = color_fps_bad
-        self.color_box_0 = color_box_0
-        self.color_op_box_0 = color_op_box_0
-        self.color_box_1 = color_box_1
-        self.color_op_box_1 = color_op_box_1
-        self.color_text_0 = color_text_0
-        self.color_op_text_0 = color_op_text_0
-        self.color_text_1 = color_text_1
-        self.color_op_text_1 = color_op_text_1
+        self.color_point = color_point
+        self.color_box_dict = color_box_dict
+        self.opacity_box_dict = opacity_box_dict
+        self.color_text_dict = color_text_dict
+        self.opacity_text_dict = opacity_text_dict
+
+    @staticmethod
+    def generate_grey_color_dicts(unique_sequence_values):
+        # Init color
+        init_grey = (255, 255, 255)
+        end_grey = (0, 0, 0)
+        init_hex = gu.rgb_to_hex(init_grey)
+        end_hex = gu.rgb_to_hex(end_grey)
+        init_grey = gu.rgb_to_hsv(init_grey)
+        end_grey = gu.rgb_to_hsv(end_grey)
+
+        # HSV gradient
+        h = np.linspace(init_grey[0], end_grey[0], len(unique_sequence_values))
+        s = np.linspace(init_grey[1], end_grey[1], len(unique_sequence_values))
+        v = np.linspace(init_grey[2], end_grey[2], len(unique_sequence_values))
+
+        # Genetare the HEX dictionary
+        color_text_dict = dict()
+        color_box_dict = dict()
+        opacity_box_dict = dict()
+        opacity_text_dict = dict()
+        for i in range(len(unique_sequence_values)):
+            rgb1 = np.round(gu.hsv_to_rgb((h[i], s[i], v[i]))).astype(int)
+            hex1 = gu.rgb_to_hex(tuple(rgb1))
+            color_box_dict[str(unique_sequence_values[i])] = hex1
+            if v[i] <= 50:
+                color_text_dict[str(unique_sequence_values[i])] = init_hex
+            else:
+                color_text_dict[str(unique_sequence_values[i])] = end_hex
+            opacity_box_dict[str(unique_sequence_values[i])] = 100
+            opacity_text_dict[str(unique_sequence_values[i])] = 100
+
+        return color_box_dict, opacity_box_dict, color_text_dict, opacity_text_dict
 
     @staticmethod
     def concat_dict(dict_):
@@ -338,7 +477,6 @@ class CVEPMatrix:
                 "n_col": self.n_col,
                 "info_lags": self.info_lags,
                 "item_list": items}
-
 
 class CVEPTarget:
 

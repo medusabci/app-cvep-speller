@@ -63,7 +63,7 @@ class Config(QtWidgets.QDialog, ui_main_file):
         self.changes_made = False
         self.notifications = NotificationStack(parent=self, timer_ms=500)
 
-        # Connect general buttons
+        # Connect general unbuttons
         self.btn_reset.clicked.connect(self.reset)
         self.btn_save.clicked.connect(self.save)
         self.btn_load.clicked.connect(self.load)
@@ -82,14 +82,12 @@ class Config(QtWidgets.QDialog, ui_main_file):
                 self.browse_model)
             getattr(self, f"spinBox_fpsresolution_{l_idx}").valueChanged.connect(
                 self.on_fpsresolution_changed)
+            getattr(self, f"checkBox_show_point_{l_idx}").stateChanged.connect(self.on_midpoint_changed)
             # Color buttons
-            color_buttons = [
-                "btn_color_box0", "btn_color_box1",
-                "btn_color_text0", "btn_color_text1",
-                "btn_color_target_box", "btn_color_highlight_result_box",
+            color_buttons = ["btn_color_target_box", "btn_color_highlight_result_box",
                 "btn_color_fps_good", "btn_color_fps_bad",
                 "btn_color_result_info_box", "btn_color_result_info_label",
-                "btn_color_result_info_text",
+                "btn_color_result_info_text", "btn_color_point",
                 "btn_color_background"
             ]
             for btn_name in color_buttons:
@@ -101,14 +99,16 @@ class Config(QtWidgets.QDialog, ui_main_file):
             getattr(self, f"btn_browse_scenario_{l_idx}").clicked.connect(
                 self.browse_scenario)
             # Encoding and matrix buttons
-            getattr(self, f"comboBox_seqlength_{l_idx}").currentTextChanged.connect(
-                self.on_seqlen_changed)
+            getattr(self, f"comboBox_base_{l_idx}").currentTextChanged.connect(
+                self.on_base_changed)
+            getattr(self, f"comboBox_order_{l_idx}").currentTextChanged.connect(
+                self.update_encoding_info)
             getattr(self, f"btn_update_matrix_{l_idx}").clicked.connect(
                 self.update_matrix)
             # Train model buttons
             getattr(self, f"btn_train_model_{l_idx}").clicked.connect(
                 self.train_model)
-            # Train model items context menu
+            # Train model buttons
             table = getattr(self, f"tableWidget_bpf_{l_idx}")
             table.setContextMenuPolicy(Qt.CustomContextMenu)
             table.customContextMenuRequested.connect(
@@ -119,9 +119,9 @@ class Config(QtWidgets.QDialog, ui_main_file):
             # Set settings to GUI
             self.set_settings_to_gui()
             self.on_mode_changed()
-            self.on_fpsresolution_changed()
             self.on_background_changed()
-            self.on_seqlen_changed()
+            self.on_base_changed()
+            getattr(self, f"comboBox_order_{l_idx}").setCurrentIndex(4) # default 2^6
 
         self.on_stimuli_changed()
         self.notifications.new_notification('Default settings loaded')
@@ -167,6 +167,7 @@ class Config(QtWidgets.QDialog, ui_main_file):
         text_edit = getattr(self, f"textEdit_monitor_rates_{l_idx}")
         spin_box = getattr(self, f"spinBox_fpsresolution_{l_idx}")
         self.update_table_cutoffs()
+        self.update_encoding_info()
 
         text_edit.clear()
         monitors = get_monitor_rates()
@@ -203,6 +204,13 @@ class Config(QtWidgets.QDialog, ui_main_file):
                         "paradigm will not work.</span>\n"
                     )
 
+    def on_midpoint_changed(self):
+        l_idx = self.curr_layer_idx
+        if getattr(self, f"checkBox_show_point_{l_idx}").isChecked():
+            getattr(self, f"spinBox_point_size_{l_idx}").setEnabled(True)
+        else:
+            getattr(self, f"spinBox_point_size_{l_idx}").setEnabled(False)
+
     def on_background_changed(self):
         l_idx = self.curr_layer_idx
         combo = getattr(self, f"comboBox_scenario_name_{l_idx}")
@@ -230,35 +238,27 @@ class Config(QtWidgets.QDialog, ui_main_file):
             lineedit_scenario.setVisible(True)
             btn_browse_scenario.setVisible(True)
 
-    def on_seqlen_changed(self):
+    def on_base_changed(self):
         l_idx = self.curr_layer_idx
-        mseqlen = int(getattr(self, f"comboBox_seqlength_{l_idx}").currentText())
+        base = int(getattr(self, f"comboBox_base_{l_idx}").currentText())
+        orders = list(LFSR_PRIMITIVE_POLYNOMIALS['base'][base]['order'].keys())
+        orders = [str(x) for x in orders]
+        getattr(self, f"comboBox_order_{l_idx}").setEnabled(True)
+        getattr(self, f"comboBox_order_{l_idx}").clear()
+        getattr(self, f"comboBox_order_{l_idx}").addItems(orders)
+        getattr(self, f"comboBox_order_{l_idx}").setCurrentIndex(0)
+        self.update_encoding_info()
 
-        seq_params = {
-            31: (5, [1] * 5),
-            63: (6, [1, 1, 1, 1, 1, 0]),
-            127: (7, [1] * 7),
-            255: (8, [1] * 8)
-        }
-        if mseqlen not in seq_params:
-            raise ValueError(
-                f'[cvep_speller/settings] Sequence length of {mseqlen} not supported (use 31, 63, 127 or 255)!')
-
-        order, seed = seq_params[mseqlen]
-        poly_ = LFSR_PRIMITIVE_POLYNOMIALS['base'][2]['order'][order]
-
-        nrow = int(getattr(self, f"spinBox_nrow_{l_idx}").value())
-        fps = float(getattr(self, f"spinBox_fpsresolution_{l_idx}").value())
-
-        tau = round(mseqlen / (nrow * nrow))
-        cycle_dur = mseqlen / fps
-
-        getattr(self, f"lineEdit_poly_{l_idx}").setText(str(poly_))
-        getattr(self, f"lineEdit_base_{l_idx}").setText('2')
-        getattr(self, f"lineEdit_order_{l_idx}").setText(str(order))
-        getattr(self, f"lineEdit_seed_{l_idx}").setText(str(seed))
-        getattr(self, f"lineEdit_tau_{l_idx}").setText(str(tau))
-        getattr(self, f"lineEdit_cycleduration_{l_idx}").setText(str(cycle_dur))
+    def update_encoding_info(self):
+        l_idx = self.curr_layer_idx
+        base = int(getattr(self, f"comboBox_base_{l_idx}").currentText())
+        if getattr(self, f"comboBox_order_{l_idx}").currentIndex() == -1:
+            return
+        order = int(getattr(self, f"comboBox_order_{l_idx}").currentText())
+        seqlen = base ** order - 1
+        duration = seqlen /getattr(self, f"spinBox_fpsresolution_{l_idx}").value()
+        getattr(self, f"lineEdit_seqlength_{l_idx}").setText(str(seqlen))
+        getattr(self, f"lineEdit_cycleduration_{l_idx}").setText(str(duration))
 
     def set_settings_to_gui(self):
         l_idx = self.curr_layer_idx
@@ -273,23 +273,15 @@ class Config(QtWidgets.QDialog, ui_main_file):
         getattr(self, f"lineEdit_cvepmodel_{l_idx}").setText(self.settings.run_settings.cvep_model_path)
         getattr(self, f"spinBox_fpsresolution_{l_idx}").setValue(self.settings.run_settings.fps_resolution)
         getattr(self, f"checkBox_photodiode_{l_idx}").setChecked(self.settings.run_settings.enable_photodiode)
+        getattr(self, f"checkBox_show_point_{l_idx}").setChecked(self.settings.run_settings.show_point)
+        getattr(self, f"spinBox_point_size_{l_idx}").setValue(self.settings.run_settings.point_size)
         # Timings
         getattr(self, f"doubleSpinBox_t_prev_text_{l_idx}").setValue(self.settings.timings.t_prev_text)
         getattr(self, f"doubleSpinBox_t_prev_iddle_{l_idx}").setValue(self.settings.timings.t_prev_iddle)
         getattr(self, f"doubleSpinBox_t_finish_text_{l_idx}").setValue(self.settings.timings.t_finish_text)
         # Colors
-        gui_utils.modify_property(getattr(self, f"btn_color_box0_{l_idx}"), 'background-color',
-                                  self.settings.colors.color_box_0[:7])
-        getattr(self, f"spinBox_op_box0_{l_idx}").setValue(self.settings.colors.color_op_box_0)
-        gui_utils.modify_property(getattr(self, f"btn_color_box1_{l_idx}"), 'background-color',
-                                  self.settings.colors.color_box_1[:7])
-        getattr(self, f"spinBox_op_box1_{l_idx}").setValue(self.settings.colors.color_op_box_1)
-        gui_utils.modify_property(getattr(self, f"btn_color_text0_{l_idx}"), 'background-color',
-                                  self.settings.colors.color_text_0[:7])
-        getattr(self, f"spinBox_op_text0_{l_idx}").setValue(self.settings.colors.color_op_text_0)
-        gui_utils.modify_property(getattr(self, f"btn_color_text1_{l_idx}"), 'background-color',
-                                  self.settings.colors.color_text_1[:7])
-        getattr(self, f"spinBox_op_text1_{l_idx}").setValue(self.settings.colors.color_op_text_1)
+        gui_utils.modify_property(getattr(self, f"btn_color_point_{l_idx}"), 'background-color',
+                                  self.settings.colors.color_point[:7])
         gui_utils.modify_property(getattr(self, f"btn_color_target_box_{l_idx}"), 'background-color',
                                   self.settings.colors.color_target_box[:7])
         gui_utils.modify_property(getattr(self, f"btn_color_highlight_result_box_{l_idx}"), 'background-color',
@@ -304,6 +296,43 @@ class Config(QtWidgets.QDialog, ui_main_file):
                                   self.settings.colors.color_result_info_label[:7])
         gui_utils.modify_property(getattr(self, f"btn_color_result_info_text_{l_idx}"), 'background-color',
                                   self.settings.colors.color_result_info_text[:7])
+        # Variable colors
+        getattr(self, f"tableWidget_color_sequences_{l_idx}").clear()
+        getattr(self, f"tableWidget_color_sequences_{l_idx}").setColumnCount(5)
+        getattr(self, f"tableWidget_color_sequences_{l_idx}").setRowCount(
+            len(self.settings.colors.color_box_dict.keys()))
+        getattr(self, f"tableWidget_color_sequences_{l_idx}").setHorizontalHeaderLabels(
+            ['Event', 'Box color', 'Box alpha (%)', 'Text color', 'Text alpha (%)'])
+        header = getattr(self, f"tableWidget_color_sequences_{l_idx}").horizontalHeader()
+        header.setSectionResizeMode(0, QtWidgets.QHeaderView.Stretch)
+        header.setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeToContents)
+        idx = 0
+        for event in self.settings.colors.color_box_dict.keys():
+            color_box_ = self.settings.colors.color_box_dict[event]
+            opacity_box_ = self.settings.colors.opacity_box_dict[event]
+            color_text_ = self.settings.colors.color_text_dict[event]
+            opacity_text_ = self.settings.colors.opacity_text_dict[event]
+            btn_box = QtWidgets.QPushButton('')
+            spinBox_alpha_box = QtWidgets.QSpinBox()
+            spinBox_alpha_box.setRange(0, 100)
+            btn_text = QtWidgets.QPushButton('')
+            spinBox_alpha_text = QtWidgets.QSpinBox()
+            spinBox_alpha_text.setRange(0, 100)
+            gui_utils.modify_property(btn_box, 'background-color', color_box_)
+            spinBox_alpha_box.setValue(opacity_box_)
+            gui_utils.modify_property(btn_text, 'background-color', color_text_)
+            spinBox_alpha_text.setValue(opacity_text_)
+            btn_box.clicked.connect(self.open_color_dialog(btn_box))
+            btn_text.clicked.connect(self.open_color_dialog(btn_text))
+            getattr(self, f"tableWidget_color_sequences_{l_idx}").setItem(idx, 0,
+                                                     QtWidgets.QTableWidgetItem(
+                                                         str(event)))
+            getattr(self, f"tableWidget_color_sequences_{l_idx}").setCellWidget(idx, 1, btn_box)
+            getattr(self, f"tableWidget_color_sequences_{l_idx}").setCellWidget(idx, 2, spinBox_alpha_box)
+            getattr(self, f"tableWidget_color_sequences_{l_idx}").setCellWidget(idx, 3, btn_text)
+            getattr(self, f"tableWidget_color_sequences_{l_idx}").setCellWidget(idx, 4, spinBox_alpha_text)
+            idx += 1
+
         # Background
         getattr(self, f"comboBox_scenario_name_{l_idx}").setCurrentText(self.settings.background.scenario_name)
         gui_utils.modify_property(getattr(self, f"btn_color_background_{l_idx}"), 'background-color',
@@ -377,10 +406,8 @@ class Config(QtWidgets.QDialog, ui_main_file):
                     temp_button.clicked.connect(self.btn_command_on_click(r, c))
                     temp_button.setMinimumSize(60, 60)
                     temp_button.setSizePolicy(policy_max_max)
-                    box_color_ = self.settings.colors.color_box_0 if \
-                        key_ == 0 else self.settings.colors.color_box_1
-                    text_color_ = self.settings.colors.color_text_0 if \
-                        key_ == 0 else self.settings.colors.color_text_1
+                    box_color_ = self.settings.colors.color_box_dict[str(key_)]
+                    text_color_ = self.settings.colors.color_text_dict[str(key_)]
                     gui_utils.modify_properties(
                         temp_button, {
                             "background-color": box_color_,
@@ -405,11 +432,6 @@ class Config(QtWidgets.QDialog, ui_main_file):
 
         # Filter cutoffs according to fps_resolution
         self.update_table_cutoffs()
-
-        # Sequence length
-        seqlen = len(self.settings.matrices[0].item_list[0].sequence)
-        index = getattr(self, f"comboBox_seqlength_{l_idx}").findText(str(seqlen), Qt.MatchFixedString)
-        getattr(self, f"comboBox_seqlength_{l_idx}").setCurrentIndex(index)
 
     def btn_command_on_click(self, row, col):
         def set_config():
@@ -481,6 +503,10 @@ class Config(QtWidgets.QDialog, ui_main_file):
             getattr(self, f"spinBox_fpsresolution_{l_idx}").value())
         self.settings.run_settings.enable_photodiode = (
             getattr(self, f"checkBox_photodiode_{l_idx}").isChecked())
+        self.settings.run_settings.show_point = (
+            getattr(self, f"checkBox_show_point_{l_idx}").isChecked())
+        self.settings.run_settings.point_size = (
+            getattr(self, f"spinBox_point_size_{l_idx}").value())
 
         # Timings
         self.settings.timings.t_prev_text = (
@@ -491,22 +517,8 @@ class Config(QtWidgets.QDialog, ui_main_file):
             getattr(self, f"doubleSpinBox_t_finish_text_{l_idx}").value())
 
         # Colors
-        self.settings.colors.color_box_0 = (
-            gui_utils.get_property(getattr(self, f"btn_color_box0_{l_idx}"), 'background-color'))
-        self.settings.colors.color_op_box_0 = (
-            getattr(self, f"spinBox_op_box0_{l_idx}").value())
-        self.settings.colors.color_box_1 = (
-            gui_utils.get_property(getattr(self, f"btn_color_box1_{l_idx}"), 'background-color'))
-        self.settings.colors.color_op_box_1 = (
-            getattr(self, f"spinBox_op_box1_{l_idx}").value())
-        self.settings.colors.color_text_0 = (
-            gui_utils.get_property(getattr(self, f"btn_color_text0_{l_idx}"), 'background-color'))
-        self.settings.colors.color_op_text_0 = (
-            getattr(self, f"spinBox_op_text0_{l_idx}").value())
-        self.settings.colors.color_text_1 = (
-            gui_utils.get_property(getattr(self, f"btn_color_text1_{l_idx}"), 'background-color'))
-        self.settings.colors.color_op_text_1 = (
-            getattr(self, f"spinBox_op_text1_{l_idx}").value())
+        self.settings.colors.color_point = (
+            gui_utils.get_property(getattr(self, f"btn_color_point_{l_idx}"), 'background-color'))
         self.settings.colors.color_target_box = (
             gui_utils.get_property(getattr(self, f"btn_color_target_box_{l_idx}"),'background-color'))
         self.settings.colors.color_highlight_result_box = gui_utils.get_property(
@@ -521,13 +533,33 @@ class Config(QtWidgets.QDialog, ui_main_file):
             gui_utils.get_property(getattr(self, f"btn_color_result_info_label_{l_idx}"), 'background-color'))
         self.settings.colors.color_result_info_text = (
             gui_utils.get_property(getattr(self, f"btn_color_result_info_text_{l_idx}"), 'background-color'))
+        # Variable colors
+        self.settings.colors.color_box_dict = dict()
+        self.settings.colors.opacity_box_dict = dict()
+        self.settings.colors.color_text_dict = dict()
+        self.settings.colors.opacity_text_dict = dict()
+        no_colors = getattr(self, f"tableWidget_color_sequences_{l_idx}").rowCount()
+        for i in range(no_colors):
+            table_item_event = getattr(self, f"tableWidget_color_sequences_{l_idx}").item(i, 0)
+            btn_box_color = getattr(self, f"tableWidget_color_sequences_{l_idx}").cellWidget(i, 1)
+            spinBox_box_alpha = getattr(self, f"tableWidget_color_sequences_{l_idx}").cellWidget(i, 2)
+            btn_text_color = getattr(self, f"tableWidget_color_sequences_{l_idx}").cellWidget(i, 3)
+            spinBox_text_alpha = getattr(self, f"tableWidget_color_sequences_{l_idx}").cellWidget(i, 4)
+            key = int(table_item_event.text())
+            box_color = gui_utils.get_property(btn_box_color, 'background-color')
+            box_opacity = spinBox_box_alpha.value()
+            text_color = gui_utils.get_property(btn_text_color, 'background-color')
+            text_opacity = spinBox_text_alpha.value()
+            self.settings.colors.color_box_dict[str(key)] = box_color
+            self.settings.colors.opacity_box_dict[str(key)] = box_opacity
+            self.settings.colors.color_text_dict[str(key)] = text_color
+            self.settings.colors.opacity_text_dict[str(key)] = text_opacity
 
         # Background
         self.settings.background.scenario_name = (
             getattr(self, f"comboBox_scenario_name_{l_idx}").currentText())
         self.settings.background.color_background = (
-            gui_utils.get_property(getattr(self, f"btn_color_background_{l_idx}"),
-                                                                           'background-color'))
+            gui_utils.get_property(getattr(self, f"btn_color_background_{l_idx}"), 'background-color'))
         self.settings.background.scenario_path = (
             getattr(self, f"lineEdit_scenario_{l_idx}").text())
 
@@ -734,11 +766,22 @@ class Config(QtWidgets.QDialog, ui_main_file):
         # Get the parameters
         n_row = int(getattr(self, f"spinBox_nrow_{l_idx}").value())
         n_col = int(getattr(self, f"spinBox_ncol_{l_idx}").value())
-        mseqlen = int(getattr(self, f"comboBox_seqlength_{l_idx}").currentText())
+        base = int(getattr(self, f"comboBox_base_{l_idx}").currentText())
+        order = int(getattr(self, f"comboBox_order_{l_idx}").currentText())
+        mseqlen = int(getattr(self, f"lineEdit_seqlength_{l_idx}").text())
+
+        # Compute the matrices
+        self.get_settings_from_gui()
+        self.settings.matrices = self.settings.build_with_pary_sequences(
+            n_row=n_row, n_col=n_col, base=base, order=order)
+        unique = self.settings.get_unique_sequence_values()
+        c_box, op_box, c_text, op_text = settings.Colors.generate_grey_color_dicts(unique)
+        self.settings.colors = settings.Colors(color_box_dict=c_box, opacity_box_dict=op_box,
+                             color_text_dict=c_text, opacity_text_dict=op_text)
 
         # Check if everything is correct
-        tau = mseqlen / (n_row * n_col)
-        if tau < 1:
+        lags_info =  self.settings.matrices[0].info_lags
+        if lags_info['tau'] < 1:
             error_msg = 'Cannot encode all the commands (%i) with that ' \
                         'sequence length (%i)! Decrease the number of ' \
                         'commands or increase the sequence length to have ' \
@@ -746,36 +789,33 @@ class Config(QtWidgets.QDialog, ui_main_file):
                         (n_col * n_row, mseqlen)
             error_dialog(error_msg, 'Oops!')
             return
-        if tau < 2:
+        if round(lags_info['tau']) == 1:
             warn_msg = 'With that number of commands (%i) and that sequence ' \
                        'length (%i), the delay between shifted-version ' \
-                       'sequences will be %.2f. Consider to decrease the ' \
-                       'number of commands or increase the sequence length ' \
+                       'sequences will be approx. 1. Consider to decrease the' \
+                       ' number of commands or increase the sequence length ' \
                        'to space more the shifted-sequences and favor the ' \
-                       'performance' \
-                        % (n_col * n_row, mseqlen, tau)
+                       'performance.' \
+                       % (n_col * n_row, mseqlen)
             warning_dialog(warn_msg, 'Be careful!')
-        getattr(self, f"lineEdit_tau_{l_idx}").setText("%.2f" % tau)
-
-        # Compute the matrices
-        self.get_settings_from_gui()
-        self.settings.matrices = \
-            self.settings.standard_single_sequence_matrices(
-            n_row=n_row, n_col=n_col, mseqlen=mseqlen)
 
         # Update the gui
         self.set_settings_to_gui()
 
         # Show the encoding
-        order = int(getattr(self, f"lineEdit_order_{l_idx}").text())
-        seed = getattr(self, f"lineEdit_seed_{l_idx}").text()
         monitor_rate = float(getattr(self, f"spinBox_fpsresolution_{l_idx}").value())
         current_index = self.widget_nested_matrices.currentIndex()
         visualize_dialog = VisualizeEncodingDialog(
-            n_row=n_row, n_col=n_col, base=2, order=order,
+            n_row=n_row, n_col=n_col, base=base, order=order,
             monitor_rate=monitor_rate, item_list=self.settings.matrices[current_index].item_list,
-            lags_info=self.settings.matrices[current_index].info_lags)
-        visualize_dialog.exec_()
+            lags_info=lags_info)
+        if visualize_dialog.exec_():
+            if any(item in lags_info['bad_lags'] for item in lags_info['lags']):
+                warn_msg = "Careful, I could not optimize the lags enough for" \
+                           " this configuration, so the correlation for" \
+                           " command(s) %s is not minimum!" % ','.join(
+                    visualize_dialog.bad_cmds)
+                warning_dialog(warn_msg, 'Be careful!')
 
     # --------------------- Colors ------------------------
     def open_color_dialog(self, handle):
