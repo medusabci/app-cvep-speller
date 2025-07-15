@@ -65,8 +65,8 @@ class App(resources.AppSkeleton):
         mode_ = 'train' if self.app_settings.run_settings.mode != \
                            ONLINE_MODE else 'test'
 
-        target_ = self.app_settings.get_coords_from_labels(
-            self.app_settings.run_settings.train_target, self.app_settings.matrices)
+        target_ = self.app_settings.encoding_settings.get_coords_from_labels(
+            self.app_settings.run_settings.train_target, self.app_settings.encoding_settings.matrices)
         self.cvep_data = cvep.CVEPSpellerData(
             mode=mode_,
             paradigm_conf=conf,
@@ -480,7 +480,7 @@ class App(resources.AppSkeleton):
         cvep_comms = []
 
         prev_idx = 0
-        for m in self.app_settings.matrices:
+        for m in self.app_settings.encoding_settings.matrices:
             # Matrix configuration
             no_comms = len(m.item_list)
             comms_list = list(range(prev_idx, prev_idx + no_comms))

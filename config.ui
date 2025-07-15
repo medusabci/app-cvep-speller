@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>928</width>
-    <height>836</height>
+    <width>791</width>
+    <height>592</height>
    </rect>
   </property>
   <property name="focusPolicy">
@@ -148,15 +148,15 @@
                  </font>
                 </property>
                 <property name="currentIndex">
-                 <number>0</number>
+                 <number>4</number>
                 </property>
                 <widget class="QWidget" name="params_fast_1">
                  <property name="geometry">
                   <rect>
                    <x>0</x>
                    <y>0</y>
-                   <width>562</width>
-                   <height>440</height>
+                   <width>530</width>
+                   <height>403</height>
                   </rect>
                  </property>
                  <attribute name="label">
@@ -487,8 +487,8 @@
                   <rect>
                    <x>0</x>
                    <y>0</y>
-                   <width>562</width>
-                   <height>440</height>
+                   <width>425</width>
+                   <height>196</height>
                   </rect>
                  </property>
                  <attribute name="label">
@@ -557,7 +557,7 @@
                   <rect>
                    <x>0</x>
                    <y>0</y>
-                   <width>548</width>
+                   <width>411</width>
                    <height>504</height>
                   </rect>
                  </property>
@@ -824,8 +824,8 @@
                   <rect>
                    <x>0</x>
                    <y>0</y>
-                   <width>562</width>
-                   <height>440</height>
+                   <width>425</width>
+                   <height>196</height>
                   </rect>
                  </property>
                  <property name="minimumSize">
@@ -940,8 +940,8 @@
                   <rect>
                    <x>0</x>
                    <y>0</y>
-                   <width>562</width>
-                   <height>440</height>
+                   <width>411</width>
+                   <height>563</height>
                   </rect>
                  </property>
                  <attribute name="label">
@@ -949,9 +949,32 @@
                  </attribute>
                  <layout class="QVBoxLayout" name="verticalLayout_8">
                   <item>
-                   <widget class="QGroupBox" name="groupBox">
+                   <widget class="QGroupBox" name="groupBox_8">
                     <property name="title">
-                     <string>P-ary m-sequence encoding</string>
+                     <string>Sequence</string>
+                    </property>
+                    <layout class="QVBoxLayout" name="verticalLayout_19">
+                     <item>
+                      <widget class="QComboBox" name="comboBox_seq_type_1">
+                       <item>
+                        <property name="text">
+                         <string>M-sequence</string>
+                        </property>
+                       </item>
+                       <item>
+                        <property name="text">
+                         <string>Burst sequence</string>
+                        </property>
+                       </item>
+                      </widget>
+                     </item>
+                    </layout>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QGroupBox" name="groupBox_mseq_1">
+                    <property name="title">
+                     <string>M-sequence encoding</string>
                     </property>
                     <layout class="QFormLayout" name="formLayout_9">
                      <item row="0" column="0">
@@ -1006,7 +1029,7 @@
                       </widget>
                      </item>
                      <item row="3" column="1">
-                      <widget class="QLineEdit" name="lineEdit_cycleduration_1">
+                      <widget class="QLineEdit" name="lineEdit_cycleduration_mseq_1">
                        <property name="enabled">
                         <bool>false</bool>
                        </property>
@@ -1037,9 +1060,89 @@
                       </widget>
                      </item>
                      <item row="2" column="1">
-                      <widget class="QLineEdit" name="lineEdit_seqlength_1">
+                      <widget class="QLineEdit" name="lineEdit_seqlength_mseq_1">
                        <property name="enabled">
                         <bool>false</bool>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QGroupBox" name="groupBox_burst_1">
+                    <property name="title">
+                     <string>Burst sequence encoding</string>
+                    </property>
+                    <layout class="QFormLayout" name="formLayout_17">
+                     <item row="2" column="1">
+                      <widget class="QSpinBox" name="spinBox_n_burst_1">
+                       <property name="minimum">
+                        <number>1</number>
+                       </property>
+                       <property name="maximum">
+                        <number>100</number>
+                       </property>
+                       <property name="value">
+                        <number>4</number>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="3" column="1">
+                      <widget class="QSpinBox" name="spinBox_f_burst_1">
+                       <property name="minimum">
+                        <number>1</number>
+                       </property>
+                       <property name="maximum">
+                        <number>10</number>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="3" column="0">
+                      <widget class="QLabel" name="label_25">
+                       <property name="text">
+                        <string>Burst duration (bits)</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="2" column="0">
+                      <widget class="QLabel" name="label_24">
+                       <property name="text">
+                        <string>Number of bursts</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="5" column="0">
+                      <widget class="QLabel" name="label_32">
+                       <property name="text">
+                        <string>Cycle duration (s)</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="5" column="1">
+                      <widget class="QLineEdit" name="lineEdit_cycleduration_burst_1">
+                       <property name="enabled">
+                        <bool>false</bool>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="1" column="0">
+                      <widget class="QLabel" name="label_29">
+                       <property name="text">
+                        <string>Length (bits)</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="1" column="1">
+                      <widget class="QSpinBox" name="spinBox_seqlength_burst_1">
+                       <property name="minimum">
+                        <number>1</number>
+                       </property>
+                       <property name="maximum">
+                        <number>1000</number>
+                       </property>
+                       <property name="value">
+                        <number>132</number>
                        </property>
                       </widget>
                      </item>
@@ -1101,8 +1204,8 @@
                   <rect>
                    <x>0</x>
                    <y>0</y>
-                   <width>562</width>
-                   <height>440</height>
+                   <width>411</width>
+                   <height>297</height>
                   </rect>
                  </property>
                  <attribute name="label">
@@ -1305,8 +1408,8 @@
                   <rect>
                    <x>0</x>
                    <y>0</y>
-                   <width>562</width>
-                   <height>440</height>
+                   <width>530</width>
+                   <height>403</height>
                   </rect>
                  </property>
                  <attribute name="label">
@@ -1628,8 +1731,8 @@
                   <rect>
                    <x>0</x>
                    <y>0</y>
-                   <width>562</width>
-                   <height>440</height>
+                   <width>197</width>
+                   <height>107</height>
                   </rect>
                  </property>
                  <attribute name="label">
@@ -1698,7 +1801,7 @@
                   <rect>
                    <x>0</x>
                    <y>0</y>
-                   <width>548</width>
+                   <width>205</width>
                    <height>504</height>
                   </rect>
                  </property>
@@ -1959,8 +2062,8 @@
                   <rect>
                    <x>0</x>
                    <y>0</y>
-                   <width>562</width>
-                   <height>440</height>
+                   <width>206</width>
+                   <height>103</height>
                   </rect>
                  </property>
                  <property name="minimumSize">
@@ -2075,8 +2178,8 @@
                   <rect>
                    <x>0</x>
                    <y>0</y>
-                   <width>562</width>
-                   <height>440</height>
+                   <width>212</width>
+                   <height>312</height>
                   </rect>
                  </property>
                  <attribute name="label">
@@ -2086,7 +2189,7 @@
                   <item>
                    <widget class="QGroupBox" name="groupBox_5">
                     <property name="title">
-                     <string>P-ary m-sequence encoding</string>
+                     <string>M-sequence encoding</string>
                     </property>
                     <layout class="QFormLayout" name="formLayout_10">
                      <item row="0" column="0">
@@ -2104,31 +2207,6 @@
                        <item>
                         <property name="text">
                          <string>2</string>
-                        </property>
-                       </item>
-                       <item>
-                        <property name="text">
-                         <string>3</string>
-                        </property>
-                       </item>
-                       <item>
-                        <property name="text">
-                         <string>5</string>
-                        </property>
-                       </item>
-                       <item>
-                        <property name="text">
-                         <string>7</string>
-                        </property>
-                       </item>
-                       <item>
-                        <property name="text">
-                         <string>11</string>
-                        </property>
-                       </item>
-                       <item>
-                        <property name="text">
-                         <string>13</string>
                         </property>
                        </item>
                       </widget>
@@ -2236,8 +2314,8 @@
                   <rect>
                    <x>0</x>
                    <y>0</y>
-                   <width>562</width>
-                   <height>440</height>
+                   <width>261</width>
+                   <height>297</height>
                   </rect>
                  </property>
                  <attribute name="label">
@@ -2440,8 +2518,8 @@
                   <rect>
                    <x>0</x>
                    <y>0</y>
-                   <width>562</width>
-                   <height>440</height>
+                   <width>530</width>
+                   <height>403</height>
                   </rect>
                  </property>
                  <attribute name="label">
@@ -2763,8 +2841,8 @@
                   <rect>
                    <x>0</x>
                    <y>0</y>
-                   <width>562</width>
-                   <height>440</height>
+                   <width>197</width>
+                   <height>107</height>
                   </rect>
                  </property>
                  <attribute name="label">
@@ -2833,7 +2911,7 @@
                   <rect>
                    <x>0</x>
                    <y>0</y>
-                   <width>548</width>
+                   <width>205</width>
                    <height>504</height>
                   </rect>
                  </property>
@@ -3094,8 +3172,8 @@
                   <rect>
                    <x>0</x>
                    <y>0</y>
-                   <width>562</width>
-                   <height>440</height>
+                   <width>206</width>
+                   <height>103</height>
                   </rect>
                  </property>
                  <property name="minimumSize">
@@ -3210,8 +3288,8 @@
                   <rect>
                    <x>0</x>
                    <y>0</y>
-                   <width>562</width>
-                   <height>440</height>
+                   <width>212</width>
+                   <height>312</height>
                   </rect>
                  </property>
                  <attribute name="label">
@@ -3221,7 +3299,7 @@
                   <item>
                    <widget class="QGroupBox" name="groupBox_7">
                     <property name="title">
-                     <string>P-ary m-sequence encoding</string>
+                     <string>M-sequence encoding</string>
                     </property>
                     <layout class="QFormLayout" name="formLayout_16">
                      <item row="0" column="0">
@@ -3239,31 +3317,6 @@
                        <item>
                         <property name="text">
                          <string>2</string>
-                        </property>
-                       </item>
-                       <item>
-                        <property name="text">
-                         <string>3</string>
-                        </property>
-                       </item>
-                       <item>
-                        <property name="text">
-                         <string>5</string>
-                        </property>
-                       </item>
-                       <item>
-                        <property name="text">
-                         <string>7</string>
-                        </property>
-                       </item>
-                       <item>
-                        <property name="text">
-                         <string>11</string>
-                        </property>
-                       </item>
-                       <item>
-                        <property name="text">
-                         <string>13</string>
                         </property>
                        </item>
                       </widget>
@@ -3371,8 +3424,8 @@
                   <rect>
                    <x>0</x>
                    <y>0</y>
-                   <width>562</width>
-                   <height>440</height>
+                   <width>261</width>
+                   <height>297</height>
                   </rect>
                  </property>
                  <attribute name="label">

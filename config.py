@@ -26,8 +26,10 @@ from .utils_win_monitor_rates import get_monitor_rates
 ui_main_file = loadUiType(os.path.dirname(__file__) + "/config.ui")[0]
 ui_target_file = loadUiType(os.path.dirname(__file__) +
                                 "/config_target.ui")[0]
-ui_encoding_file = loadUiType(os.path.dirname(__file__) +
-                                "/config_encoding.ui")[0]
+ui_encoding_file_mseq = loadUiType(os.path.dirname(__file__) +
+                                "/config_encoding_mseq.ui")[0]
+ui_encoding_file_burst = loadUiType(os.path.dirname(__file__) +
+                                "/config_encoding_burst.ui")[0]
 
 
 class Config(QtWidgets.QDialog, ui_main_file):
@@ -74,7 +76,7 @@ class Config(QtWidgets.QDialog, ui_main_file):
         self.btn_grating.clicked.connect(self.on_stimuli_changed)
         self.btn_checkerboard.clicked.connect(self.on_stimuli_changed)
 
-        for l_idx in range(1, self.params_stacked_widget.count()+1):
+        for l_idx in range(1, 2):
             # Run settings buttons
             getattr(self, f"comboBox_mode_{l_idx}").currentIndexChanged.connect(
                 self.on_mode_changed)
@@ -99,9 +101,15 @@ class Config(QtWidgets.QDialog, ui_main_file):
             getattr(self, f"btn_browse_scenario_{l_idx}").clicked.connect(
                 self.browse_scenario)
             # Encoding and matrix buttons
+            getattr(self, f"comboBox_seq_type_{l_idx}").currentTextChanged.connect(
+                self.on_seq_type_changed)
+            # M-sequence
             getattr(self, f"comboBox_base_{l_idx}").currentTextChanged.connect(
                 self.on_base_changed)
             getattr(self, f"comboBox_order_{l_idx}").currentTextChanged.connect(
+                self.update_encoding_info)
+            # Burst
+            getattr(self, f"spinBox_seqlength_burst_{l_idx}").valueChanged.connect(
                 self.update_encoding_info)
             getattr(self, f"btn_update_matrix_{l_idx}").clicked.connect(
                 self.update_matrix)
@@ -120,8 +128,10 @@ class Config(QtWidgets.QDialog, ui_main_file):
             self.set_settings_to_gui()
             self.on_mode_changed()
             self.on_background_changed()
+            self.on_seq_type_changed()
             self.on_base_changed()
-            getattr(self, f"comboBox_order_{l_idx}").setCurrentIndex(4) # default 2^6
+            getattr(self, f"comboBox_order_{l_idx}").setCurrentIndex(4)  # default 2^6
+            self.update_encoding_info()
 
         self.on_stimuli_changed()
         self.notifications.new_notification('Default settings loaded')
@@ -238,6 +248,15 @@ class Config(QtWidgets.QDialog, ui_main_file):
             lineedit_scenario.setVisible(True)
             btn_browse_scenario.setVisible(True)
 
+    def on_seq_type_changed(self):
+        l_idx = self.curr_layer_idx
+        if getattr(self, f"comboBox_seq_type_{l_idx}").currentText() == "M-sequence":
+            getattr(self, f"groupBox_mseq_{l_idx}").setVisible(True)
+            getattr(self, f"groupBox_burst_{l_idx}").setVisible(False)
+        elif getattr(self, f"comboBox_seq_type_{l_idx}").currentText() == "Burst sequence":
+            getattr(self, f"groupBox_mseq_{l_idx}").setVisible(False)
+            getattr(self, f"groupBox_burst_{l_idx}").setVisible(True)
+
     def on_base_changed(self):
         l_idx = self.curr_layer_idx
         base = int(getattr(self, f"comboBox_base_{l_idx}").currentText())
@@ -251,14 +270,20 @@ class Config(QtWidgets.QDialog, ui_main_file):
 
     def update_encoding_info(self):
         l_idx = self.curr_layer_idx
+        fps = getattr(self, f"spinBox_fpsresolution_{l_idx}").value()
+        # M-sequence
         base = int(getattr(self, f"comboBox_base_{l_idx}").currentText())
         if getattr(self, f"comboBox_order_{l_idx}").currentIndex() == -1:
             return
         order = int(getattr(self, f"comboBox_order_{l_idx}").currentText())
-        seqlen = base ** order - 1
-        duration = seqlen /getattr(self, f"spinBox_fpsresolution_{l_idx}").value()
-        getattr(self, f"lineEdit_seqlength_{l_idx}").setText(str(seqlen))
-        getattr(self, f"lineEdit_cycleduration_{l_idx}").setText(str(duration))
+        mseqlen = base ** order - 1
+        mseq_cycle_duration = mseqlen / fps
+        getattr(self, f"lineEdit_seqlength_mseq_{l_idx}").setText(str(mseqlen))
+        getattr(self, f"lineEdit_cycleduration_mseq_{l_idx}").setText(str(mseq_cycle_duration))
+        # Burst sequence
+        burstseqlen = getattr(self, f"spinBox_seqlength_burst_{l_idx}").value()
+        burstseq_cycle_duration = burstseqlen / fps
+        getattr(self, f"lineEdit_cycleduration_burst_{l_idx}").setText(str(burstseq_cycle_duration))
 
     def set_settings_to_gui(self):
         l_idx = self.curr_layer_idx
@@ -345,9 +370,11 @@ class Config(QtWidgets.QDialog, ui_main_file):
                                      QSizePolicy.Expanding)
         policy_fix_fix = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
 
+        # Encoding
+        getattr(self, f"comboBox_seq_type_{l_idx}").setCurrentText(self.settings.encoding_settings.seq_type)
         # Matrices
         # Create the required number of tabs
-        n_extra = len(self.settings.matrices) - \
+        n_extra = len(self.settings.encoding_settings.matrices) - \
                   self.widget_nested_matrices.count()
         for t in range(1, n_extra + 1):
             mtx_widget_ = QtWidgets.QWidget(self.widget_nested_matrices)
@@ -355,9 +382,9 @@ class Config(QtWidgets.QDialog, ui_main_file):
             self.widget_nested_matrices.addTab(mtx_widget_,
                                               'Matrix #' + str(mtx_idx_))
         # Create each matrix
-        for m in range(len(self.settings.matrices)):
+        for m in range(len(self.settings.encoding_settings.matrices)):
             # Set the current index and create the general layout
-            curr_mtx = self.settings.matrices[m]
+            curr_mtx = self.settings.encoding_settings.matrices[m]
             self.widget_nested_matrices.setCurrentIndex(m)
             global_layout = QtWidgets.QVBoxLayout()
             # Create the result text frame
@@ -427,8 +454,8 @@ class Config(QtWidgets.QDialog, ui_main_file):
                                       self.settings.background.color_background[:7])
             self.update_tab(self.widget_nested_matrices, m, new_tab)
 
-        getattr(self, f"spinBox_nrow_{l_idx}").setValue(self.settings.matrices[0].n_row)
-        getattr(self, f"spinBox_ncol_{l_idx}").setValue(self.settings.matrices[0].n_col)
+        getattr(self, f"spinBox_nrow_{l_idx}").setValue(self.settings.encoding_settings.matrices[0].n_row)
+        getattr(self, f"spinBox_ncol_{l_idx}").setValue(self.settings.encoding_settings.matrices[0].n_col)
 
         # Filter cutoffs according to fps_resolution
         self.update_table_cutoffs()
@@ -439,18 +466,18 @@ class Config(QtWidgets.QDialog, ui_main_file):
             # (function factory)
             current_index = self.widget_nested_matrices.currentIndex()
             target_dialog = TargetConfigDialog(
-                self.settings.matrices[current_index].
+                self.settings.encoding_settings.matrices[current_index].
                     matrix_list[row][col], current_index)
             if target_dialog.exec_():
                 # Get the returned values
-                self.settings.matrices[
+                self.settings.encoding_settings.matrices[
                     current_index].matrix_list[row][col].set_text(
                     target_dialog.input_target_text.text())
-                self.settings.matrices[
+                self.settings.encoding_settings.matrices[
                     current_index].matrix_list[row][col].set_label(
                     target_dialog.input_target_label.text())
                 seq = eval(target_dialog.input_target_sequence.text())
-                self.settings.matrices[
+                self.settings.encoding_settings.matrices[
                     current_index].matrix_list[row][col].set_sequence(
                     seq)
 
@@ -562,6 +589,10 @@ class Config(QtWidgets.QDialog, ui_main_file):
             gui_utils.get_property(getattr(self, f"btn_color_background_{l_idx}"), 'background-color'))
         self.settings.background.scenario_path = (
             getattr(self, f"lineEdit_scenario_{l_idx}").text())
+
+        # Encoding
+        self.settings.encoding_settings.seq_type = (
+            getattr(self, f"comboBox_seq_type_{l_idx}").currentText())
 
     def update_gui(self):
         self.get_settings_from_gui()
@@ -763,59 +794,102 @@ class Config(QtWidgets.QDialog, ui_main_file):
 
     def update_matrix(self):
         l_idx = self.curr_layer_idx
+        monitor_rate = float(getattr(self, f"spinBox_fpsresolution_{l_idx}").value())
         # Get the parameters
         n_row = int(getattr(self, f"spinBox_nrow_{l_idx}").value())
         n_col = int(getattr(self, f"spinBox_ncol_{l_idx}").value())
+        # M-sequence
         base = int(getattr(self, f"comboBox_base_{l_idx}").currentText())
         order = int(getattr(self, f"comboBox_order_{l_idx}").currentText())
-        mseqlen = int(getattr(self, f"lineEdit_seqlength_{l_idx}").text())
+        mseqlen = int(getattr(self, f"lineEdit_seqlength_mseq_{l_idx}").text())
+        # Burst
+        n_burst = getattr(self, f"spinBox_n_burst_{l_idx}").value()
+        f_burst = getattr(self, f"spinBox_f_burst_{l_idx}").value()
+        burstseqlen = getattr(self, f"spinBox_seqlength_burst_{l_idx}").value()
 
         # Compute the matrices
         self.get_settings_from_gui()
-        self.settings.matrices = self.settings.build_with_pary_sequences(
-            n_row=n_row, n_col=n_col, base=base, order=order)
-        unique = self.settings.get_unique_sequence_values()
-        c_box, op_box, c_text, op_text = settings.Colors.generate_grey_color_dicts(unique)
-        self.settings.colors = settings.Colors(color_box_dict=c_box, opacity_box_dict=op_box,
-                             color_text_dict=c_text, opacity_text_dict=op_text)
-
-        # Check if everything is correct
-        lags_info =  self.settings.matrices[0].info_lags
-        if lags_info['tau'] < 1:
-            error_msg = 'Cannot encode all the commands (%i) with that ' \
-                        'sequence length (%i)! Decrease the number of ' \
-                        'commands or increase the sequence length to have ' \
-                        'enough room to get a positive delay.' % \
-                        (n_col * n_row, mseqlen)
-            error_dialog(error_msg, 'Oops!')
-            return
-        if round(lags_info['tau']) == 1:
-            warn_msg = 'With that number of commands (%i) and that sequence ' \
-                       'length (%i), the delay between shifted-version ' \
-                       'sequences will be approx. 1. Consider to decrease the' \
-                       ' number of commands or increase the sequence length ' \
-                       'to space more the shifted-sequences and favor the ' \
-                       'performance.' \
-                       % (n_col * n_row, mseqlen)
-            warning_dialog(warn_msg, 'Be careful!')
-
-        # Update the gui
-        self.set_settings_to_gui()
-
-        # Show the encoding
-        monitor_rate = float(getattr(self, f"spinBox_fpsresolution_{l_idx}").value())
-        current_index = self.widget_nested_matrices.currentIndex()
-        visualize_dialog = VisualizeEncodingDialog(
-            n_row=n_row, n_col=n_col, base=base, order=order,
-            monitor_rate=monitor_rate, item_list=self.settings.matrices[current_index].item_list,
-            lags_info=lags_info)
-        if visualize_dialog.exec_():
-            if any(item in lags_info['bad_lags'] for item in lags_info['lags']):
-                warn_msg = "Careful, I could not optimize the lags enough for" \
-                           " this configuration, so the correlation for" \
-                           " command(s) %s is not minimum!" % ','.join(
-                    visualize_dialog.bad_cmds)
+        # M-sequence
+        if getattr(self, f"comboBox_seq_type_{l_idx}").currentText() == "M-sequence":
+            temp_matrix = (self.settings.encoding_settings.build_with_pary_sequences(
+                n_row=n_row, n_col=n_col, base=base, order=order))
+            # Check everything is correct
+            lags_info =  temp_matrix[0].info_seq
+            if lags_info['tau'] < 1:
+                error_msg = (('Cannot encode all the commands (%i) with that sequence length '
+                             '(%i)! Decrease the number of commands or increase the sequence '
+                             'length to have enough room to get a positive delay.')
+                             % (n_col * n_row, mseqlen))
+                error_dialog(error_msg, 'Oops!')
+                return
+            if round(lags_info['tau']) == 1:
+                warn_msg = ('With that number of commands (%i) and that sequence length (%i), '
+                            'the delay between shifted-version sequences will be approx. 1. Consider '
+                            'to decrease the number of commands or increase the sequence length to '
+                            'space more the shifted-sequences and favor the performance.'
+                            % (n_col * n_row, mseqlen))
                 warning_dialog(warn_msg, 'Be careful!')
+            self.settings.encoding_settings.matrices = temp_matrix
+            # Update the gui
+            unique = self.settings.encoding_settings.get_unique_sequence_values()
+            c_box, op_box, c_text, op_text = settings.Colors.generate_grey_color_dicts(unique)
+            self.settings.colors = settings.Colors(color_box_dict=c_box, opacity_box_dict=op_box,
+                                                   color_text_dict=c_text, opacity_text_dict=op_text)
+
+            self.set_settings_to_gui()
+            # Show the encoding
+            visualize_dialog = VisualizeMseqEncodingDialog(n_row=n_row, n_col=n_col, base=base, order=order,
+                monitor_rate=monitor_rate, item_list=self.settings.encoding_settings.matrices[0].item_list,
+                lags_info=lags_info)
+            if visualize_dialog.exec_():
+                if any(item in lags_info['bad_lags'] for item in lags_info['lags']):
+                    warn_msg = "Careful, I could not optimize the lags enough for" \
+                               " this configuration, so the correlation for" \
+                               " command(s) %s is not minimum!" % ','.join(
+                        visualize_dialog.bad_cmds)
+                    warning_dialog(warn_msg, 'Be careful!')
+        # Burst sequence
+        elif getattr(self, f"comboBox_seq_type_{l_idx}").currentText() == "Burst sequence":
+            temp_matrix = self.settings.encoding_settings.build_with_burst_sequences(
+                n_row=n_row, n_col=n_col, burstseqlen=burstseqlen, n_burst=n_burst, f_burst=f_burst)
+            close_burst = False
+            overlap_burst = False
+            warn_msgs = []
+            # Check everything is correct
+            burst_info = temp_matrix[0].info_seq
+            if burst_info['min_inter_burst_intra_code'] < 1:
+                error_msg = ('Two bursts are overlapping within the same code. '
+                             'Adjust parameters to ensure a non-zero interburst '
+                             'duration.')
+                error_dialog(error_msg, 'Oops!')
+                return
+            if 1 <= burst_info['min_inter_burst_intra_code'] < 6:
+                warn_msgs.append('The minimal inter burst duration within some of the codes '
+                            'is too short (less than 6 frames). Consider adjusting input '
+                            'parameters to increase spacing between bursts.')
+                close_burst = True
+            if ((n_row*n_col*n_burst > burstseqlen) or
+                    burst_info['min_inter_burst_inter_code'] < f_burst):
+                warn_msgs.append('The end of the burst from one code overlaps with the beggining '
+                            'of the burst from a different code. Consider adjusting input '
+                            'parameters to avoid overlapping bursts.')
+                overlap_burst = True
+            if warn_msgs:
+                full_msg = "\n\n".join(warn_msgs)
+                warning_dialog(full_msg, 'Be careful!')
+            self.settings.encoding_settings.matrices = temp_matrix
+            # Update the gui
+            unique = self.settings.encoding_settings.get_unique_sequence_values()
+            c_box, op_box, c_text, op_text = settings.Colors.generate_grey_color_dicts(unique)
+            self.settings.colors = settings.Colors(color_box_dict=c_box, opacity_box_dict=op_box,
+                                                   color_text_dict=c_text, opacity_text_dict=op_text)
+
+            self.set_settings_to_gui()
+            # Show the encoding
+            visualize_dialog = VisualizeBurstEncodingDialog(
+                item_list=self.settings.encoding_settings.matrices[0].item_list,
+                burst_info=burst_info, close_burst=close_burst, overlap_burst=overlap_burst)
+            visualize_dialog.exec_()
 
     # --------------------- Colors ------------------------
     def open_color_dialog(self, handle):
@@ -915,14 +989,14 @@ class TargetConfigDialog(QtWidgets.QDialog, ui_target_file):
         self.input_target_sequence.setText(str(target.sequence))
 
 
-class VisualizeEncodingDialog(QtWidgets.QDialog, ui_encoding_file):
+class VisualizeMseqEncodingDialog(QtWidgets.QDialog, ui_encoding_file_mseq):
     def __init__(self, n_row, n_col, base, order, monitor_rate, item_list,
                  lags_info):
         QtWidgets.QDialog.__init__(self)
         self.setupUi(self)  # Attach the .ui
         self.setWindowFlags(
             self.windowFlags() & ~Qt.WindowContextHelpButtonHint)
-        self.TAG = '[apps/cvep_speller/config_encoding] '
+        self.TAG = '[apps/cvep_speller/config_encoding_mseq] '
 
         # Initialize the dialog
         theme_colors = gui_utils.get_theme_colors('dark')
@@ -1056,3 +1130,76 @@ class VisualizeEncodingDialog(QtWidgets.QDialog, ui_encoding_file):
         rxx = np.array(rxx)
         return rxx, t
 
+class VisualizeBurstEncodingDialog(QtWidgets.QDialog, ui_encoding_file_burst):
+    def __init__(self, item_list, burst_info, close_burst, overlap_burst):
+        QtWidgets.QDialog.__init__(self)
+        self.setupUi(self)  # Attach the .ui
+        self.setWindowFlags(
+            self.windowFlags() & ~Qt.WindowContextHelpButtonHint)
+        self.TAG = '[apps/cvep_speller/config_encoding_burst] '
+
+        # Initialize the dialog
+        theme_colors = gui_utils.get_theme_colors('dark')
+        self.stl = gui_utils.set_css_and_theme(self, theme_colors)
+        self.setWindowIcon(QtGui.QIcon('gui/images/medusa_task_icon.png'))
+        self.setWindowTitle('c-VEP target customization')
+
+        # Initialize the canvas
+        self.fig_encoding = Figure(figsize=(60, 30), dpi=150, )
+        self.canvas_encoding = FigureCanvas(figure=self.fig_encoding)
+        self.layout_encoding.addWidget(self.canvas_encoding)
+        self.axes_encoding = self.fig_encoding.add_subplot(111)
+
+        # Encoding plot
+        SMALL_SIZE = 4
+        MEDIUM_SIZE = 6
+        plt.rcParams.update({'font.size': 4})
+
+        commands = []
+        all_sequences = []
+
+        for item in item_list:
+            commands.append(item.text)
+            all_sequences.append(np.array(item.sequence))
+
+        max_len = max(len(seq) for seq in all_sequences)
+        padded_sequences = np.array([
+            np.pad(seq, (0, max_len - len(seq)), mode='constant') for seq in all_sequences
+        ])
+
+        with plt.style.context('dark_background'):
+            self.axes_encoding.imshow(padded_sequences, aspect='auto', cmap='gray_r')
+            self.axes_encoding.set_yticks(np.arange(len(commands)))
+            self.axes_encoding.set_yticklabels(commands)
+            self.axes_encoding.set_title('Command encoding', fontsize=MEDIUM_SIZE)
+            self.axes_encoding.set_xlabel('Sequence (samples)', fontsize=MEDIUM_SIZE)
+            self.axes_encoding.set_ylabel('Commands', fontsize=MEDIUM_SIZE)
+            self.axes_encoding.tick_params(axis='x', labelsize=SMALL_SIZE)
+            self.axes_encoding.tick_params(axis='y', labelsize=SMALL_SIZE)
+
+        pos = self.axes_encoding.get_position()
+        pos.x0 = 0.1
+        pos.y0 = 0.15
+        self.axes_encoding.set_position(pos)
+        self.fig_encoding.patch.set_alpha(0.5)
+        self.canvas_encoding.draw()
+
+        # Burst details
+        self.min_inter_burst_intra_code.setText(f"{burst_info['min_inter_burst_intra_code']} frames")
+        self.max_inter_burst_intra_code.setText(f"{burst_info['max_inter_burst_intra_code']} frames")
+        self.min_inter_burst_inter_code.setText(f"{burst_info['min_inter_burst_inter_code']} frames")
+        self.max_inter_burst_inter_code.setText(f"{burst_info['max_inter_burst_inter_code']} frames")
+
+        # Advise
+        if not close_burst and not overlap_burst:
+            self.messages.setText("✔️ Encoding is correct!")
+            self.messages.setStyleSheet("color: limegreen;")
+        else:
+            warning_msgs = []
+            if close_burst:
+                warning_msgs.append("bursts within the same code are quite close")
+            if overlap_burst:
+                warning_msgs.append("bursts are overlapping")
+            warning_text = " and ".join(warning_msgs)
+            self.messages.setText(f"⚠️ Careful, {warning_text}")
+            self.messages.setStyleSheet("color: yellow;")

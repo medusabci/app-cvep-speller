@@ -1,5 +1,5 @@
 from medusa.components import SerializableComponent
-from medusa.bci.cvep_spellers import LFSR, LFSR_PRIMITIVE_POLYNOMIALS
+from medusa.bci.cvep_spellers import LFSR, LFSR_PRIMITIVE_POLYNOMIALS, Burst
 from gui import gui_utils as gu
 from .app_constants import *
 import numpy as np
@@ -11,7 +11,7 @@ import json
 class Settings(SerializableComponent):
 
     def __init__(self, connection_settings=None, run_settings=None,
-                 timings=None, colors=None, background=None, matrices=None):
+                 timings=None, colors=None, background=None, encoding_settings=None):
         self.connection_settings = connection_settings if \
             connection_settings is not None else ConnectionSettings()
         self.run_settings = run_settings if \
@@ -19,26 +19,24 @@ class Settings(SerializableComponent):
         self.timings = timings if timings is not None else Timings()
         self.colors = colors
         self.background = background if background is not None else Background()
-        self.matrices = matrices
-        if matrices is None:
-            self.matrices = self.build_with_pary_sequences()
+        self.encoding_settings = encoding_settings or EncodingSettings()
         if colors is None:
-            unique = self.get_unique_sequence_values()
+            unique = self.encoding_settings.get_unique_sequence_values()
             c_box, op_box, c_text, op_text = Colors.generate_grey_color_dicts(unique)
             self.colors = Colors(color_box_dict=c_box, opacity_box_dict=op_box,
                                  color_text_dict=c_text, opacity_text_dict=op_text)
 
     def to_serializable_obj(self):
-        matrices = []
-        for matrix in self.matrices:
-            matrices.append(matrix.serialize())
+        matrices = [m.serialize() for m in self.encoding_settings.matrices]
 
         sett_dict = {'connection_settings': self.connection_settings.__dict__,
                      'run_settings': self.run_settings.__dict__,
                      'timings': self.timings.__dict__,
-                     'matrices': matrices,
                      'colors': self.colors.__dict__,
-                     'background': self.background.__dict__
+                     'background': self.background.__dict__,
+                     'encoding_settings': {
+                         'seq_type': self.encoding_settings.seq_type,
+                         'matrices': matrices}
                      }
         return sett_dict
 
@@ -53,215 +51,26 @@ class Settings(SerializableComponent):
         # Matrices
         matrices = []
         item_list = list()
-        m = settings_dict['matrices']
+        m = settings_dict['enconding_settings']['matrices']
         for i in m['item_list']:
             target = CVEPTarget(text=i['text'],
                                 label=i['label'],
-                                sequence=i['sequence'],
-                                lag=i['lag'])
+                                sequence=i['sequence'])
             item_list.append(target)
-        matrix = CVEPMatrix(n_row=m['n_row'], n_col=m['n_col'], info_lags=m['info_lags'])
+        matrix = CVEPMatrix(n_row=m['n_row'], n_col=m['n_col'], info_seq=m['info_seq'])
         matrix.item_list = item_list
         matrix.organize_matrix()
         matrices.append(matrix)
+        encoding_settings = EncodingSettings(
+            seq_type=settings_dict['encoding_settings']['seq_type'],
+            matrices=matrices
+        )
         return Settings(connection_settings=conn_sett,
                         run_settings=run_sett,
                         timings=timings,
                         colors=colors,
                         background=background,
-                        matrices=matrices)
-
-    def get_unique_sequence_values(self):
-        unique_values = []
-        for m in self.matrices:
-            for i in m.item_list:
-                unique_values += list(np.unique(i.sequence))
-        return list(np.unique(unique_values))
-
-    @staticmethod
-    def get_coords_from_labels(labels, matrices):
-        coords = []
-        for label in labels:
-            label_coord = None
-            for idx, matrix in enumerate(matrices):
-                target = matrix.get_target_from_label(label)
-                if len(target) > 1:
-                    print('WARNING in get_codes_from_labels: more than one '
-                          'command for label %s, taking the first one' % label)
-                if len(target) > 0:
-                    label_coord = [idx, target[0].row, target[0].col]
-                    break
-            if label_coord is None:
-                raise ValueError("Label %s not found" % label)
-            coords.append(label_coord)
-        return coords
-
-    @staticmethod
-    def build_with_pary_sequences(n_row=4, n_col=4, base=2, order=6):
-        """ Computes a predefined standard c-VEP matrix that modulates commands
-        using a single-sequence via circular shifting.
-
-        Parameter
-        -----------
-        n_row: int
-            Number of rows.
-        n_col: int
-            Number of columns.
-        base: int
-            Base of the sequence (must be prime).
-        order: int
-            Order of the sequence (length will be L = base^order - 1).
-
-        Returns
-        --------
-        matrix : CVEPMatrix
-            Structured matrix object.
-        """
-        # Number of commands supported
-        no_commands = n_row * n_col
-        mseqlen = base ** order - 1
-        tau = mseqlen / no_commands
-
-        # Init
-        comms = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789/*-+.,' \
-                '_abcdefghijklmnopqrstuvwxyz'
-        comms *= 20
-        comms_ = comms[:no_commands]
-
-        # M-sequence generation
-        if base not in LFSR_PRIMITIVE_POLYNOMIALS['base']:
-            raise ValueError('[cvep_speller/settings] Base %i not supported!'
-                             % base)
-        if order not in LFSR_PRIMITIVE_POLYNOMIALS['base'][base]['order']:
-            raise ValueError('[cvep_speller/settings] Cannot find any '
-                             'primitive polynomial of order %i for base %i'
-                             % (order, base))
-        poly_ = LFSR_PRIMITIVE_POLYNOMIALS['base'][base]['order'][order]
-        seq = LFSR(poly_, base=base).sequence
-        centered_seq = LFSR(poly_, base=base, center=True).sequence
-
-        # Optimize correlations
-        rxx_, tr_ = Settings.autocorr_circular(centered_seq)
-        rxx_ = rxx_ / np.max(np.abs(rxx_))
-        half_rxx = rxx_[int(len(rxx_)/2):]
-        min_p = - min(np.abs(np.unique(half_rxx)))
-        bad_indexes = np.where(half_rxx != min_p)[0][1:]
-        lags = np.linspace(0, len(seq), no_commands + 1)[:-1].astype(int)
-        if any(item in bad_indexes for item in lags):
-            # Need to optimize: there are non-minimal correlations
-            tau = (len(seq) - len(bad_indexes)) / no_commands
-            temp_lags = np.linspace(0, len(seq) - len(bad_indexes),
-                                    no_commands + 1).astype(int)[:-1]
-
-            good_idxs = np.arange(0, len(seq))
-            good_idxs = np.delete(good_idxs, bad_indexes)
-            lags = good_idxs[temp_lags]
-        info_lags = {
-            'tau': tau,
-            'lags': lags.tolist(),
-            'bad_lags': bad_indexes.tolist(),
-        }
-        if tau <= 1:
-            print('[cvep_speller/settings] Sequence length is not enough to '
-                  'encode all commands. Please, reduce the number of commands '
-                  '(%i) or increment the sequence length (supported lengths: '
-                  '31, 63, 127 or 255)' % no_commands)
-        if any(item in bad_indexes for item in lags):
-            print('[cvep_speller/settings] Could not find any optimal '
-                  'distributions of lags for this configuration!')
-
-        # Set up the matrix
-        matrix = CVEPMatrix(n_row, n_col, info_lags=info_lags)
-        for idx, c in enumerate(comms_):
-            seq_ = circular_shift(sequence=seq, lag=lags[idx])
-            target = CVEPTarget(text=c, label=c, sequence=seq_)
-            matrix.append(target)
-        matrix.organize_matrix()
-
-        matrices = [matrix]
-        return matrices
-
-    @staticmethod
-    def autocorr_circular(x):
-        """ With circular shifts (periodic correlation) """
-        N = len(x)
-        rxx = []
-        t = []
-        for i in range(-(N - 1), N):
-            rxx.append(np.sum(x * np.roll(x, i)))
-            t.append(i)
-        rxx = np.array(rxx)
-        return rxx, t
-
-    @staticmethod
-    def standard_single_sequence_matrices(n_row=4, n_col=4, mseqlen=63):
-        """ Computes a predefined standard c-VEP matrix that modulates commands
-        using a single-sequence via circular shifting.
-
-        Parameter
-        -----------
-        n_row: int
-            Number of rows.
-        n_col: int
-            Number of columns.
-        mseqlen: int
-            Length of the binary m-sequence (supported 31, 63, 127, 255)
-
-        Returns
-        --------
-        matrix : CVEPMatrix
-            Structured matrix object.
-        """
-        # Number of commands supported
-        no_commands = n_row * n_col
-        tau = mseqlen / no_commands
-        if tau < 1:
-            raise ValueError('[cvep_speller/settings] Sequence length is not '
-                             'enough to encode all commands. Please, reduce '
-                             'the number of commands (%i) or increment the '
-                             'sequence length (supported lengths: 31, 63, '
-                             '127 or 255)' % no_commands)
-
-        # Init
-        comms = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789/*-+.,' \
-                '_abcdefghijklmnopqrstuvwxyz'
-        comms *= 20
-        comms_ = comms[:no_commands]
-        lags = np.linspace(0, mseqlen, no_commands + 1)[:-1].astype(int).tolist()
-
-        # M-sequence generation
-        if mseqlen == 31:
-            poly_ = LFSR_PRIMITIVE_POLYNOMIALS['base'][2]['order'][5]
-            m_seq = LFSR(poly_, base=2)
-        elif mseqlen == 63:
-            poly_ = LFSR_PRIMITIVE_POLYNOMIALS['base'][2]['order'][6]
-            m_seq = LFSR(poly_, base=2, seed=[1, 1, 1, 1, 1, 0])
-        elif mseqlen == 127:
-            poly_ = LFSR_PRIMITIVE_POLYNOMIALS['base'][2]['order'][7]
-            m_seq = LFSR(poly_, base=2)
-        elif mseqlen == 255:
-            poly_ = LFSR_PRIMITIVE_POLYNOMIALS['base'][2]['order'][8]
-            m_seq = LFSR(poly_, base=2)
-        else:
-            raise ValueError('[cvep_speller/settings] Sequence length of %i '
-                             'not supported (use 31, 63, 127 or 255)!' %
-                             mseqlen)
-        seq = m_seq.sequence
-
-        info_lags = {
-            'tau': tau,
-            'lags': lags
-        }
-        # Set up the matrix
-        matrix = CVEPMatrix(n_row, n_col, info_lags=info_lags)
-        for idx, c in enumerate(comms_):
-            seq_ = circular_shift(sequence=seq, lag=lags[idx])
-            target = CVEPTarget(text=c, label=c, sequence=seq_)
-            matrix.append(target)
-        matrix.organize_matrix()
-
-        matrices = [matrix]
-        return matrices
+                        encoding_settings=encoding_settings)
 
 class ConnectionSettings:
 
@@ -372,9 +181,186 @@ class Background:
         self.color_background = color_background
         self.scenario_path = scenario_path
 
+class EncodingSettings:
+    def __init__(self, seq_type='M-sequence', matrices=None):
+        self.seq_type = seq_type # 'M-sequence' or 'Burst sequence'
+        self.matrices = matrices
+        if matrices is None:
+            if self.seq_type == 'M-sequence':
+                self.matrices = self.build_with_pary_sequences()
+            elif self.seq_type == 'Burst sequence':
+                self.matrices = self.build_with_burst_sequences()
+
+    @staticmethod
+    def build_with_pary_sequences(n_row=4, n_col=4, base=2, order=6):
+        """ Computes a predefined standard c-VEP matrix that modulates commands
+        using a single-sequence via circular shifting.
+
+        Parameter
+        -----------
+        n_row: int
+            Number of rows.
+        n_col: int
+            Number of columns.
+        base: int
+            Base of the sequence (must be prime).
+        order: int
+            Order of the sequence (length will be L = base^order - 1).
+
+        Returns
+        --------
+        matrix : CVEPMatrix
+            Structured matrix object.
+        """
+        # Number of commands supported
+        no_commands = n_row * n_col
+        mseqlen = base ** order - 1
+        tau = mseqlen / no_commands
+
+        # Init
+        comms = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789/*-+.,' \
+                '_abcdefghijklmnopqrstuvwxyz'
+        comms *= 20
+        comms_ = comms[:no_commands]
+
+        # M-sequence generation
+        if base not in LFSR_PRIMITIVE_POLYNOMIALS['base']:
+            raise ValueError('[cvep_speller/settings] Base %i not supported!'
+                             % base)
+        if order not in LFSR_PRIMITIVE_POLYNOMIALS['base'][base]['order']:
+            raise ValueError('[cvep_speller/settings] Cannot find any '
+                             'primitive polynomial of order %i for base %i'
+                             % (order, base))
+        poly_ = LFSR_PRIMITIVE_POLYNOMIALS['base'][base]['order'][order]
+        seq = LFSR(poly_, base=base).sequence
+        centered_seq = LFSR(poly_, base=base, center=True).sequence
+
+        # Optimize correlations
+        rxx_, tr_ = EncodingSettings.autocorr_circular(centered_seq)
+        rxx_ = rxx_ / np.max(np.abs(rxx_))
+        half_rxx = rxx_[int(len(rxx_) / 2):]
+        min_p = - min(np.abs(np.unique(half_rxx)))
+        bad_indexes = np.where(half_rxx != min_p)[0][1:]
+        lags = np.linspace(0, len(seq), no_commands + 1)[:-1].astype(int)
+        if any(item in bad_indexes for item in lags):
+            # Need to optimize: there are non-minimal correlations
+            tau = (len(seq) - len(bad_indexes)) / no_commands
+            temp_lags = np.linspace(0, len(seq) - len(bad_indexes),
+                                    no_commands + 1).astype(int)[:-1]
+
+            good_idxs = np.arange(0, len(seq))
+            good_idxs = np.delete(good_idxs, bad_indexes)
+            lags = good_idxs[temp_lags]
+        info_lags = {
+            'tau': tau,
+            'lags': lags.tolist(),
+            'bad_lags': bad_indexes.tolist(),
+        }
+        if tau <= 1:
+            print('[cvep_speller/settings] Sequence length is not enough to '
+                  'encode all commands. Please, reduce the number of commands '
+                  '(%i) or increment the sequence length (supported lengths: '
+                  '31, 63, 127 or 255)' % no_commands)
+        if any(item in bad_indexes for item in lags):
+            print('[cvep_speller/settings] Could not find any optimal '
+                  'distributions of lags for this configuration!')
+
+        # Set up the matrix
+        matrix = CVEPMatrix(n_row, n_col, info_seq=info_lags)
+        for idx, c in enumerate(comms_):
+            seq_ = circular_shift(sequence=seq, lag=lags[idx])
+            target = CVEPTarget(text=c, label=c, sequence=seq_)
+            matrix.append(target)
+        matrix.organize_matrix()
+
+        matrices = [matrix]
+        return matrices
+
+    @staticmethod
+    def build_with_burst_sequences(n_row=4, n_col=4, burstseqlen=132, n_burst=4, f_burst=1):
+        """ Computes a predefined standard c-VEP matrix that modulates commands
+                using multiple burst sequences.
+
+                Parameter
+                -----------
+                n_row: int
+                    Number of rows.
+                n_col: int
+                    Number of columns.
+                seq_len: int
+                    Sequence length in bits.
+                n_burst: int
+                    Number of bursts per sequence.
+                f_burst: int
+                    Duration of each burst in frames.
+
+                Returns
+                --------
+                matrix : CVEPMatrix
+                    Structured matrix object.
+                """
+        # Number of commands supported
+        no_commands = n_row * n_col
+        # Init
+        comms = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789/*-+.,' \
+                '_abcdefghijklmnopqrstuvwxyz'
+        comms *= 20
+        comms_ = comms[:no_commands]
+
+        # Burst sequenece generation
+        seqs, info_burst = Burst.gen_codes(n=no_commands, length=burstseqlen, n_bursts=n_burst, f_burst=f_burst)
+
+        # Set up the matrix
+        matrix = CVEPMatrix(n_row, n_col, info_seq=info_burst)
+        for idx, c in enumerate(comms_):
+            seq_ = seqs[idx]
+            target = CVEPTarget(text=c, label=c, sequence=seq_)
+            matrix.append(target)
+        matrix.organize_matrix()
+
+        matrices = [matrix]
+        return matrices
+
+    def get_unique_sequence_values(self):
+        unique_values = []
+        for m in self.matrices:
+            for i in m.item_list:
+                unique_values += list(np.unique(i.sequence))
+        return list(np.unique(unique_values))
+
+    @staticmethod
+    def get_coords_from_labels(labels, matrices):
+        coords = []
+        for label in labels:
+            label_coord = None
+            for idx, matrix in enumerate(matrices):
+                target = matrix.get_target_from_label(label)
+                if len(target) > 1:
+                    print('WARNING in get_codes_from_labels: more than one '
+                          'command for label %s, taking the first one' % label)
+                if len(target) > 0:
+                    label_coord = [idx, target[0].row, target[0].col]
+                    break
+            if label_coord is None:
+                raise ValueError("Label %s not found" % label)
+            coords.append(label_coord)
+        return coords
+
+    @staticmethod
+    def autocorr_circular(x):
+        """ With circular shifts (periodic correlation) """
+        N = len(x)
+        rxx = []
+        t = []
+        for i in range(-(N - 1), N):
+            rxx.append(np.sum(x * np.roll(x, i)))
+            t.append(i)
+        rxx = np.array(rxx)
+        return rxx, t
+
 class CVEPMatrix:
 
-    def __init__(self, n_row=-1, n_col=-1, info_lags=None):
+    def __init__(self, n_row=-1, n_col=-1, info_seq=None):
         """ Class that represents a c-VEP matrix.
 
         Attribute `item_list` encompasses a vector of commands, while
@@ -390,13 +376,15 @@ class CVEPMatrix:
         n_col: int
             (Optional, default:-1) Number of columns of the output matrix.
             If -1, `n_col` will be taken from the class.
-        info_lags : dict()
+        info_seq : dict()
             (Optional, default: None) Sometimes is useful to store additional
-            info such as tau or lag positions for circular shifted c-VEPs.
+            info from the sequences such as tau or lag positions for circular
+            shifted c-VEPs or burst onsets, distances, etc. for burst based
+            c-VEPs.
         """
         self.n_row = n_row
         self.n_col = n_col
-        self.info_lags = info_lags
+        self.info_seq = info_seq
 
         self.item_list = []  # Vector of targets
         self.matrix_list = []  # Matrix of targets.
@@ -475,7 +463,7 @@ class CVEPMatrix:
             items.append(i.to_dict())
         return {"n_row": self.n_row,
                 "n_col": self.n_col,
-                "info_lags": self.info_lags,
+                "info_seq": self.info_seq,
                 "item_list": items}
 
 class CVEPTarget:
