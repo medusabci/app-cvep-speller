@@ -65,8 +65,10 @@ class App(resources.AppSkeleton):
         mode_ = 'train' if self.app_settings.run_settings.mode != \
                            ONLINE_MODE else 'test'
 
-        target_ = self.app_settings.encoding_settings.get_coords_from_labels(
+        target_coords = self.app_settings.encoding_settings.get_coords_from_labels(
             self.app_settings.run_settings.train_target, self.app_settings.encoding_settings.matrices)
+        n_col = self.app_settings.encoding_settings.matrices[0].n_col
+        target_idx = [n_col*target[1] + target[2] for target in target_coords]
         self.cvep_data = cvep.CVEPSpellerData(
             mode=mode_,
             paradigm_conf=conf,
@@ -81,7 +83,7 @@ class App(resources.AppSkeleton):
             cvep_model=None,
             spell_result=[],
             fps_resolution=self.app_settings.run_settings.fps_resolution,
-            spell_target=target_
+            spell_target=target_idx
         )
 
         # Debugging?
@@ -120,24 +122,43 @@ class App(resources.AppSkeleton):
             )
 
     def check_settings_config(self, app_settings):
+        """Check settings config.
+        By default, this function check if unity path exits"""
+
+        def is_shifted_version(seq1, seq2):
+            if len(seq1) != len(seq2):
+                return False
+            for j in range(len(seq1)):
+                if np.all(np.array(seq1) == np.roll(seq2, -j)):
+                    return True
+            return False
+
         if app_settings.run_settings.mode == ONLINE_MODE:
             # Check if we are on online and no model is specified
             if app_settings.run_settings.cvep_model_path == '':
                 raise exceptions.IncorrectSettingsConfig(
                     "Cannot run ONLINE mode if c-VEP model is missing")
             # Check if the model has been trained with the same sequence
-            curr_seq = tuple(app_settings.matrices[0].item_list[
+            curr_seq = tuple(app_settings.encoding_settings.matrices[0].item_list[
                 0].sequence)
             with open(app_settings.run_settings.cvep_model_path, 'rb') as h:
                 cvep_model = pickle.load(h)
-            trained_seq = list(cvep_model.methods['clf_method']['instance'].
-                               fitted['sequences'].keys())[0]
-            if curr_seq != trained_seq:
-                raise exceptions.IncorrectSettingsConfig(
-                    "It seems that the model (%s) has been trained using a "
-                    "different sequence! Please, train a new model using the "
-                    "desired sequence" %
-                    app_settings.run_settings.cvep_model_path)
+            if isinstance(cvep_model, cvep.CVEPModelCircularShifting):
+                trained_seq = list(cvep_model.methods['clf_method']['instance'].
+                                   fitted['sequences'].keys())[0]
+                if curr_seq != trained_seq and not \
+                        is_shifted_version(curr_seq, trained_seq):
+                    raise exceptions.IncorrectSettingsConfig(
+                        "It seems that the model (%s) has been trained using a "
+                        "different sequence! Please, train a new model using "
+                        "the desired sequence" %
+                        app_settings.run_settings.cvep_model_path)
+            elif isinstance(cvep_model, (cvep.CMDModelBWRLDA,
+                                        cvep.CMDModelBWREEGInception,
+                                        cvep.CVEPModelBWRRiemannianLDA)):
+                pass
+            else:
+                raise exceptions.IncorrectSettingsConfig('Unknown model type!')
 
     def get_eeg_worker_name(self, working_lsl_streams_info):
         for lsl_info in working_lsl_streams_info:
@@ -226,38 +247,30 @@ class App(resources.AppSkeleton):
                 if self.cvep_model is None:
                     raise Exception('[cvep_speller] Cannot process the trial '
                                     'if the model has not been trained before!')
+                fps= self.cvep_data.fps_resolution
+                seq_len = len(self.app_settings.encoding_settings.matrices[0].item_list[0].sequence)
+                onsets = self.cvep_data.onsets
+                times_, signal_, fs, channels, equip = self.get_eeg_data()
                 # We need to wait until the signal from the last onset is
                 # enough to extract the full epoch
-                if not self.cvep_model.check_predict_feasibility(
-                        self.get_current_dataset()):
+                if isinstance(self.cvep_model, cvep.CVEPModelCircularShifting) \
+                        and not self.cvep_model.check_predict_feasibility_signal(
+                       times_, onsets, fs):
+                    print('[cvep_speller] Epoch length is not enough, '
+                              'waiting for more samples...')
+                elif isinstance(self.cvep_model, (cvep.CVEPModelBWRRiemannianLDA,
+                                                  cvep.CMDModelBWREEGInception,
+                                                  cvep.CMDModelBWRLDA)) \
+                        and not self.cvep_model.check_predict_feasibility_signal(
+                        times_, onsets, fps, seq_len, fs):
                     print('[cvep_speller] Epoch length is not enough, '
                               'waiting for more samples...')
                 else:
                     self.process_required = False
                     decoding = self.process_trial()
-
-                    # Notify UNITY about the selected character
-                    # todo: matrix, level, unit etc
-                    # Aclaration:
-                    # 1) [-1] to access the last cycle (max no. cycles)
-                    # 2) [-1] to access the last and unique training seq
-                    # 3) ['sorted_cmds'] to access the commands sorted by
-                    # their probability of being selected
-                    # 4) [0] to get the most probable command
-                    # 5) ['coords'][0] to get the matrix index
-                    #    ['item']['row'] to get the row inside the matrix
-                    #    ['item']['col'] to get the col inside the matrix
-                    coords_ = [
-                        decoding['items_by_no_cycle'][-1][-1][
-                            'sorted_cmds'][0]['coords'][0],
-                        decoding['items_by_no_cycle'][-1][-1][
-                                'sorted_cmds'][0]['item']['row'],
-                        decoding['items_by_no_cycle'][-1][-1][
-                                'sorted_cmds'][0]['item']['col']
-                    ]
                     self.app_controller.notify_selection(
-                            selection_coords=coords_,
-                            selection_label=decoding['spell_result'][0]
+                            selection_coords=decoding['coords'],
+                            selection_label=decoding['cmd_label']
                     )
         print(TAG, 'Terminated')
 
@@ -461,17 +474,60 @@ class App(resources.AppSkeleton):
             self.handle_exception(Exception('[cvep_speller] Cannot process the '
                                             'trial if the model has not been'
                                             ' trained before!'))
+        decoding = dict()
 
-        # Get current data
-        last_idx = self.cvep_data.trial_idx[-1]
+        # Get current eeg data
         times_, signal_, fs, channels, equip = self.get_eeg_data()
         eeg = meeg.EEG(times_, signal_, fs, channels, equipement=equip)
 
         # Process the last trial
-        decoding = self.cvep_model.predict(times=times_, signal=signal_,
-                                           trial_idx=last_idx,
-                                           exp_data=self.cvep_data,
-                                           sig_data=eeg)
+        if isinstance(self.cvep_model, cvep.CVEPModelCircularShifting):
+            prediction = self.cvep_model.predict(times=times_, signal=signal_,
+                                               trial_idx=self.cvep_data.trial_idx[-1],
+                                               exp_data=self.cvep_data,
+                                               sig_data=eeg)
+            label = prediction['spell_result']
+            coords = self.app_settings.encoding_settings.get_coords_from_labels(
+            label, self.app_settings.encoding_settings.matrices)
+            decoding = {
+                'coords': coords[0],
+                'cmd_label': label,
+            }
+        elif isinstance(self.cvep_model, (cvep.CMDModelBWRLDA,
+                                          cvep.CMDModelBWREEGInception,
+                                          cvep.CVEPModelBWRRiemannianLDA)):
+            # Get sequence of first command
+            seq_len = len(self.app_settings.encoding_settings.matrices[0].item_list[0].sequence)
+            # Get trial idx to send only the last command
+            trial_idx = self.cvep_data.trial_idx.astype(int)
+            last_trial_idx = trial_idx == trial_idx[-1]
+            # Get last trial info
+            x_info = dict()
+            x_info['fps'] = self.cvep_data.fps_resolution
+            x_info['code_len'] = seq_len
+            x_info['commands_info'] = [self.cvep_data.commands_info]
+            x_info['run_idx'] = \
+                np.zeros_like(trial_idx).astype(int)[last_trial_idx]
+            x_info['trial_idx'] = \
+                trial_idx[last_trial_idx]
+            x_info['cycle_idx'] = \
+                self.cvep_data.cycle_idx.astype(int)[last_trial_idx]
+            x_info['cycle_onsets'] = \
+                self.cvep_data.onsets[last_trial_idx]
+            # Process the last trial
+            cmds, __, __ = self.cvep_model.predict(times=times_,
+                                                  signal=signal_,
+                                                  fs=fs,
+                                                  channel_set=channels,
+                                                  x_info=x_info)
+            cmd = cmds[-1][-1][-1]
+            cmd_item = self.cvep_data.commands_info[cmd[0]][cmd[1]]
+            coords = [cmd[0], cmd_item['row'], cmd_item['col']]
+            label = cmd_item['label']
+            decoding = {
+                'coords': coords,
+                'cmd_label': label,
+            }
         return decoding
 
     def get_conf(self, mode):

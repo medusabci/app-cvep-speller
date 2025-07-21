@@ -71,69 +71,48 @@ class Config(QtWidgets.QDialog, ui_main_file):
         self.btn_load.clicked.connect(self.load)
         self.btn_done.clicked.connect(self.done)
 
-        # Stimuli buttons (to switch layers)
-        self.btn_plain.clicked.connect(self.on_stimuli_changed)
-        self.btn_grating.clicked.connect(self.on_stimuli_changed)
-        self.btn_checkerboard.clicked.connect(self.on_stimuli_changed)
+        # Run settings buttons
+        self.comboBox_mode.currentIndexChanged.connect(self.on_mode_changed)
+        self.btn_browse_cvepmodel.clicked.connect(self.browse_model)
+        self.spinBox_fpsresolution.valueChanged.connect(self.on_fpsresolution_changed)
+        self.checkBox_show_point.stateChanged.connect(self.on_midpoint_changed)
+        # Color buttons
+        color_buttons = ["btn_color_target_box", "btn_color_highlight_result_box",
+            "btn_color_fps_good", "btn_color_fps_bad",
+            "btn_color_result_info_box", "btn_color_result_info_label",
+            "btn_color_result_info_text", "btn_color_point",
+            "btn_color_background"
+        ]
+        for btn_name in color_buttons:
+            btn = getattr(self, f"{btn_name}")
+            btn.clicked.connect(self.open_color_dialog(btn))
+        # Background buttons
+        self.comboBox_scenario_name.currentIndexChanged.connect(self.on_background_changed)
+        self.btn_browse_scenario.clicked.connect(self.browse_scenario)
+        # Encoding and matrix buttons
+        self.comboBox_seq_type.currentTextChanged.connect(self.on_seq_type_changed)
+        # M-sequence
+        self.comboBox_base.currentTextChanged.connect(self.on_base_changed)
+        self.comboBox_order.currentTextChanged.connect(self.update_encoding_info)
+        # Burst
+        self.spinBox_seqlength_burst.valueChanged.connect(self.update_encoding_info)
+        self.btn_update_matrix.clicked.connect(self.update_matrix)
+        # Train model buttons
+        self.comboBox_classifier.currentTextChanged.connect(self.on_classifier_changed)
+        self.btn_train_model.clicked.connect(self.train_model)
+        # Train model buttons
+        table = self.tableWidget_bpf
+        table.setContextMenuPolicy(Qt.CustomContextMenu)
+        table.customContextMenuRequested.connect(self.on_custom_table_menu)
 
-        for l_idx in range(1, 2):
-            # Run settings buttons
-            getattr(self, f"comboBox_mode_{l_idx}").currentIndexChanged.connect(
-                self.on_mode_changed)
-            getattr(self, f"btn_browse_cvepmodel_{l_idx}").clicked.connect(
-                self.browse_model)
-            getattr(self, f"spinBox_fpsresolution_{l_idx}").valueChanged.connect(
-                self.on_fpsresolution_changed)
-            getattr(self, f"checkBox_show_point_{l_idx}").stateChanged.connect(self.on_midpoint_changed)
-            # Color buttons
-            color_buttons = ["btn_color_target_box", "btn_color_highlight_result_box",
-                "btn_color_fps_good", "btn_color_fps_bad",
-                "btn_color_result_info_box", "btn_color_result_info_label",
-                "btn_color_result_info_text", "btn_color_point",
-                "btn_color_background"
-            ]
-            for btn_name in color_buttons:
-                btn = getattr(self, f"{btn_name}_{l_idx}")
-                btn.clicked.connect(self.open_color_dialog(btn))
-            # Background buttons
-            getattr(self, f"comboBox_scenario_name_{l_idx}").currentIndexChanged.connect(
-                self.on_background_changed)
-            getattr(self, f"btn_browse_scenario_{l_idx}").clicked.connect(
-                self.browse_scenario)
-            # Encoding and matrix buttons
-            getattr(self, f"comboBox_seq_type_{l_idx}").currentTextChanged.connect(
-                self.on_seq_type_changed)
-            # M-sequence
-            getattr(self, f"comboBox_base_{l_idx}").currentTextChanged.connect(
-                self.on_base_changed)
-            getattr(self, f"comboBox_order_{l_idx}").currentTextChanged.connect(
-                self.update_encoding_info)
-            # Burst
-            getattr(self, f"spinBox_seqlength_burst_{l_idx}").valueChanged.connect(
-                self.update_encoding_info)
-            getattr(self, f"btn_update_matrix_{l_idx}").clicked.connect(
-                self.update_matrix)
-            # Train model buttons
-            getattr(self, f"btn_train_model_{l_idx}").clicked.connect(
-                self.train_model)
-            # Train model buttons
-            table = getattr(self, f"tableWidget_bpf_{l_idx}")
-            table.setContextMenuPolicy(Qt.CustomContextMenu)
-            table.customContextMenuRequested.connect(
-                self.on_custom_table_menu
-            )
-            self.curr_layer_idx = l_idx
-
-            # Set settings to GUI
-            self.set_settings_to_gui()
-            self.on_mode_changed()
-            self.on_background_changed()
-            self.on_seq_type_changed()
-            self.on_base_changed()
-            getattr(self, f"comboBox_order_{l_idx}").setCurrentIndex(4)  # default 2^6
-            self.update_encoding_info()
-
-        self.on_stimuli_changed()
+        # Set settings to GUI
+        self.set_settings_to_gui()
+        self.on_mode_changed()
+        self.on_background_changed()
+        self.on_seq_type_changed()
+        self.on_base_changed()
+        self.comboBox_order.setCurrentIndex(4)  # default 2^6
+        self.update_encoding_info()
         self.notifications.new_notification('Default settings loaded')
 
         # Application ready
@@ -141,31 +120,21 @@ class Config(QtWidgets.QDialog, ui_main_file):
         self.show()
 
     # --------------------- Settings updating --------------------
-    def on_stimuli_changed(self):
-        if self.btn_plain.isChecked():
-            self.params_stacked_widget.setCurrentIndex(0)
-        elif self.btn_grating.isChecked():
-            self.params_stacked_widget.setCurrentIndex(1)
-        elif self.btn_checkerboard.isChecked():
-            self.params_stacked_widget.setCurrentIndex(2)
-        self.curr_layer_idx = self.params_stacked_widget.currentIndex() + 1
-
     def on_mode_changed(self):
-        l_idx = self.curr_layer_idx
-        combo = getattr(self, f"comboBox_mode_{l_idx}")
+        combo = self.comboBox_mode
         online = combo.currentText() == 'Online'
 
         show_if_online = [
-            f"label_cvep_model_{l_idx}", f"label_test_cycles_{l_idx}",
-            f"spinBox_testcycles_{l_idx}", f"lineEdit_cvepmodel_{l_idx}",
-            f"btn_browse_cvepmodel_{l_idx}"
+            f"label_cvep_model", f"label_test_cycles",
+            f"spinBox_testcycles", f"lineEdit_cvepmodel",
+            f"btn_browse_cvepmodel"
         ]
         show_if_train = [
-            f"label_train_targets_{l_idx}", f"label_train_cycles_{l_idx}",
-            f"spinBox_traincycles_{l_idx}", f"lineEdit_train_targets_{l_idx}"
+            f"label_train_targets", f"label_train_cycles",
+            f"spinBox_traincycles", f"lineEdit_train_targets"
         ]
 
-        getattr(self, f"lineEdit_session_{l_idx}").setText("Test" if online else "Train")
+        self.lineEdit_session.setText("Online" if online else "Train")
 
         for w in show_if_online:
             getattr(self, w).setVisible(online)
@@ -173,9 +142,8 @@ class Config(QtWidgets.QDialog, ui_main_file):
             getattr(self, w).setVisible(not online)
 
     def on_fpsresolution_changed(self):
-        l_idx = self.curr_layer_idx
-        text_edit = getattr(self, f"textEdit_monitor_rates_{l_idx}")
-        spin_box = getattr(self, f"spinBox_fpsresolution_{l_idx}")
+        text_edit = self.textEdit_monitor_rates
+        spin_box = self.spinBox_fpsresolution
         self.update_table_cutoffs()
         self.update_encoding_info()
 
@@ -215,21 +183,18 @@ class Config(QtWidgets.QDialog, ui_main_file):
                     )
 
     def on_midpoint_changed(self):
-        l_idx = self.curr_layer_idx
-        if getattr(self, f"checkBox_show_point_{l_idx}").isChecked():
-            getattr(self, f"spinBox_point_size_{l_idx}").setEnabled(True)
+        if self.checkBox_show_point.isChecked():
+            self.spinBox_point_size.setEnabled(True)
         else:
-            getattr(self, f"spinBox_point_size_{l_idx}").setEnabled(False)
+            self.spinBox_point_size.setEnabled(False)
 
     def on_background_changed(self):
-        l_idx = self.curr_layer_idx
-        combo = getattr(self, f"comboBox_scenario_name_{l_idx}")
-        scenario = combo.currentText()
+        scenario = self.comboBox_scenario_name.currentText()
 
-        btn_color_bg = getattr(self, f"btn_color_background_{l_idx}")
-        label_color_bg = getattr(self, f"label_color_background_{l_idx}")
-        lineedit_scenario = getattr(self, f"lineEdit_scenario_{l_idx}")
-        btn_browse_scenario = getattr(self, f"btn_browse_scenario_{l_idx}")
+        btn_color_bg = self.btn_color_background
+        label_color_bg = self.label_color_background
+        lineedit_scenario = self.lineEdit_scenario
+        btn_browse_scenario = self.btn_browse_scenario
 
         if scenario == "Solid Color":
             btn_color_bg.setVisible(True)
@@ -249,86 +214,88 @@ class Config(QtWidgets.QDialog, ui_main_file):
             btn_browse_scenario.setVisible(True)
 
     def on_seq_type_changed(self):
-        l_idx = self.curr_layer_idx
-        if getattr(self, f"comboBox_seq_type_{l_idx}").currentText() == "M-sequence":
-            getattr(self, f"groupBox_mseq_{l_idx}").setVisible(True)
-            getattr(self, f"groupBox_burst_{l_idx}").setVisible(False)
-        elif getattr(self, f"comboBox_seq_type_{l_idx}").currentText() == "Burst sequence":
-            getattr(self, f"groupBox_mseq_{l_idx}").setVisible(False)
-            getattr(self, f"groupBox_burst_{l_idx}").setVisible(True)
+        if self.comboBox_seq_type.currentText() == "M-sequence":
+            self.groupBox_mseq.setVisible(True)
+            self.groupBox_burst.setVisible(False)
+        elif self.comboBox_seq_type.currentText() == "Burst sequence":
+            self.groupBox_mseq.setVisible(False)
+            self.groupBox_burst.setVisible(True)
 
     def on_base_changed(self):
-        l_idx = self.curr_layer_idx
-        base = int(getattr(self, f"comboBox_base_{l_idx}").currentText())
+        base = int(self.comboBox_base.currentText())
         orders = list(LFSR_PRIMITIVE_POLYNOMIALS['base'][base]['order'].keys())
         orders = [str(x) for x in orders]
-        getattr(self, f"comboBox_order_{l_idx}").setEnabled(True)
-        getattr(self, f"comboBox_order_{l_idx}").clear()
-        getattr(self, f"comboBox_order_{l_idx}").addItems(orders)
-        getattr(self, f"comboBox_order_{l_idx}").setCurrentIndex(0)
+        self.comboBox_order.setEnabled(True)
+        self.comboBox_order.clear()
+        self.comboBox_order.addItems(orders)
+        self.comboBox_order.setCurrentIndex(0)
         self.update_encoding_info()
 
     def update_encoding_info(self):
-        l_idx = self.curr_layer_idx
-        fps = getattr(self, f"spinBox_fpsresolution_{l_idx}").value()
+        fps = self.spinBox_fpsresolution.value()
         # M-sequence
-        base = int(getattr(self, f"comboBox_base_{l_idx}").currentText())
-        if getattr(self, f"comboBox_order_{l_idx}").currentIndex() == -1:
+        base = int(self.comboBox_base.currentText())
+        if self.comboBox_order.currentIndex() == -1:
             return
-        order = int(getattr(self, f"comboBox_order_{l_idx}").currentText())
+        order = int(self.comboBox_order.currentText())
         mseqlen = base ** order - 1
         mseq_cycle_duration = mseqlen / fps
-        getattr(self, f"lineEdit_seqlength_mseq_{l_idx}").setText(str(mseqlen))
-        getattr(self, f"lineEdit_cycleduration_mseq_{l_idx}").setText(str(mseq_cycle_duration))
+        self.lineEdit_seqlength_mseq.setText(str(mseqlen))
+        self.lineEdit_cycleduration_mseq.setText(str(mseq_cycle_duration))
         # Burst sequence
-        burstseqlen = getattr(self, f"spinBox_seqlength_burst_{l_idx}").value()
+        burstseqlen = self.spinBox_seqlength_burst.value()
         burstseq_cycle_duration = burstseqlen / fps
-        getattr(self, f"lineEdit_cycleduration_burst_{l_idx}").setText(str(burstseq_cycle_duration))
+        self.lineEdit_cycleduration_burst.setText(str(burstseq_cycle_duration))
+
+    def on_classifier_changed(self):
+        if self.comboBox_classifier.currentText() == 'Circular Shifting':
+            self.checkBox_calibration_art_rej.setVisible(True)
+        else:
+            self.checkBox_calibration_art_rej.setVisible(False)
 
     def set_settings_to_gui(self):
-        l_idx = self.curr_layer_idx
         # Run settings
-        getattr(self, f"lineEdit_user_{l_idx}").setText(self.settings.run_settings.user)
-        getattr(self, f"lineEdit_session_{l_idx}").setText(self.settings.run_settings.session)
-        getattr(self, f"spinBox_run_{l_idx}").setValue(self.settings.run_settings.run)
-        getattr(self, f"comboBox_mode_{l_idx}").setCurrentText(self.settings.run_settings.mode)
-        getattr(self, f"spinBox_traincycles_{l_idx}").setValue(self.settings.run_settings.train_cycles)
-        getattr(self, f"lineEdit_train_targets_{l_idx}").setText(self.settings.run_settings.train_target)
-        getattr(self, f"spinBox_testcycles_{l_idx}").setValue(self.settings.run_settings.test_cycles)
-        getattr(self, f"lineEdit_cvepmodel_{l_idx}").setText(self.settings.run_settings.cvep_model_path)
-        getattr(self, f"spinBox_fpsresolution_{l_idx}").setValue(self.settings.run_settings.fps_resolution)
-        getattr(self, f"checkBox_photodiode_{l_idx}").setChecked(self.settings.run_settings.enable_photodiode)
-        getattr(self, f"checkBox_show_point_{l_idx}").setChecked(self.settings.run_settings.show_point)
-        getattr(self, f"spinBox_point_size_{l_idx}").setValue(self.settings.run_settings.point_size)
+        self.lineEdit_user.setText(self.settings.run_settings.user)
+        self.lineEdit_session.setText(self.settings.run_settings.session)
+        self.spinBox_run.setValue(self.settings.run_settings.run)
+        self.comboBox_mode.setCurrentText(self.settings.run_settings.mode)
+        self.spinBox_traincycles.setValue(self.settings.run_settings.train_cycles)
+        self.lineEdit_train_targets.setText(self.settings.run_settings.train_target)
+        self.spinBox_testcycles.setValue(self.settings.run_settings.test_cycles)
+        self.lineEdit_cvepmodel.setText(self.settings.run_settings.cvep_model_path)
+        self.spinBox_fpsresolution.setValue(self.settings.run_settings.fps_resolution)
+        self.checkBox_photodiode.setChecked(self.settings.run_settings.enable_photodiode)
+        self.checkBox_show_point.setChecked(self.settings.run_settings.show_point)
+        self.spinBox_point_size.setValue(self.settings.run_settings.point_size)
         # Timings
-        getattr(self, f"doubleSpinBox_t_prev_text_{l_idx}").setValue(self.settings.timings.t_prev_text)
-        getattr(self, f"doubleSpinBox_t_prev_iddle_{l_idx}").setValue(self.settings.timings.t_prev_iddle)
-        getattr(self, f"doubleSpinBox_t_finish_text_{l_idx}").setValue(self.settings.timings.t_finish_text)
+        self.doubleSpinBox_t_prev_text.setValue(self.settings.timings.t_prev_text)
+        self.doubleSpinBox_t_prev_iddle.setValue(self.settings.timings.t_prev_iddle)
+        self.doubleSpinBox_t_finish_text.setValue(self.settings.timings.t_finish_text)
         # Colors
-        gui_utils.modify_property(getattr(self, f"btn_color_point_{l_idx}"), 'background-color',
+        gui_utils.modify_property(self.btn_color_point, 'background-color',
                                   self.settings.colors.color_point[:7])
-        gui_utils.modify_property(getattr(self, f"btn_color_target_box_{l_idx}"), 'background-color',
+        gui_utils.modify_property(self.btn_color_target_box, 'background-color',
                                   self.settings.colors.color_target_box[:7])
-        gui_utils.modify_property(getattr(self, f"btn_color_highlight_result_box_{l_idx}"), 'background-color',
+        gui_utils.modify_property(self.btn_color_highlight_result_box, 'background-color',
                                   self.settings.colors.color_highlight_result_box[:7])
-        gui_utils.modify_property(getattr(self, f"btn_color_fps_good_{l_idx}"), 'background-color',
+        gui_utils.modify_property(self.btn_color_fps_good, 'background-color',
                                   self.settings.colors.color_fps_good[:7])
-        gui_utils.modify_property(getattr(self, f"btn_color_fps_bad_{l_idx}"), 'background-color',
+        gui_utils.modify_property(self.btn_color_fps_bad, 'background-color',
                                   self.settings.colors.color_fps_bad[:7])
-        gui_utils.modify_property(getattr(self, f"btn_color_result_info_box_{l_idx}"), 'background-color',
+        gui_utils.modify_property(self.btn_color_result_info_box, 'background-color',
                                   self.settings.colors.color_result_info_box[:7])
-        gui_utils.modify_property(getattr(self, f"btn_color_result_info_label_{l_idx}"), 'background-color',
+        gui_utils.modify_property(self.btn_color_result_info_label, 'background-color',
                                   self.settings.colors.color_result_info_label[:7])
-        gui_utils.modify_property(getattr(self, f"btn_color_result_info_text_{l_idx}"), 'background-color',
+        gui_utils.modify_property(self.btn_color_result_info_text, 'background-color',
                                   self.settings.colors.color_result_info_text[:7])
         # Variable colors
-        getattr(self, f"tableWidget_color_sequences_{l_idx}").clear()
-        getattr(self, f"tableWidget_color_sequences_{l_idx}").setColumnCount(5)
-        getattr(self, f"tableWidget_color_sequences_{l_idx}").setRowCount(
+        self.tableWidget_color_sequences.clear()
+        self.tableWidget_color_sequences.setColumnCount(5)
+        self.tableWidget_color_sequences.setRowCount(
             len(self.settings.colors.color_box_dict.keys()))
-        getattr(self, f"tableWidget_color_sequences_{l_idx}").setHorizontalHeaderLabels(
+        self.tableWidget_color_sequences.setHorizontalHeaderLabels(
             ['Event', 'Box color', 'Box alpha (%)', 'Text color', 'Text alpha (%)'])
-        header = getattr(self, f"tableWidget_color_sequences_{l_idx}").horizontalHeader()
+        header = self.tableWidget_color_sequences.horizontalHeader()
         header.setSectionResizeMode(0, QtWidgets.QHeaderView.Stretch)
         header.setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeToContents)
         idx = 0
@@ -349,20 +316,20 @@ class Config(QtWidgets.QDialog, ui_main_file):
             spinBox_alpha_text.setValue(opacity_text_)
             btn_box.clicked.connect(self.open_color_dialog(btn_box))
             btn_text.clicked.connect(self.open_color_dialog(btn_text))
-            getattr(self, f"tableWidget_color_sequences_{l_idx}").setItem(idx, 0,
+            self.tableWidget_color_sequences.setItem(idx, 0,
                                                      QtWidgets.QTableWidgetItem(
                                                          str(event)))
-            getattr(self, f"tableWidget_color_sequences_{l_idx}").setCellWidget(idx, 1, btn_box)
-            getattr(self, f"tableWidget_color_sequences_{l_idx}").setCellWidget(idx, 2, spinBox_alpha_box)
-            getattr(self, f"tableWidget_color_sequences_{l_idx}").setCellWidget(idx, 3, btn_text)
-            getattr(self, f"tableWidget_color_sequences_{l_idx}").setCellWidget(idx, 4, spinBox_alpha_text)
+            self.tableWidget_color_sequences.setCellWidget(idx, 1, btn_box)
+            self.tableWidget_color_sequences.setCellWidget(idx, 2, spinBox_alpha_box)
+            self.tableWidget_color_sequences.setCellWidget(idx, 3, btn_text)
+            self.tableWidget_color_sequences.setCellWidget(idx, 4, spinBox_alpha_text)
             idx += 1
 
         # Background
-        getattr(self, f"comboBox_scenario_name_{l_idx}").setCurrentText(self.settings.background.scenario_name)
-        gui_utils.modify_property(getattr(self, f"btn_color_background_{l_idx}"), 'background-color',
+        self.comboBox_scenario_name.setCurrentText(self.settings.background.scenario_name)
+        gui_utils.modify_property(self.btn_color_background, 'background-color',
                                   self.settings.background.color_background[:7])
-        getattr(self, f"lineEdit_scenario_{l_idx}").setText(self.settings.background.scenario_path)
+        self.lineEdit_scenario.setText(self.settings.background.scenario_path)
 
         # Useful PyQt policies
         policy_max_pre = QSizePolicy(QSizePolicy.Maximum, QSizePolicy.Preferred)
@@ -371,7 +338,7 @@ class Config(QtWidgets.QDialog, ui_main_file):
         policy_fix_fix = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
 
         # Encoding
-        getattr(self, f"comboBox_seq_type_{l_idx}").setCurrentText(self.settings.encoding_settings.seq_type)
+        self.comboBox_seq_type.setCurrentText(self.settings.encoding_settings.seq_type)
         # Matrices
         # Create the required number of tabs
         n_extra = len(self.settings.encoding_settings.matrices) - \
@@ -454,8 +421,8 @@ class Config(QtWidgets.QDialog, ui_main_file):
                                       self.settings.background.color_background[:7])
             self.update_tab(self.widget_nested_matrices, m, new_tab)
 
-        getattr(self, f"spinBox_nrow_{l_idx}").setValue(self.settings.encoding_settings.matrices[0].n_row)
-        getattr(self, f"spinBox_ncol_{l_idx}").setValue(self.settings.encoding_settings.matrices[0].n_col)
+        self.spinBox_nrow.setValue(self.settings.encoding_settings.matrices[0].n_row)
+        self.spinBox_ncol.setValue(self.settings.encoding_settings.matrices[0].n_col)
 
         # Filter cutoffs according to fps_resolution
         self.update_table_cutoffs()
@@ -507,71 +474,69 @@ class Config(QtWidgets.QDialog, ui_main_file):
             tabwidget.setTabText(tab_idx, 'Matrix #' + str(tab_idx + 1))
 
     def get_settings_from_gui(self):
-        l_idx = self.curr_layer_idx
-
         # Run settings
         self.settings.run_settings.user = (
-            getattr(self, f"lineEdit_user_{l_idx}").text())
+            self.lineEdit_user.text())
         self.settings.run_settings.session = (
-            getattr(self, f"lineEdit_session_{l_idx}").text())
+            self.lineEdit_session.text())
         self.settings.run_settings.run = (
-            getattr(self, f"spinBox_run_{l_idx}").value())
+            self.spinBox_run.value())
         self.settings.run_settings.mode = (
-            getattr(self, f"comboBox_mode_{l_idx}").currentText())
+            self.comboBox_mode.currentText())
         self.settings.run_settings.train_cycles = (
-            getattr(self, f"spinBox_traincycles_{l_idx}").value())
+            self.spinBox_traincycles.value())
         self.settings.run_settings.train_target = (
-            getattr(self, f"lineEdit_train_targets_{l_idx}").text())
+            self.lineEdit_train_targets.text())
         self.settings.run_settings.test_cycles = (
-            getattr(self, f"spinBox_testcycles_{l_idx}").value())
+            self.spinBox_testcycles.value())
         self.settings.run_settings.cvep_model_path = (
-            getattr(self, f"lineEdit_cvepmodel_{l_idx}").text())
+            self.lineEdit_cvepmodel.text())
         self.settings.run_settings.fps_resolution = (
-            getattr(self, f"spinBox_fpsresolution_{l_idx}").value())
+            self.spinBox_fpsresolution.value())
         self.settings.run_settings.enable_photodiode = (
-            getattr(self, f"checkBox_photodiode_{l_idx}").isChecked())
+            self.checkBox_photodiode.isChecked())
         self.settings.run_settings.show_point = (
-            getattr(self, f"checkBox_show_point_{l_idx}").isChecked())
+            self.checkBox_show_point.isChecked())
         self.settings.run_settings.point_size = (
-            getattr(self, f"spinBox_point_size_{l_idx}").value())
+            self.spinBox_point_size.value())
 
         # Timings
         self.settings.timings.t_prev_text = (
-            getattr(self, f"doubleSpinBox_t_prev_text_{l_idx}").value())
+            self.doubleSpinBox_t_prev_text.value())
         self.settings.timings.t_prev_iddle = (
-            getattr(self, f"doubleSpinBox_t_prev_iddle_{l_idx}").value())
+            self.doubleSpinBox_t_prev_iddle.value())
         self.settings.timings.t_finish_text = (
-            getattr(self, f"doubleSpinBox_t_finish_text_{l_idx}").value())
+            self.doubleSpinBox_t_finish_text.value())
 
         # Colors
         self.settings.colors.color_point = (
-            gui_utils.get_property(getattr(self, f"btn_color_point_{l_idx}"), 'background-color'))
+            gui_utils.get_property(self.btn_color_point, 'background-color'))
         self.settings.colors.color_target_box = (
-            gui_utils.get_property(getattr(self, f"btn_color_target_box_{l_idx}"),'background-color'))
+            gui_utils.get_property(self.btn_color_target_box,'background-color'))
         self.settings.colors.color_highlight_result_box = gui_utils.get_property(
-            getattr(self, f"btn_color_highlight_result_box_{l_idx}"), 'background-color')
+            self.btn_color_highlight_result_box, 'background-color')
         self.settings.colors.color_fps_good = (
-            gui_utils.get_property(getattr(self, f"btn_color_fps_good_{l_idx}"), 'background-color'))
+            gui_utils.get_property(self.btn_color_fps_good, 'background-color'))
         self.settings.colors.color_fps_bad = (
-            gui_utils.get_property(getattr(self, f"btn_color_fps_bad_{l_idx}"),'background-color'))
+            gui_utils.get_property(self.btn_color_fps_bad,'background-color'))
         self.settings.colors.color_result_info_box = (
-            gui_utils.get_property(getattr(self, f"btn_color_result_info_box_{l_idx}"), 'background-color'))
+            gui_utils.get_property(self.btn_color_result_info_box, 'background-color'))
         self.settings.colors.color_result_info_label = (
-            gui_utils.get_property(getattr(self, f"btn_color_result_info_label_{l_idx}"), 'background-color'))
+            gui_utils.get_property(self.btn_color_result_info_label, 'background-color'))
         self.settings.colors.color_result_info_text = (
-            gui_utils.get_property(getattr(self, f"btn_color_result_info_text_{l_idx}"), 'background-color'))
+            gui_utils.get_property(self.btn_color_result_info_text, 'background-color'))
         # Variable colors
         self.settings.colors.color_box_dict = dict()
         self.settings.colors.opacity_box_dict = dict()
         self.settings.colors.color_text_dict = dict()
         self.settings.colors.opacity_text_dict = dict()
-        no_colors = getattr(self, f"tableWidget_color_sequences_{l_idx}").rowCount()
+        no_colors = self.tableWidget_color_sequences.rowCount()
         for i in range(no_colors):
-            table_item_event = getattr(self, f"tableWidget_color_sequences_{l_idx}").item(i, 0)
-            btn_box_color = getattr(self, f"tableWidget_color_sequences_{l_idx}").cellWidget(i, 1)
-            spinBox_box_alpha = getattr(self, f"tableWidget_color_sequences_{l_idx}").cellWidget(i, 2)
-            btn_text_color = getattr(self, f"tableWidget_color_sequences_{l_idx}").cellWidget(i, 3)
-            spinBox_text_alpha = getattr(self, f"tableWidget_color_sequences_{l_idx}").cellWidget(i, 4)
+            table_item_event = self.tableWidget_color_sequences.item(i, 0)
+            btn_box_color = self.tableWidget_color_sequences.cellWidget(i, 1)
+            spinBox_box_alpha = self.tableWidget_color_sequences.cellWidget(i, 2)
+            btn_text_color = self.tableWidget_color_sequences.cellWidget(i, 3)
+            spinBox_text_alpha = self.tableWidget_color_sequences.cellWidget(i, 4)
             key = int(table_item_event.text())
             box_color = gui_utils.get_property(btn_box_color, 'background-color')
             box_opacity = spinBox_box_alpha.value()
@@ -584,29 +549,29 @@ class Config(QtWidgets.QDialog, ui_main_file):
 
         # Background
         self.settings.background.scenario_name = (
-            getattr(self, f"comboBox_scenario_name_{l_idx}").currentText())
+            self.comboBox_scenario_name.currentText())
         self.settings.background.color_background = (
-            gui_utils.get_property(getattr(self, f"btn_color_background_{l_idx}"), 'background-color'))
+            gui_utils.get_property(self.btn_color_background, 'background-color'))
         self.settings.background.scenario_path = (
-            getattr(self, f"lineEdit_scenario_{l_idx}").text())
+            self.lineEdit_scenario.text())
 
         # Encoding
         self.settings.encoding_settings.seq_type = (
-            getattr(self, f"comboBox_seq_type_{l_idx}").currentText())
+            self.comboBox_seq_type.currentText())
 
     def update_gui(self):
         self.get_settings_from_gui()
         self.set_settings_to_gui()
 
     def update_table_cutoffs(self):
-        table = getattr(self, f"tableWidget_bpf_{self.curr_layer_idx}")
-        fps_half = getattr(self, f"spinBox_fpsresolution_{self.curr_layer_idx}").value()/2
+        table = self.tableWidget_bpf
+        fps_half = self.spinBox_fpsresolution.value()/2
         for i in range(table.rowCount()):
             table.setItem(i, 1, QtWidgets.QTableWidgetItem(str(fps_half)))
 
     def on_custom_table_menu(self, pos):
         # Get action
-        table = getattr(self, f"tableWidget_bpf_{self.curr_layer_idx}")
+        table = self.tableWidget_bpf
         menu = QtWidgets.QMenu()
         delete_row_action = menu.addAction("Delete row")
         add_row_action = menu.addAction("Add row")
@@ -672,15 +637,19 @@ class Config(QtWidgets.QDialog, ui_main_file):
         self.close()
 
     def train_model(self):
-        l_idx = self.curr_layer_idx
         def check_train_feasible():
             error_msg = ''
-            if getattr(self, f"tableWidget_bpf_{l_idx}").rowCount() == 0:
+            if self.tableWidget_bpf.rowCount() == 0:
                 error_msg += 'Cannot train if we do not have, at least, ' \
                              'one filter!\n'
-            for i in range(getattr(self, f"tableWidget_bpf_{l_idx}").rowCount()):
-                cut1 = float(getattr(self, f"tableWidget_bpf_{l_idx}").item(i, 0).text())
-                cut2 = float(getattr(self, f"tableWidget_bpf_{l_idx}").item(i, 1).text())
+            if self.comboBox_classifier.currentText().find('BWR') != -1:
+                if self.tableWidget_bpf.rowCount() != 1:
+                    error_msg += 'Bitwise reconstruction methods do not ' \
+                                 'support filter banks. Please, define only ' \
+                                 '1 filter\n'
+            for i in range(self.tableWidget_bpf.rowCount()):
+                cut1 = float(self.tableWidget_bpf.item(i, 0).text())
+                cut2 = float(self.tableWidget_bpf.item(i, 1).text())
                 if cut1 == cut2:
                     error_msg += 'Filter %i cannot have the same value for ' \
                                  'cutoff1 and cutoff2 (%.2f Hz)!\n' % (i, cut1)
@@ -709,66 +678,85 @@ class Config(QtWidgets.QDialog, ui_main_file):
                 if idx == 0:
                     dataset = cvep_spellers.CVEPSpellerDataset(
                         channel_set=rec.eeg.channel_set,
-                        fs=rec.eeg.fs
+                        fs=rec.eeg.fs,
+                        experiment_mode='train'
                     )
                 dataset.add_recordings(rec)
             # Get configuration
             bpf = []
             max_cut2 = 0.0
-            for i in range(getattr(self, f"tableWidget_bpf_{l_idx}").rowCount()):
-                cut1 = float(getattr(self, f"tableWidget_bpf_{l_idx}").item(i, 0).text())
-                cut2 = float(getattr(self, f"tableWidget_bpf_{l_idx}").item(i, 1).text())
-                order = int(getattr(self, f"tableWidget_bpf_{l_idx}").item(i, 2).text())
-                type = getattr(self, f"tableWidget_bpf_{l_idx}").item(i, 3).text()
+            for i in range(self.tableWidget_bpf.rowCount()):
+                cut1 = float(self.tableWidget_bpf.item(i, 0).text())
+                cut2 = float(self.tableWidget_bpf.item(i, 1).text())
+                order = int(self.tableWidget_bpf.item(i, 2).text())
+                type = self.tableWidget_bpf.item(i, 3).text()
                 bpf.append([order, (cut1, cut2)])
                 if cut2 > max_cut2:
                     max_cut2 = cut2
-            notch = [7, (getattr(self, f"doubleSpinBox_notch_{l_idx}").value() - 1,
-                         getattr(self, f"doubleSpinBox_notch_{l_idx}").value() + 1)]
+            notch = [7, (self.doubleSpinBox_notch.value() - 1,
+                         self.doubleSpinBox_notch.value() + 1)]
 
             # Check if notch is required
             if max_cut2 < notch[1][0]:
                 notch = None
 
             # Train the model
-            art_rej = None
-            if getattr(self, f"checkBox_calibration_art_rej_{l_idx}").isChecked():
-                art_rej = 3.0
-            model = cvep_spellers.CVEPModelCircularShifting(
-                bpf=bpf,
-                notch=notch,
-                art_rej=art_rej,
-                correct_raster_latencies=False
-            )
             try:
-                fitted_info = model.fit_dataset(dataset)
+                if self.comboBox_classifier.currentText() == 'Circular Shifting':
+                    art_rej = None
+                    if self.checkBox_calibration_art_rej.isChecked():
+                        art_rej = 3.0
+                    model = cvep_spellers.CVEPModelCircularShifting(
+                        bpf=bpf,
+                        notch=notch,
+                        art_rej=art_rej,
+                        correct_raster_latencies=False)
+                    fitted_info = model.fit_dataset(dataset)
+                    if art_rej is not None:
+                        print(self.TAG,
+                              'Model trained\n  > Discarded %i/%i epochs!' %
+                              (fitted_info['no_discarded_epochs'],
+                               fitted_info['no_total_epochs']))
+                    else:
+                        print(self.TAG, 'Model trained')
+                    # Disable art_rej for online mode
+                    model.get_inst("clf_method").art_rej = None
+                elif self.comboBox_classifier.currentText() == 'BWR rLDA':
+                    model = cvep_spellers.CMDModelBWRLDA()
+                    model.configure(bpf=bpf[0], notch=notch)
+                    model.build()
+                    model.fit_dataset(dataset, show_progress_bar=True, balance_classes=True)
+                    print(self.TAG, 'Model trained')
+                elif self.comboBox_classifier.currentText() == 'BWR EEG-Inception':
+                    model = cvep_spellers.CMDModelBWREEGInception()
+                    model.configure(bpf=bpf[0], notch=notch,
+                                    n_cha=dataset.channel_set.n_cha)
+                    model.build()
+                    model.fit_dataset(dataset, show_progress_bar=True, balance_classes=True)
+                    print(self.TAG, 'Model trained')
+                elif self.comboBox_classifier.currentText() == 'BWR RiemannianLDA':
+                    model = cvep_spellers.CVEPModelBWRRiemannianLDA()
+                    model.configure(bpf=bpf[0], notch=notch)
+                    model.build()
+                    model.fit_dataset(dataset, show_progress_bar=True, balance_classes=True)
+                    print(self.TAG, 'Model trained')
+
+                else:
+                    raise ValueError('Unknown model')
+                # Save model
+                fdialog = QtWidgets.QFileDialog()
+                fpath = fdialog.getSaveFileName(
+                    fdialog, 'Save c-VEP Model',
+                    os.path.join(os.getcwd(), "../models/"),
+                    'c-VEP Model (*.cvep.mdl)')[0]
+                if fpath:
+                    model.save(fpath)
+                    self.notifications.new_notification(
+                        'Model saved as %s' % fpath.split('/')[-1])
+                    self.lineEdit_cvepmodel.setText(fpath)
             except Exception as e:
+                traceback.print_exc()
                 error_dialog(str(e), "Cannot train model!")
-                return
-            if art_rej is not None:
-                print(self.TAG, 'Model trained\n  > Discarded %i/%i epochs!' %
-                      (fitted_info['no_discarded_epochs'],
-                       fitted_info['no_total_epochs']))
-            else:
-                print(self.TAG, 'Model trained')
-
-            # Disable art_rej for online mode
-            model.get_inst("clf_method").art_rej = None
-
-            # Save model
-            model_pkl = model.to_pickleable_obj()
-            fdialog = QtWidgets.QFileDialog()
-            fname = fdialog.getSaveFileName(
-                fdialog, 'Save c-VEP Model',
-                os.path.join(os.getcwd(), "../models/"),
-                'c-VEP Model (*.cvep.mdl)')
-            if fname[0]:
-                with open(fname[0], 'wb') as handle:
-                    pickle.dump(model_pkl, handle,
-                                protocol=pickle.HIGHEST_PROTOCOL)
-                self.notifications.new_notification('Model saved as %s' %
-                                                    fname[0].split('/')[-1])
-                getattr(self, f"lineEdit_cvepmodel_{l_idx}").setText(fname[0])
 
     def browse_model(self):
         filt = "c-VEP Model (*.cvep.mdl)"
@@ -779,7 +767,7 @@ class Config(QtWidgets.QDialog, ui_main_file):
         filepath = QtWidgets.QFileDialog.getOpenFileName(caption="c-VEP Model",
                                                          dir=directory,
                                                          filter=filt)
-        getattr(self, f"lineEdit_cvepmodel_{self.curr_layer_idx}").setText(filepath[0])
+        self.lineEdit_cvepmodel.setText(filepath[0])
 
     def browse_scenario(self):
         filt = "Image (*.jpg *.jpeg *.png)"
@@ -790,27 +778,26 @@ class Config(QtWidgets.QDialog, ui_main_file):
         filepath = QtWidgets.QFileDialog.getOpenFileName(caption="Scenario",
                                                          dir=directory,
                                                          filter=filt)
-        getattr(self, f"lineEdit_scenario_{self.curr_layer_idx}").setText(filepath[0])
+        self.lineEdit_scenario.setText(filepath[0])
 
     def update_matrix(self):
-        l_idx = self.curr_layer_idx
-        monitor_rate = float(getattr(self, f"spinBox_fpsresolution_{l_idx}").value())
+        monitor_rate = float(self.spinBox_fpsresolution.value())
         # Get the parameters
-        n_row = int(getattr(self, f"spinBox_nrow_{l_idx}").value())
-        n_col = int(getattr(self, f"spinBox_ncol_{l_idx}").value())
+        n_row = int(self.spinBox_nrow.value())
+        n_col = int(self.spinBox_ncol.value())
         # M-sequence
-        base = int(getattr(self, f"comboBox_base_{l_idx}").currentText())
-        order = int(getattr(self, f"comboBox_order_{l_idx}").currentText())
-        mseqlen = int(getattr(self, f"lineEdit_seqlength_mseq_{l_idx}").text())
+        base = int(self.comboBox_base.currentText())
+        order = int(self.comboBox_order.currentText())
+        mseqlen = int(self.lineEdit_seqlength_mseq.text())
         # Burst
-        n_burst = getattr(self, f"spinBox_n_burst_{l_idx}").value()
-        f_burst = getattr(self, f"spinBox_f_burst_{l_idx}").value()
-        burstseqlen = getattr(self, f"spinBox_seqlength_burst_{l_idx}").value()
+        n_burst = self.spinBox_n_burst.value()
+        f_burst = self.spinBox_f_burst.value()
+        burstseqlen = self.spinBox_seqlength_burst.value()
 
         # Compute the matrices
         self.get_settings_from_gui()
         # M-sequence
-        if getattr(self, f"comboBox_seq_type_{l_idx}").currentText() == "M-sequence":
+        if self.comboBox_seq_type.currentText() == "M-sequence":
             temp_matrix = (self.settings.encoding_settings.build_with_pary_sequences(
                 n_row=n_row, n_col=n_col, base=base, order=order))
             # Check everything is correct
@@ -833,8 +820,10 @@ class Config(QtWidgets.QDialog, ui_main_file):
             # Update the gui
             unique = self.settings.encoding_settings.get_unique_sequence_values()
             c_box, op_box, c_text, op_text = settings.Colors.generate_grey_color_dicts(unique)
-            self.settings.colors = settings.Colors(color_box_dict=c_box, opacity_box_dict=op_box,
-                                                   color_text_dict=c_text, opacity_text_dict=op_text)
+            self.settings.colors.color_box_dict = c_box
+            self.settings.colors.opacity_box_dict = op_box
+            self.settings.colors.color_text_dict = c_text
+            self.settings.colors.opacity_text_dict = op_text
 
             self.set_settings_to_gui()
             # Show the encoding
@@ -849,7 +838,7 @@ class Config(QtWidgets.QDialog, ui_main_file):
                         visualize_dialog.bad_cmds)
                     warning_dialog(warn_msg, 'Be careful!')
         # Burst sequence
-        elif getattr(self, f"comboBox_seq_type_{l_idx}").currentText() == "Burst sequence":
+        elif self.comboBox_seq_type.currentText() == "Burst sequence":
             temp_matrix = self.settings.encoding_settings.build_with_burst_sequences(
                 n_row=n_row, n_col=n_col, burstseqlen=burstseqlen, n_burst=n_burst, f_burst=f_burst)
             close_burst = False
@@ -881,8 +870,10 @@ class Config(QtWidgets.QDialog, ui_main_file):
             # Update the gui
             unique = self.settings.encoding_settings.get_unique_sequence_values()
             c_box, op_box, c_text, op_text = settings.Colors.generate_grey_color_dicts(unique)
-            self.settings.colors = settings.Colors(color_box_dict=c_box, opacity_box_dict=op_box,
-                                                   color_text_dict=c_text, opacity_text_dict=op_text)
+            self.settings.colors.color_box_dict = c_box
+            self.settings.colors.opacity_box_dict = op_box
+            self.settings.colors.color_text_dict = c_text
+            self.settings.colors.opacity_text_dict = op_text
 
             self.set_settings_to_gui()
             # Show the encoding
