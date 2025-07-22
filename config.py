@@ -51,6 +51,7 @@ class Config(QtWidgets.QDialog, ui_main_file):
         QtWidgets.QDialog.__init__(self)
         self.setWindowFlags(
             self.windowFlags() & ~Qt.WindowContextHelpButtonHint)
+        self.setWindowFlags(Qt.Window | Qt.WindowCloseButtonHint)
         self.setupUi(self)
         self.TAG = '[apps/cvep_speller/config] '
 
@@ -725,20 +726,20 @@ class Config(QtWidgets.QDialog, ui_main_file):
                     model = cvep_spellers.CMDModelBWRLDA()
                     model.configure(bpf=bpf[0], notch=notch)
                     model.build()
-                    model.fit_dataset(dataset, show_progress_bar=True, balance_classes=True)
+                    model.fit_dataset(dataset, show_progress_bar=True, balance_needed=True)
                     print(self.TAG, 'Model trained')
                 elif self.comboBox_classifier.currentText() == 'BWR EEG-Inception':
                     model = cvep_spellers.CMDModelBWREEGInception()
                     model.configure(bpf=bpf[0], notch=notch,
                                     n_cha=dataset.channel_set.n_cha)
                     model.build()
-                    model.fit_dataset(dataset, show_progress_bar=True, balance_classes=True)
+                    model.fit_dataset(dataset, show_progress_bar=True, balance_needed=True)
                     print(self.TAG, 'Model trained')
                 elif self.comboBox_classifier.currentText() == 'BWR RiemannianLDA':
                     model = cvep_spellers.CVEPModelBWRRiemannianLDA()
                     model.configure(bpf=bpf[0], notch=notch)
                     model.build()
-                    model.fit_dataset(dataset, show_progress_bar=True, balance_classes=True)
+                    model.fit_dataset(dataset, show_progress_bar=True, balance_needed=True)
                     print(self.TAG, 'Model trained')
 
                 else:
@@ -987,6 +988,7 @@ class VisualizeMseqEncodingDialog(QtWidgets.QDialog, ui_encoding_file_mseq):
         self.setupUi(self)  # Attach the .ui
         self.setWindowFlags(
             self.windowFlags() & ~Qt.WindowContextHelpButtonHint)
+        self.setWindowFlags(Qt.Window | Qt.WindowCloseButtonHint)
         self.TAG = '[apps/cvep_speller/config_encoding_mseq] '
 
         # Initialize the dialog
@@ -1127,6 +1129,7 @@ class VisualizeBurstEncodingDialog(QtWidgets.QDialog, ui_encoding_file_burst):
         self.setupUi(self)  # Attach the .ui
         self.setWindowFlags(
             self.windowFlags() & ~Qt.WindowContextHelpButtonHint)
+        self.setWindowFlags(Qt.Window | Qt.WindowCloseButtonHint)
         self.TAG = '[apps/cvep_speller/config_encoding_burst] '
 
         # Initialize the dialog

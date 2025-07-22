@@ -50,15 +50,8 @@ class App(resources.AppSkeleton):
         self.process_required = False
         self.trainmodel_required = False
 
-        # Load model if available
+        # Model
         self.cvep_model = None
-        if self.app_settings.run_settings.mode == ONLINE_MODE:
-            try:
-                m_path = self.app_settings.run_settings.cvep_model_path
-                with open(m_path, 'rb') as handle:
-                    self.cvep_model = pickle.load(handle)
-            except Exception as ex:
-                self.handle_exception(ex)
 
         # Initialize c-VEP recorded data
         conf, comms = self.get_conf(self.app_settings.run_settings.mode)
@@ -297,6 +290,7 @@ class App(resources.AppSkeleton):
             callback=self,
             app_settings=self.app_settings,
             run_state=self.run_state)
+        self.load_models()
         # 3 - Change app state to power on
         self.medusa_interface.app_state_changed(
             mds_constants.APP_STATE_ON)
@@ -391,6 +385,18 @@ class App(resources.AppSkeleton):
         rec.save(file_path)
         # Print a message
         self.medusa_interface.log('Recording saved successfully')
+
+    @exceptions.error_handler(scope='app')
+    def load_models(self):
+        if self.app_settings.run_settings.mode == ONLINE_MODE:
+            m_path = self.app_settings.run_settings.cvep_model_path
+            try:
+                self.cvep_model = cvep.CVEPSpellerModel.load(m_path)
+            except ImportError as e:
+                # Try to import deep learning models. This way, tensorflow is
+                # imported only if it is required
+                from medusa import deep_learning_models
+                self.cvep_model = cvep.CVEPSpellerModel.load(m_path)
 
     @exceptions.error_handler(scope='app')
     def get_eeg_data(self):
