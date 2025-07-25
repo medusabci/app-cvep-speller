@@ -20,6 +20,7 @@ using System.Runtime.InteropServices;
 using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Web.Http.Controllers;
 
 
 public class Manager : MonoBehaviour
@@ -168,6 +169,50 @@ public class Manager : MonoBehaviour
     public static extern bool GetWindowRect(IntPtr hwnd, ref Rect rectangle);
     public int lastWindowLeft = 0;
     public int lastWindowTop = 0;
+
+    /* ----------------------------------- GUI HELPERS  ------------------------------------ */
+
+    private void changeItemColor(GameObject item, Color32 color)
+    {
+        item.GetComponent<Image>().color = color;
+    }
+    private void changeItemTexture(GameObject item, Sprite sprite)
+    {
+        item.GetComponent<Image>().sprite = sprite;
+    }
+    private void changeItemTextColor(GameObject item, Color32 color)
+    {
+        item.transform.GetChild(0).GetComponent<Text>().color = color;
+    }
+
+    private void changeItemText(GameObject item, String text)
+    {
+        item.transform.GetChild(0).GetComponent<Text>().text = text;
+    }
+    private Text getItemText(GameObject item)
+    {
+        return item.transform.GetChild(0).GetComponent<Text>();
+    }
+
+    private void changeItemPointVisibility(GameObject item, bool mustBeVisible)
+    {
+        item.transform.GetChild(1).gameObject.SetActive(mustBeVisible);
+    }
+
+    private void changeItemPointColor(GameObject item, Color32 color)
+    {
+        item.transform.GetChild(1).GetComponent<Image>().color = color;
+    }
+
+    private void changeItemPointSize(GameObject item, int size)
+    {
+        item.transform.GetChild(1).GetComponent<RectTransform>().sizeDelta = new Vector2(size, size);
+    }
+
+    private Image getItemPoint(GameObject item)
+    {
+        return item.transform.GetChild(1).GetComponent<Image>();
+    }
 
     /* ----------------------------------- UNITY LIFE-CYCLE FUNCTIONS ------------------------------------ */
 
@@ -447,8 +492,8 @@ public class Manager : MonoBehaviour
         {
             for (int c = 0; c < matrix.GetLength(1); c++)
             {
-                matrix[r, c].GetComponent<Image>().color = defaultBoxColor;
-                matrix[r, c].transform.GetChild(0).GetComponent<Text>().color = defaultTextColor;
+                changeItemColor(matrix[r, c], defaultBoxColor);
+                changeItemTextColor(matrix[r, c], defaultTextColor);
             }
         }
     } 
@@ -523,10 +568,10 @@ public class Manager : MonoBehaviour
 
                 // Adapt the text of each command label
                 float st_ = cellSize / optimalCellSize;
-                matrix[r, c].transform.GetChild(0).GetComponent<Text>().GetComponent<RectTransform>().localScale = new Vector3(st_, st_, 1f);
+                getItemText(matrix[r, c]).GetComponent<RectTransform>().localScale = new Vector3(st_, st_, 1f);
 
                 // Adapt the midpoint of each command box
-                matrix[r, c].transform.GetChild(1).GetComponent<Image>().GetComponent<RectTransform>().localScale = new Vector3(st_, st_, 1f);
+                getItemPoint(matrix[r, c]).GetComponent<RectTransform>().localScale = new Vector3(st_, st_, 1f);
             }
         }
 
@@ -726,10 +771,10 @@ public class Manager : MonoBehaviour
             {
                 matrix[r, c] = Instantiate(mainCell, new Vector2(0, 0), new Quaternion(), matrixObject.transform);
                 matrix[r, c].name = "Cell_" + r.ToString() + "_" + c.ToString();
-                matrix[r, c].transform.GetChild(0).GetComponent<Text>().text = matrices[currentMatrixIdx].item_list[idx].text;
-                matrix[r, c].transform.GetChild(1).GetComponent<Image>().color = pointColor;
-                matrix[r, c].transform.GetChild(1).GetComponent<RectTransform>().sizeDelta = new Vector2(pointSize, pointSize);
-                matrix[r, c].transform.GetChild(1).gameObject.SetActive(showPoint);
+                changeItemText(matrix[r, c], matrices[currentMatrixIdx].item_list[idx].text);
+                changeItemPointColor(matrix[r, c], pointColor);
+                changeItemPointSize(matrix[r, c], pointSize);
+                changeItemPointVisibility(matrix[r, c], showPoint);
                 matrixItemSequence[r].Insert(c, matrices[currentMatrixIdx].item_list[idx].sequence);
                 matrixLabels[r, c] = matrices[currentMatrixIdx].item_list[idx].text;
                 idx++;
@@ -903,8 +948,8 @@ public class Manager : MonoBehaviour
                         int value = matrixItemSequence[r][c][matrixCurrentTimeShift];
                         if (cellColorsByValue.ContainsKey(value))
                         {
-                            matrix[r, c].GetComponent<Image>().color = cellColorsByValue[value];
-                            matrix[r, c].transform.GetChild(0).GetComponent<Text>().color = textColorsByValue[value];
+                            changeItemColor(matrix[r, c], cellColorsByValue[value]);
+                            changeItemTextColor(matrix[r, c], textColorsByValue[value]);
                         }
                         else
                         {
@@ -984,8 +1029,8 @@ public class Manager : MonoBehaviour
                         int value = matrixItemSequence[r][c][matrixCurrentTimeShift];
                         if (cellColorsByValue.ContainsKey(value))
                         {
-                            matrix[r, c].GetComponent<Image>().color = cellColorsByValue[value];
-                            matrix[r, c].transform.GetChild(0).GetComponent<Text>().color = textColorsByValue[value];
+                            changeItemColor(matrix[r, c], cellColorsByValue[value]);
+                            changeItemTextColor(matrix[r,c], textColorsByValue[value]);
                         }
                         else
                         {

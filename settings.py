@@ -4,6 +4,9 @@ from gui import gui_utils as gu
 from .app_constants import *
 import numpy as np
 import os
+import base64
+import io
+from PIL import Image
 import math
 import json
 
@@ -11,19 +14,21 @@ import json
 class Settings(SerializableComponent):
 
     def __init__(self, connection_settings=None, run_settings=None,
-                 timings=None, colors=None, background=None, encoding_settings=None):
+                 timings=None, colors=None, background=None,
+                 encoding_settings=None, stimulus=None):
         self.connection_settings = connection_settings if \
             connection_settings is not None else ConnectionSettings()
         self.run_settings = run_settings if \
             run_settings is not None else RunSettings()
         self.timings = timings if timings is not None else Timings()
-        self.colors = colors
+        self.colors = colors if colors is not None else Colors()
         self.background = background if background is not None else Background()
         self.encoding_settings = encoding_settings or EncodingSettings()
-        if colors is None:
+        self.stimulus = stimulus
+        if stimulus is None:
             unique = self.encoding_settings.get_unique_sequence_values()
-            c_box, op_box, c_text, op_text = Colors.generate_grey_color_dicts(unique)
-            self.colors = Colors(color_box_dict=c_box, opacity_box_dict=op_box,
+            c_box, op_box, c_text, op_text = Stimulus.generate_grey_color_dicts(unique)
+            self.stimulus = Stimulus(stimulus_box_dict=c_box, opacity_box_dict=op_box,
                                  color_text_dict=c_text, opacity_text_dict=op_text)
 
     def to_serializable_obj(self):
@@ -117,11 +122,7 @@ class Colors:
                  color_result_info_text='#f4f657ff',
                  color_fps_good='#5ee57dff',
                  color_fps_bad='#b43228ff',
-                 color_point='#800000',
-                 color_box_dict=None,
-                 opacity_box_dict=None,
-                 color_text_dict=None,
-                 opacity_text_dict=None):
+                 color_point='#800000'):
         self.color_target_box = color_target_box
         self.color_highlight_result_box = color_highlight_result_box
         self.color_result_info_box = color_result_info_box
@@ -130,50 +131,6 @@ class Colors:
         self.color_fps_good = color_fps_good
         self.color_fps_bad = color_fps_bad
         self.color_point = color_point
-        self.color_box_dict = color_box_dict
-        self.opacity_box_dict = opacity_box_dict
-        self.color_text_dict = color_text_dict
-        self.opacity_text_dict = opacity_text_dict
-
-    @staticmethod
-    def generate_grey_color_dicts(unique_sequence_values):
-        # Init color
-        init_grey = (255, 255, 255)
-        end_grey = (0, 0, 0)
-        init_hex = gu.rgb_to_hex(init_grey)
-        end_hex = gu.rgb_to_hex(end_grey)
-        init_grey = gu.rgb_to_hsv(init_grey)
-        end_grey = gu.rgb_to_hsv(end_grey)
-
-        # HSV gradient
-        h = np.linspace(init_grey[0], end_grey[0], len(unique_sequence_values))
-        s = np.linspace(init_grey[1], end_grey[1], len(unique_sequence_values))
-        v = np.linspace(init_grey[2], end_grey[2], len(unique_sequence_values))
-
-        # Genetare the HEX dictionary
-        color_text_dict = dict()
-        color_box_dict = dict()
-        opacity_box_dict = dict()
-        opacity_text_dict = dict()
-        for i in range(len(unique_sequence_values)):
-            rgb1 = np.round(gu.hsv_to_rgb((h[i], s[i], v[i]))).astype(int)
-            hex1 = gu.rgb_to_hex(tuple(rgb1))
-            color_box_dict[str(unique_sequence_values[i])] = hex1
-            if v[i] <= 50:
-                color_text_dict[str(unique_sequence_values[i])] = init_hex
-            else:
-                color_text_dict[str(unique_sequence_values[i])] = end_hex
-            opacity_box_dict[str(unique_sequence_values[i])] = 100
-            opacity_text_dict[str(unique_sequence_values[i])] = 100
-
-        return color_box_dict, opacity_box_dict, color_text_dict, opacity_text_dict
-
-    @staticmethod
-    def concat_dict(dict_):
-        concat = []
-        for key in dict_:
-            concat.append([str(key), str(dict_[key])])
-        return concat
 
 class Background:
     def __init__(self, scenario_name='Solid Color', color_background='#a3bec7', scenario_path=os.path.dirname(__file__) + "/background/Scenario-Example.jpg"):
@@ -357,6 +314,95 @@ class EncodingSettings:
             t.append(i)
         rxx = np.array(rxx)
         return rxx, t
+
+class Stimulus:
+    def __init__(self, stimulus_type='Plain',
+                 stimulus_box_dict=None, opacity_box_dict=None,
+                 color_text_dict=None, opacity_text_dict=None):
+
+        self.stimulus_type = stimulus_type # 'Plain', 'Grating', 'Checkerboard' or 'Customize'
+        self.stimulus_box_dict = stimulus_box_dict
+        self.opacity_box_dict = opacity_box_dict
+        self.color_text_dict = color_text_dict
+        self.opacity_text_dict = opacity_text_dict
+
+    @staticmethod
+    def generate_grey_color_dicts(unique_sequence_values):
+        # Init color
+        init_grey = (255, 255, 255)
+        end_grey = (0, 0, 0)
+        init_hex = gu.rgb_to_hex(init_grey)
+        end_hex = gu.rgb_to_hex(end_grey)
+        init_grey = gu.rgb_to_hsv(init_grey)
+        end_grey = gu.rgb_to_hsv(end_grey)
+        # HSV gradient
+        h = np.linspace(init_grey[0], end_grey[0], len(unique_sequence_values))
+        s = np.linspace(init_grey[1], end_grey[1], len(unique_sequence_values))
+        v = np.linspace(init_grey[2], end_grey[2], len(unique_sequence_values))
+        # Genetare the HEX dictionary
+        color_text_dict = dict()
+        stimulus_box_dict = dict()
+        opacity_box_dict = dict()
+        opacity_text_dict = dict()
+        for i in range(len(unique_sequence_values)):
+            rgb1 = np.round(gu.hsv_to_rgb((h[i], s[i], v[i]))).astype(int)
+            hex1 = gu.rgb_to_hex(tuple(rgb1))
+            blob = Stimulus.generate_image_blob_from_color(hex1)
+            stimulus_box_dict[str(unique_sequence_values[i])] = blob
+            color_text_dict[str(unique_sequence_values[i])] = end_hex if v[i] > 50 else init_hex
+            opacity_box_dict[str(unique_sequence_values[i])] = 100
+            opacity_text_dict[str(unique_sequence_values[i])] = 100
+        return stimulus_box_dict, opacity_box_dict, color_text_dict, opacity_text_dict
+
+    @staticmethod
+    def generate_grating_dicts():
+        color_text_dict = dict()
+        stimulus_box_dict = dict()
+        opacity_box_dict = dict()
+        opacity_text_dict = dict()
+        blob_gray = Stimulus.generate_image_blob_from_color('#808080')
+        blob_gabor = Stimulus.generate_image_blob_from_file(os.path.dirname(__file__) + "/stimulus/gabor.png")
+        stimulus_box_dict[str(0)] = blob_gray
+        opacity_box_dict[str(0)] = 100
+        color_text_dict[str(0)] = '#000000'
+        opacity_text_dict[str(0)] = 100
+        stimulus_box_dict[str(1)] = blob_gabor
+        opacity_box_dict[str(1)] = 100
+        color_text_dict[str(1)] = '#000000'
+        opacity_text_dict[str(1)] = 100
+        return stimulus_box_dict, opacity_box_dict, color_text_dict, opacity_text_dict
+
+    @staticmethod
+    def generate_empty_dicts(unique_sequence_values):
+        color_text_dict = dict()
+        stimulus_box_dict = dict()
+        opacity_box_dict = dict()
+        opacity_text_dict = dict()
+        for i in range(len(unique_sequence_values)):
+            stimulus_box_dict[str(unique_sequence_values[i])] = ''
+            color_text_dict[str(unique_sequence_values[i])] = ''
+            opacity_box_dict[str(unique_sequence_values[i])] = 100
+            opacity_text_dict[str(unique_sequence_values[i])] = 100
+        return stimulus_box_dict, opacity_box_dict, color_text_dict, opacity_text_dict
+
+    @staticmethod
+    def concat_dict(dict_):
+        concat = []
+        for key in dict_:
+            concat.append([str(key), str(dict_[key])])
+        return concat
+
+    @staticmethod
+    def generate_image_blob_from_color(color_hex: str, size=(150, 150)) -> str:
+        img = Image.new("RGB", size, color_hex)
+        buffer = io.BytesIO()
+        img.save(buffer, format="PNG")
+        return base64.b64encode(buffer.getvalue()).decode('utf-8')
+
+    @staticmethod
+    def generate_image_blob_from_file(image_path: str) -> str:
+        with open(image_path, "rb") as f:
+            return base64.b64encode(f.read()).decode('utf-8')
 
 class CVEPMatrix:
 

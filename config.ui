@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>791</width>
-    <height>592</height>
+    <width>868</width>
+    <height>632</height>
    </rect>
   </property>
   <property name="focusPolicy">
@@ -84,14 +84,14 @@
              </font>
             </property>
             <property name="currentIndex">
-             <number>5</number>
+             <number>6</number>
             </property>
             <widget class="QWidget" name="params_fast">
              <property name="geometry">
               <rect>
                <x>0</x>
-               <y>-142</y>
-               <width>429</width>
+               <y>0</y>
+               <width>506</width>
                <height>427</height>
               </rect>
              </property>
@@ -427,8 +427,8 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>443</width>
-               <height>285</height>
+               <width>520</width>
+               <height>295</height>
               </rect>
              </property>
              <attribute name="label">
@@ -497,8 +497,8 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>429</width>
-               <height>502</height>
+               <width>506</width>
+               <height>383</height>
               </rect>
              </property>
              <attribute name="label">
@@ -507,44 +507,6 @@
              <layout class="QVBoxLayout" name="verticalLayout_6">
               <item>
                <layout class="QVBoxLayout" name="verticalLayout_5">
-                <item>
-                 <widget class="QGroupBox" name="groupBox_17">
-                  <property name="title">
-                   <string>Sequence events</string>
-                  </property>
-                  <layout class="QHBoxLayout" name="horizontalLayout_20">
-                   <item>
-                    <widget class="QTableWidget" name="tableWidget_color_sequences">
-                     <column>
-                      <property name="text">
-                       <string>Event</string>
-                      </property>
-                     </column>
-                     <column>
-                      <property name="text">
-                       <string>Box color</string>
-                      </property>
-                     </column>
-                     <column>
-                      <property name="text">
-                       <string>Box alpha (%)</string>
-                      </property>
-                     </column>
-                     <column>
-                      <property name="text">
-                       <string>Text color</string>
-                      </property>
-                     </column>
-                     <column>
-                      <property name="text">
-                       <string>Text alpha (%)</string>
-                      </property>
-                     </column>
-                    </widget>
-                   </item>
-                  </layout>
-                 </widget>
-                </item>
                 <item>
                  <widget class="QGroupBox" name="color_general_box">
                   <property name="title">
@@ -754,8 +716,8 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>443</width>
-               <height>285</height>
+               <width>520</width>
+               <height>295</height>
               </rect>
              </property>
              <property name="sizePolicy">
@@ -879,7 +841,7 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>429</width>
+               <width>506</width>
                <height>563</height>
               </rect>
              </property>
@@ -1138,12 +1100,83 @@
               </item>
              </layout>
             </widget>
+            <widget class="QWidget" name="params_stimulus">
+             <property name="geometry">
+              <rect>
+               <x>0</x>
+               <y>0</y>
+               <width>520</width>
+               <height>295</height>
+              </rect>
+             </property>
+             <attribute name="label">
+              <string>Stimulus</string>
+             </attribute>
+             <layout class="QVBoxLayout" name="verticalLayout_4">
+              <item>
+               <widget class="QComboBox" name="comboBox_stimulus_type">
+                <item>
+                 <property name="text">
+                  <string>Plain</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Grating</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Checkerboard</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Customize</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+              <item>
+               <widget class="QTableWidget" name="tableWidget_color_sequences">
+                <property name="enabled">
+                 <bool>true</bool>
+                </property>
+                <column>
+                 <property name="text">
+                  <string>Event</string>
+                 </property>
+                </column>
+                <column>
+                 <property name="text">
+                  <string>Box</string>
+                 </property>
+                </column>
+                <column>
+                 <property name="text">
+                  <string>Box alpha (%)</string>
+                 </property>
+                </column>
+                <column>
+                 <property name="text">
+                  <string>Text</string>
+                 </property>
+                </column>
+                <column>
+                 <property name="text">
+                  <string>Text alpha (%)</string>
+                 </property>
+                </column>
+               </widget>
+              </item>
+             </layout>
+            </widget>
             <widget class="QWidget" name="params_train_model">
              <property name="geometry">
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>429</width>
+               <width>506</width>
                <height>297</height>
               </rect>
              </property>

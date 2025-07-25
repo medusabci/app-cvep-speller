@@ -5,6 +5,7 @@ from PySide6.QtWidgets import QSizePolicy, QApplication, QColorDialog
 from gui import gui_utils
 from . import settings
 import os
+import base64
 import glob
 import json
 from functools import partial
@@ -92,12 +93,16 @@ class Config(QtWidgets.QDialog, ui_main_file):
         self.btn_browse_scenario.clicked.connect(self.browse_scenario)
         # Encoding and matrix buttons
         self.comboBox_seq_type.currentTextChanged.connect(self.on_seq_type_changed)
+        self.n_events = len(self.settings.encoding_settings.get_unique_sequence_values())
+        self.btn_update_matrix.clicked.connect(self.update_matrix)
         # M-sequence
         self.comboBox_base.currentTextChanged.connect(self.on_base_changed)
         self.comboBox_order.currentTextChanged.connect(self.update_encoding_info)
         # Burst
         self.spinBox_seqlength_burst.valueChanged.connect(self.update_encoding_info)
-        self.btn_update_matrix.clicked.connect(self.update_matrix)
+        # Stimulus buttons
+        self.comboBox_stimulus_type.currentTextChanged.connect(self.on_stimulus_changed)
+        self.stimulus_prev_idx = 0
         # Train model buttons
         self.comboBox_classifier.currentTextChanged.connect(self.on_classifier_changed)
         self.btn_train_model.clicked.connect(self.train_model)
@@ -248,6 +253,28 @@ class Config(QtWidgets.QDialog, ui_main_file):
         burstseq_cycle_duration = burstseqlen / fps
         self.lineEdit_cycleduration_burst.setText(str(burstseq_cycle_duration))
 
+    def on_stimulus_changed(self):
+        unique = self.settings.encoding_settings.get_unique_sequence_values()
+        if self.comboBox_stimulus_type.currentText() == "Plain":
+            c_box, op_box, c_text, op_text = settings.Stimulus.generate_grey_color_dicts(unique)
+        elif self.comboBox_stimulus_type.currentText() == "Grating":
+            if len(unique) != 2:
+                QtWidgets.QMessageBox.critical(
+                    self, "Error",
+                    "Grating only admits binary codification.")
+                self.comboBox_stimulus_type.setCurrentIndex(self.stimulus_prev_idx)
+                return
+            c_box, op_box, c_text, op_text = settings.Stimulus.generate_grating_dicts()
+        elif self.comboBox_stimulus_type.currentText() == "Customize":
+            c_box, op_box, c_text, op_text = settings.Stimulus.generate_empty_dicts(unique)
+
+        self.stimulus_prev_idx = self.comboBox_stimulus_type.currentIndex()
+        self.settings.stimulus.stimulus_box_dict = c_box
+        self.settings.stimulus.opacity_box_dict = op_box
+        self.settings.stimulus.color_text_dict = c_text
+        self.settings.stimulus.opacity_text_dict = op_text
+        self.update_table_stimulus(self.comboBox_stimulus_type.currentText())
+
     def on_classifier_changed(self):
         if self.comboBox_classifier.currentText() == 'Circular Shifting':
             self.checkBox_calibration_art_rej.setVisible(True)
@@ -289,43 +316,6 @@ class Config(QtWidgets.QDialog, ui_main_file):
                                   self.settings.colors.color_result_info_label[:7])
         gui_utils.modify_property(self.btn_color_result_info_text, 'background-color',
                                   self.settings.colors.color_result_info_text[:7])
-        # Variable colors
-        self.tableWidget_color_sequences.clear()
-        self.tableWidget_color_sequences.setColumnCount(5)
-        self.tableWidget_color_sequences.setRowCount(
-            len(self.settings.colors.color_box_dict.keys()))
-        self.tableWidget_color_sequences.setHorizontalHeaderLabels(
-            ['Event', 'Box color', 'Box alpha (%)', 'Text color', 'Text alpha (%)'])
-        header = self.tableWidget_color_sequences.horizontalHeader()
-        header.setSectionResizeMode(0, QtWidgets.QHeaderView.Stretch)
-        header.setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeToContents)
-        idx = 0
-        for event in self.settings.colors.color_box_dict.keys():
-            color_box_ = self.settings.colors.color_box_dict[event]
-            opacity_box_ = self.settings.colors.opacity_box_dict[event]
-            color_text_ = self.settings.colors.color_text_dict[event]
-            opacity_text_ = self.settings.colors.opacity_text_dict[event]
-            btn_box = QtWidgets.QPushButton('')
-            spinBox_alpha_box = QtWidgets.QSpinBox()
-            spinBox_alpha_box.setRange(0, 100)
-            btn_text = QtWidgets.QPushButton('')
-            spinBox_alpha_text = QtWidgets.QSpinBox()
-            spinBox_alpha_text.setRange(0, 100)
-            gui_utils.modify_property(btn_box, 'background-color', color_box_)
-            spinBox_alpha_box.setValue(opacity_box_)
-            gui_utils.modify_property(btn_text, 'background-color', color_text_)
-            spinBox_alpha_text.setValue(opacity_text_)
-            btn_box.clicked.connect(self.open_color_dialog(btn_box))
-            btn_text.clicked.connect(self.open_color_dialog(btn_text))
-            self.tableWidget_color_sequences.setItem(idx, 0,
-                                                     QtWidgets.QTableWidgetItem(
-                                                         str(event)))
-            self.tableWidget_color_sequences.setCellWidget(idx, 1, btn_box)
-            self.tableWidget_color_sequences.setCellWidget(idx, 2, spinBox_alpha_box)
-            self.tableWidget_color_sequences.setCellWidget(idx, 3, btn_text)
-            self.tableWidget_color_sequences.setCellWidget(idx, 4, spinBox_alpha_text)
-            idx += 1
-
         # Background
         self.comboBox_scenario_name.setCurrentText(self.settings.background.scenario_name)
         gui_utils.modify_property(self.btn_color_background, 'background-color',
@@ -378,6 +368,10 @@ class Config(QtWidgets.QDialog, ui_main_file):
             gui_utils.modify_properties(
                 result_title, {
                     "font-style": "italic",
+                    "color": self.settings.colors.color_result_info_label[:7]
+                })
+            gui_utils.modify_properties(
+                result_text, {
                     "color": self.settings.colors.color_result_info_text[:7]
                 })
             gui_utils.modify_property(
@@ -394,21 +388,18 @@ class Config(QtWidgets.QDialog, ui_main_file):
             # Add buttons as commands
             for r in range(curr_mtx.n_row):
                 for c in range(curr_mtx.n_col):
-                    key_ = curr_mtx.matrix_list[r][c].sequence[0]
                     temp_button = QtWidgets.QToolButton()
                     temp_button.setObjectName('btn_command')
                     temp_button.setText(curr_mtx.matrix_list[r][c].text)
                     temp_button.clicked.connect(self.btn_command_on_click(r, c))
                     temp_button.setMinimumSize(60, 60)
                     temp_button.setSizePolicy(policy_max_max)
-                    box_color_ = self.settings.colors.color_box_dict[str(key_)]
-                    text_color_ = self.settings.colors.color_text_dict[str(key_)]
                     gui_utils.modify_properties(
                         temp_button, {
-                            "background-color": box_color_,
+                            "background-color": '#FFFFFF',
                             "font-family": 'sans-serif, Helvetica, Arial',
                             'font-size': '30px',
-                            'color': text_color_,
+                            'color': '#B7B7B7',
                             'border': 'transparent'
                         })
                     new_layout.addWidget(temp_button, r, c)
@@ -424,6 +415,12 @@ class Config(QtWidgets.QDialog, ui_main_file):
 
         self.spinBox_nrow.setValue(self.settings.encoding_settings.matrices[0].n_row)
         self.spinBox_ncol.setValue(self.settings.encoding_settings.matrices[0].n_col)
+
+        # Stimulus
+        self.comboBox_stimulus_type.blockSignals(True)
+        self.comboBox_stimulus_type.setCurrentText(self.settings.stimulus.stimulus_type)
+        self.comboBox_stimulus_type.blockSignals(False)
+        self.update_table_stimulus(self.settings.stimulus.stimulus_type)
 
         # Filter cutoffs according to fps_resolution
         self.update_table_cutoffs()
@@ -526,27 +523,6 @@ class Config(QtWidgets.QDialog, ui_main_file):
             gui_utils.get_property(self.btn_color_result_info_label, 'background-color'))
         self.settings.colors.color_result_info_text = (
             gui_utils.get_property(self.btn_color_result_info_text, 'background-color'))
-        # Variable colors
-        self.settings.colors.color_box_dict = dict()
-        self.settings.colors.opacity_box_dict = dict()
-        self.settings.colors.color_text_dict = dict()
-        self.settings.colors.opacity_text_dict = dict()
-        no_colors = self.tableWidget_color_sequences.rowCount()
-        for i in range(no_colors):
-            table_item_event = self.tableWidget_color_sequences.item(i, 0)
-            btn_box_color = self.tableWidget_color_sequences.cellWidget(i, 1)
-            spinBox_box_alpha = self.tableWidget_color_sequences.cellWidget(i, 2)
-            btn_text_color = self.tableWidget_color_sequences.cellWidget(i, 3)
-            spinBox_text_alpha = self.tableWidget_color_sequences.cellWidget(i, 4)
-            key = int(table_item_event.text())
-            box_color = gui_utils.get_property(btn_box_color, 'background-color')
-            box_opacity = spinBox_box_alpha.value()
-            text_color = gui_utils.get_property(btn_text_color, 'background-color')
-            text_opacity = spinBox_text_alpha.value()
-            self.settings.colors.color_box_dict[str(key)] = box_color
-            self.settings.colors.opacity_box_dict[str(key)] = box_opacity
-            self.settings.colors.color_text_dict[str(key)] = text_color
-            self.settings.colors.opacity_text_dict[str(key)] = text_opacity
 
         # Background
         self.settings.background.scenario_name = (
@@ -559,6 +535,29 @@ class Config(QtWidgets.QDialog, ui_main_file):
         # Encoding
         self.settings.encoding_settings.seq_type = (
             self.comboBox_seq_type.currentText())
+
+        # Stimulus
+        self.settings.stimulus.stimulus_type = self.comboBox_stimulus_type.currentText()
+        self.settings.stimulus.stimulus_box_dict = dict()
+        self.settings.stimulus.opacity_box_dict = dict()
+        self.settings.stimulus.color_text_dict = dict()
+        self.settings.stimulus.opacity_text_dict = dict()
+        no_colors = self.tableWidget_color_sequences.rowCount()
+        for i in range(no_colors):
+            table_item_event = self.tableWidget_color_sequences.item(i, 0)
+            btn_box_stimulus = self.tableWidget_color_sequences.cellWidget(i, 1)
+            spinBox_box_alpha = self.tableWidget_color_sequences.cellWidget(i, 2)
+            btn_text_color = self.tableWidget_color_sequences.cellWidget(i, 3)
+            spinBox_text_alpha = self.tableWidget_color_sequences.cellWidget(i, 4)
+            key = int(table_item_event.text())
+            box_stimulus = btn_box_stimulus.property('blob_str')
+            box_opacity = spinBox_box_alpha.value()
+            text_color = gui_utils.get_property(btn_text_color, 'background-color')
+            text_opacity = spinBox_text_alpha.value()
+            self.settings.stimulus.stimulus_box_dict[str(key)] = box_stimulus
+            self.settings.stimulus.opacity_box_dict[str(key)] = box_opacity
+            self.settings.stimulus.color_text_dict[str(key)] = text_color
+            self.settings.stimulus.opacity_text_dict[str(key)] = text_opacity
 
     def update_gui(self):
         self.get_settings_from_gui()
@@ -601,6 +600,48 @@ class Config(QtWidgets.QDialog, ui_main_file):
             table.setItem(r, 3, QtWidgets.QTableWidgetItem('bandpass'))
             table.setVerticalHeaderLabels(
                 [str(x) for x in range(1, table.rowCount() + 1)])
+
+    def update_table_stimulus(self, stimulus_type):
+        self.tableWidget_color_sequences.clear()
+        self.tableWidget_color_sequences.setColumnCount(5)
+        self.tableWidget_color_sequences.setHorizontalHeaderLabels(
+            ['Event', 'Box', 'Box alpha (%)', 'Text', 'Text alpha (%)'])
+        header = self.tableWidget_color_sequences.horizontalHeader()
+        header.setSectionResizeMode(0, QtWidgets.QHeaderView.Stretch)
+        header.setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeToContents)
+
+        events = list(self.settings.stimulus.stimulus_box_dict.keys())
+
+        self.tableWidget_color_sequences.setRowCount(len(events))
+
+        for idx, event in enumerate(events):
+            stimulus_box_ = self.settings.stimulus.stimulus_box_dict[event]
+            opacity_box_ = self.settings.stimulus.opacity_box_dict[event]
+            color_text_ = self.settings.stimulus.color_text_dict[event]
+            opacity_text_ = self.settings.stimulus.opacity_text_dict[event]
+
+            btn_box = QtWidgets.QPushButton('')
+            self.set_button_icon_from_blob(btn_box, stimulus_box_)
+            btn_text = QtWidgets.QPushButton('')
+            gui_utils.modify_property(btn_text, 'background-color', color_text_)
+            spinBox_alpha_box = QtWidgets.QSpinBox()
+            spinBox_alpha_box.setRange(0, 100)
+            spinBox_alpha_box.setValue(opacity_box_)
+            spinBox_alpha_text = QtWidgets.QSpinBox()
+            spinBox_alpha_text.setRange(0, 100)
+            spinBox_alpha_text.setValue(opacity_text_)
+
+            if stimulus_type == "Customize":
+                btn_box.clicked.connect(self.open_stimulus_dialog(btn_box))
+                btn_text.clicked.connect(self.open_color_dialog(btn_text))
+
+            self.tableWidget_color_sequences.setItem(idx, 0,
+                                                     QtWidgets.QTableWidgetItem(
+                                                         str(event)))
+            self.tableWidget_color_sequences.setCellWidget(idx, 1, btn_box)
+            self.tableWidget_color_sequences.setCellWidget(idx, 2, spinBox_alpha_box)
+            self.tableWidget_color_sequences.setCellWidget(idx, 3, btn_text)
+            self.tableWidget_color_sequences.setCellWidget(idx, 4, spinBox_alpha_text)
 
     # --------------------- Buttons ------------------------
     def reset(self):
@@ -796,7 +837,6 @@ class Config(QtWidgets.QDialog, ui_main_file):
         burstseqlen = self.spinBox_seqlength_burst.value()
 
         # Compute the matrices
-        self.get_settings_from_gui()
         # M-sequence
         if self.comboBox_seq_type.currentText() == "M-sequence":
             temp_matrix = (self.settings.encoding_settings.build_with_pary_sequences(
@@ -819,14 +859,7 @@ class Config(QtWidgets.QDialog, ui_main_file):
                 warning_dialog(warn_msg, 'Be careful!')
             self.settings.encoding_settings.matrices = temp_matrix
             # Update the gui
-            unique = self.settings.encoding_settings.get_unique_sequence_values()
-            c_box, op_box, c_text, op_text = settings.Colors.generate_grey_color_dicts(unique)
-            self.settings.colors.color_box_dict = c_box
-            self.settings.colors.opacity_box_dict = op_box
-            self.settings.colors.color_text_dict = c_text
-            self.settings.colors.opacity_text_dict = op_text
-
-            self.set_settings_to_gui()
+            self.update_stimulus_events()
             # Show the encoding
             visualize_dialog = VisualizeMseqEncodingDialog(n_row=n_row, n_col=n_col, base=base, order=order,
                 monitor_rate=monitor_rate, item_list=self.settings.encoding_settings.matrices[0].item_list,
@@ -869,28 +902,69 @@ class Config(QtWidgets.QDialog, ui_main_file):
                 warning_dialog(full_msg, 'Be careful!')
             self.settings.encoding_settings.matrices = temp_matrix
             # Update the gui
-            unique = self.settings.encoding_settings.get_unique_sequence_values()
-            c_box, op_box, c_text, op_text = settings.Colors.generate_grey_color_dicts(unique)
-            self.settings.colors.color_box_dict = c_box
-            self.settings.colors.opacity_box_dict = op_box
-            self.settings.colors.color_text_dict = c_text
-            self.settings.colors.opacity_text_dict = op_text
-
-            self.set_settings_to_gui()
+            self.update_stimulus_events()
             # Show the encoding
             visualize_dialog = VisualizeBurstEncodingDialog(
                 item_list=self.settings.encoding_settings.matrices[0].item_list,
                 burst_info=burst_info, close_burst=close_burst, overlap_burst=overlap_burst)
             visualize_dialog.exec_()
 
-    # --------------------- Colors ------------------------
+    def update_stimulus_events(self):
+        unique = self.settings.encoding_settings.get_unique_sequence_values()
+        current_type = self.comboBox_stimulus_type.currentText()
+        n_new_events = len(unique)
+        n_old_events = self.n_events
+        if n_new_events == 2 and n_old_events == 2:
+            return
+        else:
+            # Grating
+            if current_type == "Grating":
+                self.comboBox_stimulus_type.setCurrentText("Plain")
+                c_box, op_box, c_text, op_text = settings.Stimulus.generate_grey_color_dicts(unique)
+                self.settings.stimulus.stimulus_box_dict = c_box
+                self.settings.stimulus.opacity_box_dict = op_box
+                self.settings.stimulus.color_text_dict = c_text
+                self.settings.stimulus.opacity_text_dict = op_text
+            # Plain
+            elif current_type == "Plain":
+                c_box, op_box, c_text, op_text = settings.Stimulus.generate_grey_color_dicts(unique)
+                self.settings.stimulus.stimulus_box_dict = c_box
+                self.settings.stimulus.opacity_box_dict = op_box
+                self.settings.stimulus.color_text_dict = c_text
+                self.settings.stimulus.opacity_text_dict = op_text
+            # Customize
+            elif current_type == "Customize":
+                old_box = self.settings.stimulus.stimulus_box_dict
+                old_op_box = self.settings.stimulus.opacity_box_dict
+                old_text = self.settings.stimulus.color_text_dict
+                old_op_text = self.settings.stimulus.opacity_text_dict
+                c_box, op_box, c_text, op_text = {}, {}, {}, {}
+                for key in unique:
+                    str_key = str(key)
+                    if str_key in old_box:
+                        c_box[str_key] = old_box[str_key]
+                        op_box[str_key] = old_op_box[str_key]
+                        c_text[str_key] = old_text[str_key]
+                        op_text[str_key] = old_op_text[str_key]
+                    else:
+                        c_box[str_key] = ""
+                        op_box[str_key] = 100
+                        c_text[str_key] = ""
+                        op_text[str_key] = 100
+                self.settings.stimulus.stimulus_box_dict = c_box
+                self.settings.stimulus.opacity_box_dict = op_box
+                self.settings.stimulus.color_text_dict = c_text
+                self.settings.stimulus.opacity_text_dict = op_text
+        self.update_table_stimulus(self.comboBox_stimulus_type.currentText())
+        self.n_events = n_new_events
+
+    # --------------------- Colors and Stimulus ------------------------
     def open_color_dialog(self, handle):
         """ Opens a color dialog and sets the selected color in the desired button.
 
         :param handle: QToolButton
             Button handle.
         """
-
         def set_color():
             # This function is required in order to accept passing arguments (function factory)
             color = QColorDialog.getColor()  # Open the color dialog and get the QColor instance
@@ -902,6 +976,70 @@ class Config(QtWidgets.QDialog, ui_main_file):
                 self.update_gui()
 
         return set_color
+
+    def open_stimulus_dialog(self, handle):
+        """ Opens a dialog to choose the customize stimulus and sets the selected one in the desired button.
+
+        :param handle: QToolButton
+            Button handle.
+        """
+        def choose_stimulus():
+            dialog = QtWidgets.QDialog(self)
+            dialog.setWindowTitle("Choose Stimulus")
+            dialog.resize(200, 75)
+
+            layout = QtWidgets.QVBoxLayout()
+
+            btn_color = QtWidgets.QPushButton("Color")
+            btn_file = QtWidgets.QPushButton("File")
+
+            layout.addWidget(btn_color)
+            layout.addWidget(btn_file)
+
+            dialog.setLayout(layout)
+
+            def choose_color():
+                color = QColorDialog.getColor()
+                if not color.isValid():
+                    print("Color is not valid (%s)." % color)
+                else:
+                    blob = settings.Stimulus.generate_image_blob_from_color(color.name())
+                    self.set_button_icon_from_blob(handle, blob)
+                    dialog.accept()
+
+            def choose_file():
+                filt = "Image (*.jpg *.jpeg *.png)"
+                directory = os.path.dirname(__file__) + "/stimulus/"
+                if not os.path.exists(directory):
+                    os.makedirs(directory)
+                    print('Created directory %s!' % directory)
+                filepath = QtWidgets.QFileDialog.getOpenFileName(caption="Scenario",
+                                                                 dir=directory,
+                                                                 filter=filt)
+                if filepath:
+                    blob = settings.Stimulus.generate_image_blob_from_file(filepath[0])
+                    self.set_button_icon_from_blob(handle, blob)
+                    dialog.accept()
+
+            btn_color.clicked.connect(choose_color)
+            btn_file.clicked.connect(choose_file)
+
+            dialog.exec_()
+            self.update_gui()
+
+        return choose_stimulus
+
+    def set_button_icon_from_blob(self, button: QtWidgets.QPushButton, blob: str, size=(100, 30)):
+        button.setProperty('blob_str', blob)
+        button.setFixedSize(*size)
+        button.setSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        byte_array = base64.b64decode(blob)
+        pixmap = QtGui.QPixmap()
+        pixmap.loadFromData(byte_array)
+        scaled_pixmap = pixmap.scaled(*size, QtCore.Qt.IgnoreAspectRatio, QtCore.Qt.FastTransformation)
+        icon = QtGui.QIcon(scaled_pixmap)
+        button.setIcon(icon)
+        button.setIconSize(QtCore.QSize(*size))
 
     # --------------------- Close events ------------------------
     @staticmethod
