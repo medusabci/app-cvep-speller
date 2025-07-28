@@ -102,7 +102,7 @@ public class MessageInterpreter
         //Scenario
         public string color_background;
         public string scenario_name;
-        public string scenario_path;
+        public string scenario_blob;
 
         public static ParameterDecoder getParametersFromJSON(string jsonString)
         {

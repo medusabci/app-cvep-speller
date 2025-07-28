@@ -20,7 +20,6 @@ using System.Runtime.InteropServices;
 using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
-using System.Web.Http.Controllers;
 
 
 public class Manager : MonoBehaviour
@@ -120,7 +119,7 @@ public class Manager : MonoBehaviour
     // Scenarios
     private Image backgroundScenario;
     public string scenarioName;
-    public string scenarioPath;
+    public string scenarioBlob;
 
     // FPS counter
     private float updateCount = 0;
@@ -751,16 +750,17 @@ public class Manager : MonoBehaviour
         mainCanvas = GameObject.Find("Canvas").GetComponent<Canvas>();
         backgroundScenario = GameObject.Find("Background Scenario").GetComponent<Image>();
         scenarioName = parameters.scenario_name;
-        scenarioPath = parameters.scenario_path;
+        scenarioBlob = parameters.scenario_blob;
         if (String.Equals(scenarioName, "Solid Color", StringComparison.OrdinalIgnoreCase))
         {
             backgroundScenario.color = hexToColor(parameters.color_background);
         }
         else
         {
+            byte[] imageBytes = Convert.FromBase64String(scenarioBlob);
             Texture2D texture = new Texture2D(2, 2);
-            texture.LoadImage(File.ReadAllBytes(scenarioPath));
-            backgroundScenario.sprite = Sprite.Create(texture, new UnityEngine.Rect(0, 0, texture.width, texture.height), new Vector2(texture.width / 2, texture.height / 2));
+            texture.LoadImage(imageBytes);
+            backgroundScenario.sprite = Sprite.Create(texture, new UnityEngine.Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
         }
 
         // Set up the default colors

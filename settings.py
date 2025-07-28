@@ -138,6 +138,11 @@ class Background:
         self.color_background = color_background
         self.scenario_path = scenario_path
 
+    @staticmethod
+    def scenario_path_to_blob(scenario_path):
+        with open(scenario_path, "rb") as f:
+            return base64.b64encode(f.read()).decode('utf-8')
+
 class EncodingSettings:
     def __init__(self, seq_type='M-sequence', matrices=None):
         self.seq_type = seq_type # 'M-sequence' or 'Burst sequence'

@@ -132,7 +132,8 @@ class AppController(TCPServer):
         msg["opacity_text_dict"] = self.app_settings.stimulus.opacity_text_dict
         msg["scenario_name"] = self.app_settings.background.scenario_name
         msg["color_background"] = self.app_settings.background.color_background
-        msg["scenario_path"] = self.app_settings.background.scenario_path
+        msg["scenario_blob"] = self.app_settings.background.scenario_path_to_blob(
+            self.app_settings.background.scenario_path)
 
         self.send_command(msg)
 
