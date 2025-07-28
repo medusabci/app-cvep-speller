@@ -112,7 +112,10 @@ public class Manager : MonoBehaviour
     public Color32 resultLabelColor = new Color32(183, 183, 183, 255);
     public Color32 resultTextColor = new Color32(244, 246, 87, 255);
     public Color32 pointColor = new Color32(128, 0, 0, 255);
-    private Dictionary<int, Color32> cellColorsByValue, textColorsByValue;
+    private Dictionary<int, Color32> textColorsByValue;
+    private Dictionary<int, string> cellStimuliByValue;
+    private Dictionary<int, Sprite> cellSpritesByValue;
+    private Dictionary<int, int> cellOpacitiesByValue;
 
     // Scenarios
     private Image backgroundScenario;
@@ -179,6 +182,12 @@ public class Manager : MonoBehaviour
     private void changeItemTexture(GameObject item, Sprite sprite)
     {
         item.GetComponent<Image>().sprite = sprite;
+    }
+    private void changeItemTextureOpacity(GameObject item,  int opacity)
+    {
+        Image image = item.GetComponent<Image>();
+        float alpha = Mathf.Clamp01(opacity / 100f);
+        image.color = new Color(1f, 1f, 1f, alpha);
     }
     private void changeItemTextColor(GameObject item, Color32 color)
     {
@@ -349,7 +358,9 @@ public class Manager : MonoBehaviour
                 if (!String.IsNullOrEmpty(lastResult))
                 {
                     concatenateNewResult(lastResult);
-                    matrix[lastResultCoords[1], lastResultCoords[2]].GetComponent<Image>().color = highlightResultBoxColor;
+                    changeItemColor(matrix[lastResultCoords[1], lastResultCoords[2]], highlightResultBoxColor);
+                    changeItemTexture(matrix[lastResultCoords[1], lastResultCoords[2]], null);
+                    changeItemTextColor(matrix[lastResultCoords[1], lastResultCoords[2]], defaultTextColor);
                     lastResult = "";
                 }
             }
@@ -357,7 +368,9 @@ public class Manager : MonoBehaviour
             if (resultstate == STATE_RESULT_IDDLE)
             {
                 // Default color
-                matrix[lastResultCoords[1], lastResultCoords[2]].GetComponent<Image>().color = defaultBoxColor;
+                changeItemColor(matrix[lastResultCoords[1], lastResultCoords[2]], defaultBoxColor);
+                changeItemTexture(matrix[lastResultCoords[1], lastResultCoords[2]], null);
+                changeItemTextColor(matrix[lastResultCoords[1], lastResultCoords[2]], defaultTextColor);
             }
 
             if (resultstate == STATE_RESULT_END)
@@ -493,6 +506,7 @@ public class Manager : MonoBehaviour
             for (int c = 0; c < matrix.GetLength(1); c++)
             {
                 changeItemColor(matrix[r, c], defaultBoxColor);
+                changeItemTexture(matrix[r, c], null);
                 changeItemTextColor(matrix[r, c], defaultTextColor);
             }
         }
@@ -695,8 +709,30 @@ public class Manager : MonoBehaviour
         showPoint = parameters.showPoint;
         pointSize = parameters.pointSize;
         matrices = parameters.matrices;
-        cellColorsByValue = parameters.cellColorsByValue;
+        cellStimuliByValue = parameters.stimulus_box_dict;
+        cellOpacitiesByValue = parameters.opacity_box_dict;
         textColorsByValue = parameters.textColorsByValue;
+
+        cellSpritesByValue = new Dictionary<int, Sprite>();
+
+        foreach (KeyValuePair<int, string> blob in cellStimuliByValue)
+        {
+            int key = blob.Key;
+            string base64Image = blob.Value;
+
+            byte[] imageBytes = Convert.FromBase64String(base64Image);
+
+            Texture2D texture = new Texture2D(2, 2);
+            texture.LoadImage(imageBytes);
+
+            Sprite sprite = Sprite.Create(
+                texture,
+                new UnityEngine.Rect(0, 0, texture.width, texture.height),
+                new Vector2(0.5f, 0.5f)
+            );
+
+            cellSpritesByValue.Add(key, sprite);
+        }
 
         currentMatrixIdx = 0;   // For now, only one matrix is supported
 
@@ -873,8 +909,9 @@ public class Manager : MonoBehaviour
             int target_row = trainTargetCoords[currentTrainTarget][1];
             int target_col = trainTargetCoords[currentTrainTarget][2];
 
-            matrix[target_row, target_col].GetComponent<Image>().color = targetBoxColor;
-            matrix[target_row, target_col].transform.Find("CellText").GetComponent<Text>().color = defaultTextColor;
+            changeItemColor(matrix[target_row, target_col], targetBoxColor);
+            changeItemTexture(matrix[target_row, target_col], null);
+            changeItemTextColor(matrix[target_row, target_col], defaultTextColor);
         }
         // Target loop, second: Standby
         else if (innerstate == STATE_RUNNING_IDDLE2 && mustHighlightTarget)
@@ -882,8 +919,9 @@ public class Manager : MonoBehaviour
             int target_row = trainTargetCoords[currentTrainTarget][1];
             int target_col = trainTargetCoords[currentTrainTarget][2];
 
-            matrix[target_row, target_col].GetComponent<Image>().color = defaultBoxColor;
-            matrix[target_row, target_col].transform.Find("CellText").GetComponent<Text>().color = defaultTextColor;
+            changeItemColor(matrix[target_row, target_col], defaultBoxColor);
+            changeItemTexture(matrix[target_row, target_col], null);
+            changeItemTextColor(matrix[target_row, target_col], defaultTextColor);
             mustHighlightTarget = false;
         }
         // Target loop, third: flickering
@@ -946,9 +984,10 @@ public class Manager : MonoBehaviour
                     for (int c = 0; c < matrix.GetLength(1); c++)
                     {
                         int value = matrixItemSequence[r][c][matrixCurrentTimeShift];
-                        if (cellColorsByValue.ContainsKey(value))
+                        if (cellSpritesByValue.ContainsKey(value))
                         {
-                            changeItemColor(matrix[r, c], cellColorsByValue[value]);
+                            changeItemTexture(matrix[r, c], cellSpritesByValue[value]);
+                            changeItemTextureOpacity(matrix[r, c], cellOpacitiesByValue[value]);
                             changeItemTextColor(matrix[r, c], textColorsByValue[value]);
                         }
                         else
@@ -1027,9 +1066,10 @@ public class Manager : MonoBehaviour
                     for (int c = 0; c < matrix.GetLength(1); c++)
                     {
                         int value = matrixItemSequence[r][c][matrixCurrentTimeShift];
-                        if (cellColorsByValue.ContainsKey(value))
+                        if (cellSpritesByValue.ContainsKey(value))
                         {
-                            changeItemColor(matrix[r, c], cellColorsByValue[value]);
+                            changeItemTexture(matrix[r, c], cellSpritesByValue[value]);
+                            changeItemTextureOpacity(matrix[r,c], cellOpacitiesByValue[value]);
                             changeItemTextColor(matrix[r,c], textColorsByValue[value]);
                         }
                         else
@@ -1170,8 +1210,8 @@ public class Manager : MonoBehaviour
         return new Color32(r, g, b, a);
     }
 
-    /* ------------------------------------------- RASTER LATENCIES UTILS ------------------------------------------- */
-    public bool windowMoved()
+/* ------------------------------------------- RASTER LATENCIES UTILS ------------------------------------------- */
+public bool windowMoved()
     {
         // Get the size and position of the window using native DLLs
         Rect windowRect = new Rect();

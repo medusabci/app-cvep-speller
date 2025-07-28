@@ -126,10 +126,10 @@ class AppController(TCPServer):
             self.app_settings.colors.color_result_info_text
         msg["color_fps_good"] = self.app_settings.colors.color_fps_good
         msg["color_fps_bad"] = self.app_settings.colors.color_fps_bad
-        msg["color_box_dict"] = self.app_settings.colors.color_box_dict
-        msg["opacity_box_dict"] = self.app_settings.colors.opacity_box_dict
-        msg["color_text_dict"] = self.app_settings.colors.color_text_dict
-        msg["opacity_text_dict"] = self.app_settings.colors.opacity_text_dict
+        msg["stimulus_box_dict"] = self.app_settings.stimulus.stimulus_box_dict
+        msg["opacity_box_dict"] = self.app_settings.stimulus.opacity_box_dict
+        msg["color_text_dict"] = self.app_settings.stimulus.color_text_dict
+        msg["opacity_text_dict"] = self.app_settings.stimulus.opacity_text_dict
         msg["scenario_name"] = self.app_settings.background.scenario_name
         msg["color_background"] = self.app_settings.background.color_background
         msg["scenario_path"] = self.app_settings.background.scenario_path

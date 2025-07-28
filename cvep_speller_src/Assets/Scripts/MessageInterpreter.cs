@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System;
 using UnityEngine;
 using Newtonsoft.Json;
+using System.IO;
 
 public class MessageInterpreter
 {
@@ -90,13 +91,12 @@ public class MessageInterpreter
         public string color_result_info_text;
         public string color_fps_good;
         public string color_fps_bad;
-        public Dictionary<int, string> color_box_dict;
+        public Dictionary<int, string> stimulus_box_dict;
         public Dictionary<int, string> color_text_dict;
         public Dictionary<int, int> opacity_box_dict;
         public Dictionary<int, int> opacity_text_dict;
 
         // Generated
-        public Dictionary<int, Color32> cellColorsByValue = new Dictionary<int, Color32>();
         public Dictionary<int, Color32> textColorsByValue = new Dictionary<int, Color32>();
 
         //Scenario
@@ -107,22 +107,14 @@ public class MessageInterpreter
         public static ParameterDecoder getParametersFromJSON(string jsonString)
         {
             ParameterDecoder p = JsonConvert.DeserializeObject<ParameterDecoder>(jsonString);
-            p.convertHexColorDicts(); 
+            p.convertHexColorDicts();
             return p;
         }
 
         // This function converts the HEX formatted color dict to a Color32 dict
         public void convertHexColorDicts()
         {
-            cellColorsByValue = new Dictionary<int, Color32>();
             textColorsByValue = new Dictionary<int, Color32>();
-            foreach (KeyValuePair<int, string> color in color_box_dict)
-            {
-                int k = color.Key;
-                Color32 c = hexToColor(color.Value);
-                c.a = (byte)Mathf.RoundToInt(opacity_box_dict[k] * 2.55f);
-                cellColorsByValue.Add(k, c);
-            }
             foreach (KeyValuePair<int, string> color in color_text_dict)
             {
                 int k = color.Key;
