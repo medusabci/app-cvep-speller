@@ -321,11 +321,9 @@ class EncodingSettings:
         return rxx, t
 
 class Stimulus:
-    def __init__(self, stimulus_type='Plain',
+    def __init__(self,
                  stimulus_box_dict=None, opacity_box_dict=None,
                  color_text_dict=None, opacity_text_dict=None):
-
-        self.stimulus_type = stimulus_type # 'Plain', 'Grating', 'Checkerboard' or 'Customize'
         self.stimulus_box_dict = stimulus_box_dict
         self.opacity_box_dict = opacity_box_dict
         self.color_text_dict = color_text_dict
@@ -366,7 +364,7 @@ class Stimulus:
         opacity_box_dict = dict()
         opacity_text_dict = dict()
         blob_gray = Stimulus.generate_image_blob_from_color('#808080')
-        blob_gabor = Stimulus.generate_image_blob_from_file(os.path.dirname(__file__) + "/stimulus/gabor.png")
+        blob_gabor = Stimulus.generate_image_blob_from_file(os.path.dirname(__file__) + "/stimulus/gabor_75.png")
         stimulus_box_dict[str(0)] = blob_gray
         opacity_box_dict[str(0)] = 100
         color_text_dict[str(0)] = '#000000'
@@ -378,16 +376,21 @@ class Stimulus:
         return stimulus_box_dict, opacity_box_dict, color_text_dict, opacity_text_dict
 
     @staticmethod
-    def generate_empty_dicts(unique_sequence_values):
+    def generate_checkerboard_dicts():
         color_text_dict = dict()
         stimulus_box_dict = dict()
         opacity_box_dict = dict()
         opacity_text_dict = dict()
-        for i in range(len(unique_sequence_values)):
-            stimulus_box_dict[str(unique_sequence_values[i])] = ''
-            color_text_dict[str(unique_sequence_values[i])] = ''
-            opacity_box_dict[str(unique_sequence_values[i])] = 100
-            opacity_text_dict[str(unique_sequence_values[i])] = 100
+        blob_checkerboard_0 = Stimulus.generate_image_blob_from_file(os.path.dirname(__file__) + "/stimulus/checkerboard_16x16_0.png")
+        blob_checkerboard_1 = Stimulus.generate_image_blob_from_file(os.path.dirname(__file__) + "/stimulus/checkerboard_16x16_1.png")
+        stimulus_box_dict[str(0)] = blob_checkerboard_0
+        opacity_box_dict[str(0)] = 100
+        color_text_dict[str(0)] = '#000000'
+        opacity_text_dict[str(0)] = 0
+        stimulus_box_dict[str(1)] = blob_checkerboard_1
+        opacity_box_dict[str(1)] = 100
+        color_text_dict[str(1)] = '#000000'
+        opacity_text_dict[str(1)] = 0
         return stimulus_box_dict, opacity_box_dict, color_text_dict, opacity_text_dict
 
     @staticmethod

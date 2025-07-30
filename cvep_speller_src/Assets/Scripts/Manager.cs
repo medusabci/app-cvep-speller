@@ -724,9 +724,13 @@ public class Manager : MonoBehaviour
             Texture2D texture = new Texture2D(2, 2);
             texture.LoadImage(imageBytes);
 
+            float size = Mathf.Min((float)texture.width, texture.height);
+            float x = (texture.width - size) * 0.5f;
+            float y = (texture.height - size) * 0.5f;
+
             Sprite sprite = Sprite.Create(
                 texture,
-                new UnityEngine.Rect(0, 0, texture.width, texture.height),
+                new UnityEngine.Rect(x, y, size, size),
                 new Vector2(0.5f, 0.5f)
             );
 
@@ -760,7 +764,27 @@ public class Manager : MonoBehaviour
             byte[] imageBytes = Convert.FromBase64String(scenarioBlob);
             Texture2D texture = new Texture2D(2, 2);
             texture.LoadImage(imageBytes);
-            backgroundScenario.sprite = Sprite.Create(texture, new UnityEngine.Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
+            float aspect = 1.6f;
+            float tw = texture.width, th = texture.height;
+            float texAspect = tw / th;
+
+            float rw = tw, rh = th, rx = 0, ry = 0;
+            if (texAspect > aspect)
+            {
+                rw = th * aspect;
+                rx = (tw - rw) * 0.5f;
+            }
+            else
+            {
+                rh = tw / aspect;
+                ry = (th - rh) * 0.5f;
+            }
+
+            backgroundScenario.sprite = Sprite.Create(
+                texture,
+                new UnityEngine.Rect(rx, ry, rw, rh),
+                new Vector2(0.5f, 0.5f)
+            );
         }
 
         // Set up the default colors

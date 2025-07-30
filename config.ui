@@ -1100,7 +1100,7 @@
               </item>
              </layout>
             </widget>
-            <widget class="QWidget" name="params_stimulus">
+            <widget class="QWidget" name="params_stimuli">
              <property name="geometry">
               <rect>
                <x>0</x>
@@ -1110,31 +1110,54 @@
               </rect>
              </property>
              <attribute name="label">
-              <string>Stimulus</string>
+              <string>Stimuli</string>
              </attribute>
              <layout class="QVBoxLayout" name="verticalLayout_4">
               <item>
-               <widget class="QComboBox" name="comboBox_stimulus_type">
-                <item>
-                 <property name="text">
-                  <string>Plain</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>Grating</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>Checkerboard</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>Customize</string>
-                 </property>
-                </item>
+               <widget class="QGroupBox" name="groupBox">
+                <property name="title">
+                 <string>Load preset stimuli</string>
+                </property>
+                <layout class="QVBoxLayout" name="verticalLayout_7">
+                 <item>
+                  <layout class="QHBoxLayout" name="horizontalLayout">
+                   <item>
+                    <widget class="QPushButton" name="pushButton_plain">
+                     <property name="text">
+                      <string>Plain</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QPushButton" name="pushButton_grating">
+                     <property name="text">
+                      <string>Grating</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QPushButton" name="pushButton_checkerboard">
+                     <property name="text">
+                      <string>Checkerboard</string>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="label">
+                <property name="font">
+                 <font>
+                  <bold>true</bold>
+                  <stylestrategy>PreferAntialias</stylestrategy>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>Click an event to customize it</string>
+                </property>
                </widget>
               </item>
               <item>

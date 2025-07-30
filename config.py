@@ -101,15 +101,19 @@ class Config(QtWidgets.QDialog, ui_main_file):
         # Burst
         self.spinBox_seqlength_burst.valueChanged.connect(self.update_encoding_info)
         # Stimulus buttons
-        self.comboBox_stimulus_type.currentTextChanged.connect(self.on_stimulus_changed)
-        self.stimulus_prev_idx = 0
+        self.pushButton_plain.clicked.connect(self.on_stimulus_changed)
+        self.pushButton_grating.clicked.connect(self.on_stimulus_changed)
+        self.pushButton_checkerboard.clicked.connect(self.on_stimulus_changed)
+        self.tableWidget_color_sequences.horizontalHeader().setStyleSheet("color: black;")
+        self.tableWidget_color_sequences.verticalHeader().setStyleSheet("color: black;")
         # Train model buttons
         self.comboBox_classifier.currentTextChanged.connect(self.on_classifier_changed)
         self.btn_train_model.clicked.connect(self.train_model)
         # Train model buttons
-        table = self.tableWidget_bpf
-        table.setContextMenuPolicy(Qt.CustomContextMenu)
-        table.customContextMenuRequested.connect(self.on_custom_table_menu)
+        self.tableWidget_bpf.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.tableWidget_bpf.horizontalHeader().setStyleSheet("color: black;")
+        self.tableWidget_bpf.verticalHeader().setStyleSheet("color: black;")
+        self.tableWidget_bpf.customContextMenuRequested.connect(self.on_custom_table_menu)
 
         # Set settings to GUI
         self.set_settings_to_gui()
@@ -255,25 +259,30 @@ class Config(QtWidgets.QDialog, ui_main_file):
 
     def on_stimulus_changed(self):
         unique = self.settings.encoding_settings.get_unique_sequence_values()
-        if self.comboBox_stimulus_type.currentText() == "Plain":
+        c_box, op_box, c_text, op_text = {}, {}, {}, {}
+
+        if self.sender() == self.pushButton_plain:
             c_box, op_box, c_text, op_text = settings.Stimulus.generate_grey_color_dicts(unique)
-        elif self.comboBox_stimulus_type.currentText() == "Grating":
+        elif self.sender() == self.pushButton_grating:
             if len(unique) != 2:
                 QtWidgets.QMessageBox.critical(
                     self, "Error",
                     "Grating only admits binary codification.")
-                self.comboBox_stimulus_type.setCurrentIndex(self.stimulus_prev_idx)
                 return
             c_box, op_box, c_text, op_text = settings.Stimulus.generate_grating_dicts()
-        elif self.comboBox_stimulus_type.currentText() == "Customize":
-            c_box, op_box, c_text, op_text = settings.Stimulus.generate_empty_dicts(unique)
+        elif self.sender() == self.pushButton_checkerboard:
+            if len(unique) != 2:
+                QtWidgets.QMessageBox.critical(
+                    self, "Error",
+                    "Checkerboard only admits binary codification.")
+                return
+            c_box, op_box, c_text, op_text = settings.Stimulus.generate_checkerboard_dicts()
 
-        self.stimulus_prev_idx = self.comboBox_stimulus_type.currentIndex()
         self.settings.stimulus.stimulus_box_dict = c_box
         self.settings.stimulus.opacity_box_dict = op_box
         self.settings.stimulus.color_text_dict = c_text
         self.settings.stimulus.opacity_text_dict = op_text
-        self.update_table_stimulus(self.comboBox_stimulus_type.currentText())
+        self.update_table_stimulus()
 
     def on_classifier_changed(self):
         if self.comboBox_classifier.currentText() == 'Circular Shifting':
@@ -336,9 +345,7 @@ class Config(QtWidgets.QDialog, ui_main_file):
                   self.widget_nested_matrices.count()
         for t in range(1, n_extra + 1):
             mtx_widget_ = QtWidgets.QWidget(self.widget_nested_matrices)
-            mtx_idx_ = self.widget_nested_matrices.count() + 1
-            self.widget_nested_matrices.addTab(mtx_widget_,
-                                              'Matrix #' + str(mtx_idx_))
+            self.widget_nested_matrices.addTab(mtx_widget_, 'Layout')
         # Create each matrix
         for m in range(len(self.settings.encoding_settings.matrices)):
             # Set the current index and create the general layout
@@ -417,10 +424,7 @@ class Config(QtWidgets.QDialog, ui_main_file):
         self.spinBox_ncol.setValue(self.settings.encoding_settings.matrices[0].n_col)
 
         # Stimulus
-        self.comboBox_stimulus_type.blockSignals(True)
-        self.comboBox_stimulus_type.setCurrentText(self.settings.stimulus.stimulus_type)
-        self.comboBox_stimulus_type.blockSignals(False)
-        self.update_table_stimulus(self.settings.stimulus.stimulus_type)
+        self.update_table_stimulus()
 
         # Filter cutoffs according to fps_resolution
         self.update_table_cutoffs()
@@ -537,7 +541,6 @@ class Config(QtWidgets.QDialog, ui_main_file):
             self.comboBox_seq_type.currentText())
 
         # Stimulus
-        self.settings.stimulus.stimulus_type = self.comboBox_stimulus_type.currentText()
         self.settings.stimulus.stimulus_box_dict = dict()
         self.settings.stimulus.opacity_box_dict = dict()
         self.settings.stimulus.color_text_dict = dict()
@@ -601,7 +604,7 @@ class Config(QtWidgets.QDialog, ui_main_file):
             table.setVerticalHeaderLabels(
                 [str(x) for x in range(1, table.rowCount() + 1)])
 
-    def update_table_stimulus(self, stimulus_type):
+    def update_table_stimulus(self):
         self.tableWidget_color_sequences.clear()
         self.tableWidget_color_sequences.setColumnCount(5)
         self.tableWidget_color_sequences.setHorizontalHeaderLabels(
@@ -631,9 +634,8 @@ class Config(QtWidgets.QDialog, ui_main_file):
             spinBox_alpha_text.setRange(0, 100)
             spinBox_alpha_text.setValue(opacity_text_)
 
-            if stimulus_type == "Customize":
-                btn_box.clicked.connect(self.open_stimulus_dialog(btn_box))
-                btn_text.clicked.connect(self.open_color_dialog(btn_text))
+            btn_box.clicked.connect(self.open_stimulus_dialog(btn_box))
+            btn_text.clicked.connect(self.open_color_dialog(btn_text))
 
             self.tableWidget_color_sequences.setItem(idx, 0,
                                                      QtWidgets.QTableWidgetItem(
@@ -911,51 +913,17 @@ class Config(QtWidgets.QDialog, ui_main_file):
 
     def update_stimulus_events(self):
         unique = self.settings.encoding_settings.get_unique_sequence_values()
-        current_type = self.comboBox_stimulus_type.currentText()
         n_new_events = len(unique)
         n_old_events = self.n_events
         if n_new_events == 2 and n_old_events == 2:
             return
         else:
-            # Grating
-            if current_type == "Grating":
-                self.comboBox_stimulus_type.setCurrentText("Plain")
-                c_box, op_box, c_text, op_text = settings.Stimulus.generate_grey_color_dicts(unique)
-                self.settings.stimulus.stimulus_box_dict = c_box
-                self.settings.stimulus.opacity_box_dict = op_box
-                self.settings.stimulus.color_text_dict = c_text
-                self.settings.stimulus.opacity_text_dict = op_text
-            # Plain
-            elif current_type == "Plain":
-                c_box, op_box, c_text, op_text = settings.Stimulus.generate_grey_color_dicts(unique)
-                self.settings.stimulus.stimulus_box_dict = c_box
-                self.settings.stimulus.opacity_box_dict = op_box
-                self.settings.stimulus.color_text_dict = c_text
-                self.settings.stimulus.opacity_text_dict = op_text
-            # Customize
-            elif current_type == "Customize":
-                old_box = self.settings.stimulus.stimulus_box_dict
-                old_op_box = self.settings.stimulus.opacity_box_dict
-                old_text = self.settings.stimulus.color_text_dict
-                old_op_text = self.settings.stimulus.opacity_text_dict
-                c_box, op_box, c_text, op_text = {}, {}, {}, {}
-                for key in unique:
-                    str_key = str(key)
-                    if str_key in old_box:
-                        c_box[str_key] = old_box[str_key]
-                        op_box[str_key] = old_op_box[str_key]
-                        c_text[str_key] = old_text[str_key]
-                        op_text[str_key] = old_op_text[str_key]
-                    else:
-                        c_box[str_key] = ""
-                        op_box[str_key] = 100
-                        c_text[str_key] = ""
-                        op_text[str_key] = 100
-                self.settings.stimulus.stimulus_box_dict = c_box
-                self.settings.stimulus.opacity_box_dict = op_box
-                self.settings.stimulus.color_text_dict = c_text
-                self.settings.stimulus.opacity_text_dict = op_text
-        self.update_table_stimulus(self.comboBox_stimulus_type.currentText())
+            c_box, op_box, c_text, op_text = settings.Stimulus.generate_grey_color_dicts(unique)
+            self.settings.stimulus.stimulus_box_dict = c_box
+            self.settings.stimulus.opacity_box_dict = op_box
+            self.settings.stimulus.color_text_dict = c_text
+            self.settings.stimulus.opacity_text_dict = op_text
+        self.update_table_stimulus()
         self.n_events = n_new_events
 
     # --------------------- Colors and Stimulus ------------------------
@@ -1016,7 +984,10 @@ class Config(QtWidgets.QDialog, ui_main_file):
                 filepath = QtWidgets.QFileDialog.getOpenFileName(caption="Scenario",
                                                                  dir=directory,
                                                                  filter=filt)
-                if filepath:
+                if not filepath[0]:
+                    # For example, if the user closes the dialog
+                    print("File path is not valid.")
+                else:
                     blob = settings.Stimulus.generate_image_blob_from_file(filepath[0])
                     self.set_button_icon_from_blob(handle, blob)
                     dialog.accept()
@@ -1029,14 +1000,14 @@ class Config(QtWidgets.QDialog, ui_main_file):
 
         return choose_stimulus
 
-    def set_button_icon_from_blob(self, button: QtWidgets.QPushButton, blob: str, size=(100, 30)):
+    def set_button_icon_from_blob(self, button: QtWidgets.QPushButton, blob: str, size=(100, 30), icon_size=(96,26)):
         button.setProperty('blob_str', blob)
         button.setFixedSize(*size)
         button.setSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         byte_array = base64.b64decode(blob)
         pixmap = QtGui.QPixmap()
         pixmap.loadFromData(byte_array)
-        scaled_pixmap = pixmap.scaled(*size, QtCore.Qt.IgnoreAspectRatio, QtCore.Qt.FastTransformation)
+        scaled_pixmap = pixmap.scaled(*icon_size, QtCore.Qt.IgnoreAspectRatio, QtCore.Qt.FastTransformation)
         icon = QtGui.QIcon(scaled_pixmap)
         button.setIcon(icon)
         button.setIconSize(QtCore.QSize(*size))
