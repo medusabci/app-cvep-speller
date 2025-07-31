@@ -122,7 +122,6 @@ class Config(QtWidgets.QDialog, ui_main_file):
         self.on_seq_type_changed()
         self.on_base_changed()
         self.comboBox_order.setCurrentIndex(4)  # default 2^6
-        self.update_encoding_info()
         self.notifications.new_notification('Default settings loaded')
 
         # Application ready
@@ -839,6 +838,7 @@ class Config(QtWidgets.QDialog, ui_main_file):
         burstseqlen = self.spinBox_seqlength_burst.value()
 
         # Compute the matrices
+        self.get_settings_from_gui()
         # M-sequence
         if self.comboBox_seq_type.currentText() == "M-sequence":
             temp_matrix = (self.settings.encoding_settings.build_with_pary_sequences(
@@ -862,6 +862,7 @@ class Config(QtWidgets.QDialog, ui_main_file):
             self.settings.encoding_settings.matrices = temp_matrix
             # Update the gui
             self.update_stimulus_events()
+            self.set_settings_to_gui()
             # Show the encoding
             visualize_dialog = VisualizeMseqEncodingDialog(n_row=n_row, n_col=n_col, base=base, order=order,
                 monitor_rate=monitor_rate, item_list=self.settings.encoding_settings.matrices[0].item_list,
@@ -905,6 +906,7 @@ class Config(QtWidgets.QDialog, ui_main_file):
             self.settings.encoding_settings.matrices = temp_matrix
             # Update the gui
             self.update_stimulus_events()
+            self.set_settings_to_gui()
             # Show the encoding
             visualize_dialog = VisualizeBurstEncodingDialog(
                 item_list=self.settings.encoding_settings.matrices[0].item_list,
@@ -923,7 +925,6 @@ class Config(QtWidgets.QDialog, ui_main_file):
             self.settings.stimulus.opacity_box_dict = op_box
             self.settings.stimulus.color_text_dict = c_text
             self.settings.stimulus.opacity_text_dict = op_text
-        self.update_table_stimulus()
         self.n_events = n_new_events
 
     # --------------------- Colors and Stimulus ------------------------
