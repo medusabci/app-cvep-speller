@@ -344,7 +344,9 @@ class Config(QtWidgets.QDialog, ui_main_file):
                   self.widget_nested_matrices.count()
         for t in range(1, n_extra + 1):
             mtx_widget_ = QtWidgets.QWidget(self.widget_nested_matrices)
-            self.widget_nested_matrices.addTab(mtx_widget_, 'Layout')
+            mtx_idx_ = self.widget_nested_matrices.count() + 1
+            self.widget_nested_matrices.addTab(mtx_widget_,
+                                               'Matrix #' + str(mtx_idx_))
         # Create each matrix
         for m in range(len(self.settings.encoding_settings.matrices)):
             # Set the current index and create the general layout
