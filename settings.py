@@ -41,7 +41,8 @@ class Settings(SerializableComponent):
                      'background': self.background.__dict__,
                      'encoding_settings': {
                          'seq_type': self.encoding_settings.seq_type,
-                         'matrices': matrices}
+                         'matrices': matrices},
+                     'stimulus': self.stimulus.__dict__
                      }
         return sett_dict
 
@@ -56,7 +57,7 @@ class Settings(SerializableComponent):
         # Matrices
         matrices = []
         item_list = list()
-        m = settings_dict['enconding_settings']['matrices']
+        m = settings_dict['encoding_settings']['matrices'][0]
         for i in m['item_list']:
             target = CVEPTarget(text=i['text'],
                                 label=i['label'],
@@ -70,12 +71,14 @@ class Settings(SerializableComponent):
             seq_type=settings_dict['encoding_settings']['seq_type'],
             matrices=matrices
         )
+        stimulus = Stimulus(**settings_dict['stimulus'])
         return Settings(connection_settings=conn_sett,
                         run_settings=run_sett,
                         timings=timings,
                         colors=colors,
                         background=background,
-                        encoding_settings=encoding_settings)
+                        encoding_settings=encoding_settings,
+                        stimulus=stimulus)
 
 class ConnectionSettings:
 
