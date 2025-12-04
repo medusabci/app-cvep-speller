@@ -242,7 +242,7 @@ class EncodingSettings:
         return matrices
 
     @staticmethod
-    def build_with_burst_sequences(n_row=4, n_col=4, burstseqlen=132, n_burst=4, f_burst=1):
+    def build_with_burst_sequences(n_row=4, n_col=4, burstseqlen=80, n_burst=3, f_burst=1):
         """ Computes a predefined standard c-VEP matrix that modulates commands
                 using multiple burst sequences.
 
@@ -335,8 +335,8 @@ class Stimulus:
     @staticmethod
     def generate_grey_color_dicts(unique_sequence_values):
         # Init color
-        init_grey = (255, 255, 255)
-        end_grey = (0, 0, 0)
+        init_grey = (0, 0, 0)
+        end_grey = (255, 255, 255)
         init_hex = gu.rgb_to_hex(init_grey)
         end_hex = gu.rgb_to_hex(end_grey)
         init_grey = gu.rgb_to_hsv(init_grey)
@@ -355,7 +355,7 @@ class Stimulus:
             hex1 = gu.rgb_to_hex(tuple(rgb1))
             blob = Stimulus.generate_image_blob_from_color(hex1)
             stimulus_box_dict[str(unique_sequence_values[i])] = blob
-            color_text_dict[str(unique_sequence_values[i])] = end_hex if v[i] > 50 else init_hex
+            color_text_dict[str(unique_sequence_values[i])] = init_hex if v[i] > 50 else end_hex
             opacity_box_dict[str(unique_sequence_values[i])] = 100
             opacity_text_dict[str(unique_sequence_values[i])] = 100
         return stimulus_box_dict, opacity_box_dict, color_text_dict, opacity_text_dict
@@ -384,13 +384,14 @@ class Stimulus:
         stimulus_box_dict = dict()
         opacity_box_dict = dict()
         opacity_text_dict = dict()
-        blob_checkerboard_0 = Stimulus.generate_image_blob_from_file(os.path.dirname(__file__) + "/stimulus/checkerboard_16x16_0.png")
-        blob_checkerboard_1 = Stimulus.generate_image_blob_from_file(os.path.dirname(__file__) + "/stimulus/checkerboard_16x16_1.png")
-        stimulus_box_dict[str(0)] = blob_checkerboard_0
+        blob_black = Stimulus.generate_image_blob_from_color('#000000')
+        blob_checkerboard_0 = Stimulus.generate_image_blob_from_file(
+            os.path.dirname(__file__) + "/stimulus/checkerboard_16x16_0.png")
+        stimulus_box_dict[str(0)] = blob_black
         opacity_box_dict[str(0)] = 100
         color_text_dict[str(0)] = '#000000'
         opacity_text_dict[str(0)] = 0
-        stimulus_box_dict[str(1)] = blob_checkerboard_1
+        stimulus_box_dict[str(1)] = blob_checkerboard_0
         opacity_box_dict[str(1)] = 100
         color_text_dict[str(1)] = '#000000'
         opacity_text_dict[str(1)] = 0

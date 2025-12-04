@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="focusPolicy">
-   <enum>Qt::NoFocus</enum>
+   <enum>Qt::FocusPolicy::NoFocus</enum>
   </property>
   <property name="acceptDrops">
    <bool>true</bool>
@@ -35,7 +35,7 @@
       </size>
      </property>
      <property name="orientation">
-      <enum>Qt::Horizontal</enum>
+      <enum>Qt::Orientation::Horizontal</enum>
      </property>
      <widget class="QTabWidget" name="widget_nested_matrices">
       <property name="sizePolicy">
@@ -62,7 +62,7 @@
      <widget class="QWidget" name="verticalLayoutWidget">
       <layout class="QVBoxLayout" name="verticalLayout_3">
        <property name="sizeConstraint">
-        <enum>QLayout::SetNoConstraint</enum>
+        <enum>QLayout::SizeConstraint::SetNoConstraint</enum>
        </property>
        <item>
         <widget class="QGroupBox" name="param_box">
@@ -91,8 +91,8 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>506</width>
-               <height>427</height>
+               <width>511</width>
+               <height>392</height>
               </rect>
              </property>
              <property name="sizePolicy">
@@ -102,7 +102,7 @@
               </sizepolicy>
              </property>
              <property name="layoutDirection">
-              <enum>Qt::LeftToRight</enum>
+              <enum>Qt::LayoutDirection::LeftToRight</enum>
              </property>
              <property name="autoFillBackground">
               <bool>true</bool>
@@ -243,7 +243,7 @@
                 <item row="6" column="0">
                  <widget class="QLabel" name="label_test_cycles">
                   <property name="inputMethodHints">
-                   <set>Qt::ImhNone</set>
+                   <set>Qt::InputMethodHint::ImhNone</set>
                   </property>
                   <property name="text">
                    <string>Test cycles</string>
@@ -265,7 +265,7 @@
                    </sizepolicy>
                   </property>
                   <property name="inputMethodHints">
-                   <set>Qt::ImhNone</set>
+                   <set>Qt::InputMethodHint::ImhNone</set>
                   </property>
                   <property name="value">
                    <number>10</number>
@@ -427,8 +427,8 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>520</width>
-               <height>295</height>
+               <width>523</width>
+               <height>302</height>
               </rect>
              </property>
              <attribute name="label">
@@ -497,8 +497,8 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>506</width>
-               <height>383</height>
+               <width>511</width>
+               <height>354</height>
               </rect>
              </property>
              <attribute name="label">
@@ -640,7 +640,7 @@
                    <item row="0" column="0">
                     <layout class="QFormLayout" name="formLayout_4">
                      <property name="formAlignment">
-                      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+                      <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignTop</set>
                      </property>
                      <item row="0" column="1">
                       <widget class="QToolButton" name="btn_color_result_info_box">
@@ -716,8 +716,8 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>520</width>
-               <height>295</height>
+               <width>523</width>
+               <height>302</height>
               </rect>
              </property>
              <property name="sizePolicy">
@@ -819,7 +819,7 @@
                    </font>
                   </property>
                   <property name="layoutDirection">
-                   <enum>Qt::LeftToRight</enum>
+                   <enum>Qt::LayoutDirection::LeftToRight</enum>
                   </property>
                   <property name="autoFillBackground">
                    <bool>false</bool>
@@ -828,7 +828,7 @@
                    <string/>
                   </property>
                   <property name="alignment">
-                   <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                   <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
                   </property>
                  </widget>
                 </item>
@@ -840,9 +840,9 @@
              <property name="geometry">
               <rect>
                <x>0</x>
-               <y>0</y>
-               <width>506</width>
-               <height>563</height>
+               <y>-214</y>
+               <width>511</width>
+               <height>516</height>
               </rect>
              </property>
              <attribute name="label">
@@ -985,7 +985,7 @@
                     <number>100</number>
                    </property>
                    <property name="value">
-                    <number>4</number>
+                    <number>3</number>
                    </property>
                   </widget>
                  </item>
@@ -1043,7 +1043,7 @@
                     <number>1000</number>
                    </property>
                    <property name="value">
-                    <number>132</number>
+                    <number>80</number>
                    </property>
                   </widget>
                  </item>
@@ -1105,8 +1105,8 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>520</width>
-               <height>295</height>
+               <width>523</width>
+               <height>302</height>
               </rect>
              </property>
              <attribute name="label">
@@ -1199,8 +1199,8 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>506</width>
-               <height>297</height>
+               <width>523</width>
+               <height>302</height>
               </rect>
              </property>
              <attribute name="label">
@@ -1223,7 +1223,7 @@
                  <item row="0" column="1">
                   <widget class="QTableWidget" name="tableWidget_bpf">
                    <property name="sizeAdjustPolicy">
-                    <enum>QAbstractScrollArea::AdjustToContents</enum>
+                    <enum>QAbstractScrollArea::SizeAdjustPolicy::AdjustToContents</enum>
                    </property>
                    <property name="columnCount">
                     <number>4</number>
@@ -1367,7 +1367,7 @@
                 <item>
                  <spacer name="horizontalSpacer">
                   <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
+                   <enum>Qt::Orientation::Horizontal</enum>
                   </property>
                   <property name="sizeHint" stdset="0">
                    <size>
