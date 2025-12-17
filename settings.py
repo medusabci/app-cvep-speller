@@ -15,7 +15,7 @@ class Settings(SerializableComponent):
 
     def __init__(self, connection_settings=None, run_settings=None,
                  timings=None, colors=None, background=None,
-                 encoding_settings=None, stimulus=None):
+                 encoding_matrix_settings=None, stimulus=None):
         self.connection_settings = connection_settings if \
             connection_settings is not None else ConnectionSettings()
         self.run_settings = run_settings if \
@@ -23,25 +23,28 @@ class Settings(SerializableComponent):
         self.timings = timings if timings is not None else Timings()
         self.colors = colors if colors is not None else Colors()
         self.background = background if background is not None else Background()
-        self.encoding_settings = encoding_settings or EncodingSettings()
+        self.encoding_matrix_settings = encoding_matrix_settings or EncodingMatrixSettings()
         self.stimulus = stimulus
         if stimulus is None:
-            unique = self.encoding_settings.get_unique_sequence_values()
+            unique = self.encoding_matrix_settings.get_unique_sequence_values()
             c_box, op_box, c_text, op_text = Stimulus.generate_grey_color_dicts(unique)
             self.stimulus = Stimulus(stimulus_box_dict=c_box, opacity_box_dict=op_box,
                                  color_text_dict=c_text, opacity_text_dict=op_text)
 
     def to_serializable_obj(self):
-        matrices = [m.serialize() for m in self.encoding_settings.matrices]
+        matrices = [m.serialize() for m in self.encoding_matrix_settings.matrices]
 
         sett_dict = {'connection_settings': self.connection_settings.__dict__,
                      'run_settings': self.run_settings.__dict__,
                      'timings': self.timings.__dict__,
                      'colors': self.colors.__dict__,
                      'background': self.background.__dict__,
-                     'encoding_settings': {
-                         'seq_type': self.encoding_settings.seq_type,
-                         'matrices': matrices},
+                     'encoding_matrix_settings': {
+                         'seq_type': self.encoding_matrix_settings.seq_type,
+                         'n_row': self.encoding_matrix_settings.n_row,
+                         'n_col': self.encoding_matrix_settings.n_col,
+                         'matrices': matrices,
+                         'matrices_coords': self.encoding_matrix_settings.matrices_coords},
                      'stimulus': self.stimulus.__dict__
                      }
         return sett_dict
@@ -56,20 +59,22 @@ class Settings(SerializableComponent):
         background = Background(**settings_dict['background'])
         # Matrices
         matrices = []
-        item_list = list()
-        m = settings_dict['encoding_settings']['matrices'][0]
-        for i in m['item_list']:
-            target = CVEPTarget(text=i['text'],
-                                label=i['label'],
-                                sequence=i['sequence'])
-            item_list.append(target)
-        matrix = CVEPMatrix(n_row=m['n_row'], n_col=m['n_col'], info_seq=m['info_seq'])
-        matrix.item_list = item_list
-        matrix.organize_matrix()
-        matrices.append(matrix)
-        encoding_settings = EncodingSettings(
-            seq_type=settings_dict['encoding_settings']['seq_type'],
-            matrices=matrices
+        for m in settings_dict['encoding_matrix_settings']['matrices']:
+            item_list = list()
+            for i in m['item_list']:
+                target = CVEPTarget(text=i['text'],
+                                    uid=i['uid'],
+                                    sequence=i['sequence'])
+                item_list.append(target)
+            matrix = CVEPMatrix(info_seq=m['info_seq'])
+            matrix.item_list = item_list
+            matrices.append(matrix)
+        encoding_matrix_settings = EncodingMatrixSettings(
+            seq_type=settings_dict['encoding_matrix_settings']['seq_type'],
+            n_row=settings_dict['encoding_matrix_settings']['n_row'],
+            n_col=settings_dict['encoding_matrix_settings']['n_col'],
+            matrices=matrices,
+            matrices_coords=settings_dict['encoding_matrix_settings']['matrices_coords'],
         )
         stimulus = Stimulus(**settings_dict['stimulus'])
         return Settings(connection_settings=conn_sett,
@@ -77,7 +82,7 @@ class Settings(SerializableComponent):
                         timings=timings,
                         colors=colors,
                         background=background,
-                        encoding_settings=encoding_settings,
+                        encoding_matrix_settings=encoding_matrix_settings,
                         stimulus=stimulus)
 
 class ConnectionSettings:
@@ -146,27 +151,27 @@ class Background:
         with open(scenario_path, "rb") as f:
             return base64.b64encode(f.read()).decode('utf-8')
 
-class EncodingSettings:
-    def __init__(self, seq_type='M-sequence', matrices=None):
+class EncodingMatrixSettings:
+    def __init__(self, seq_type='M-sequence', n_row=4, n_col =4,
+                 matrices=None, matrices_coords=None):
         self.seq_type = seq_type # 'M-sequence' or 'Burst sequence'
+        self.n_row = n_row
+        self.n_col = n_col
         self.matrices = matrices
+        self.matrices_coords = matrices_coords
         if matrices is None:
             if self.seq_type == 'M-sequence':
-                self.matrices = self.build_with_pary_sequences()
+                self.matrices, self.matrices_coords = self.build_with_pary_sequences()
             elif self.seq_type == 'Burst sequence':
-                self.matrices = self.build_with_burst_sequences()
+                self.matrices, self.matrices_coords = self.build_with_burst_sequences()
 
-    @staticmethod
-    def build_with_pary_sequences(n_row=4, n_col=4, base=2, order=6):
+
+    def build_with_pary_sequences(self, base=2, order=6):
         """ Computes a predefined standard c-VEP matrix that modulates commands
         using a single-sequence via circular shifting.
 
         Parameter
         -----------
-        n_row: int
-            Number of rows.
-        n_col: int
-            Number of columns.
         base: int
             Base of the sequence (must be prime).
         order: int
@@ -174,11 +179,13 @@ class EncodingSettings:
 
         Returns
         --------
-        matrix : CVEPMatrix
+        matrices : List of CVEPMatrix
             Structured matrix object.
+        matrices_coords: Lis of dicts
+            Dictionary of matrix coordinates.
         """
         # Number of commands supported
-        no_commands = n_row * n_col
+        no_commands = self.n_row * self.n_col
         mseqlen = base ** order - 1
         tau = mseqlen / no_commands
 
@@ -201,7 +208,7 @@ class EncodingSettings:
         centered_seq = LFSR(poly_, base=base, center=True).sequence
 
         # Optimize correlations
-        rxx_, tr_ = EncodingSettings.autocorr_circular(centered_seq)
+        rxx_, tr_ = EncodingMatrixSettings.autocorr_circular(centered_seq)
         rxx_ = rxx_ / np.max(np.abs(rxx_))
         half_rxx = rxx_[int(len(rxx_) / 2):]
         min_p = - min(np.abs(np.unique(half_rxx)))
@@ -231,41 +238,42 @@ class EncodingSettings:
                   'distributions of lags for this configuration!')
 
         # Set up the matrix
-        matrix = CVEPMatrix(n_row, n_col, info_seq=info_lags)
+        matrix = CVEPMatrix(info_seq=info_lags)
+        matrix_coords ={}
         for idx, c in enumerate(comms_):
             seq_ = circular_shift(sequence=seq, lag=lags[idx])
-            target = CVEPTarget(text=c, label=c, sequence=seq_)
+            target = CVEPTarget(text=c, uid=str(idx), sequence=seq_)
             matrix.append(target)
-        matrix.organize_matrix()
-
+            row_idx = math.floor(idx / self.n_col)
+            col_idx = idx % self.n_col
+            matrix_coords[str(idx)] = {'row':row_idx, 'col':col_idx}
         matrices = [matrix]
-        return matrices
+        matrices_coords = [matrix_coords]
+        return matrices, matrices_coords
 
-    @staticmethod
-    def build_with_burst_sequences(n_row=4, n_col=4, burstseqlen=80, n_burst=3, f_burst=1):
+
+    def build_with_burst_sequences(self, burstseqlen=80, n_burst=3, f_burst=1):
         """ Computes a predefined standard c-VEP matrix that modulates commands
-                using multiple burst sequences.
+        using multiple burst sequences.
 
-                Parameter
-                -----------
-                n_row: int
-                    Number of rows.
-                n_col: int
-                    Number of columns.
-                seq_len: int
-                    Sequence length in bits.
-                n_burst: int
-                    Number of bursts per sequence.
-                f_burst: int
-                    Duration of each burst in frames.
+        Parameter
+        -----------
+        burstseqlen: int
+            Sequence length in bits.
+        n_burst: int
+            Number of bursts per sequence.
+        f_burst: int
+            Duration of each burst in frames.
 
-                Returns
-                --------
-                matrix : CVEPMatrix
-                    Structured matrix object.
-                """
+        Returns
+        --------
+        matrix : CVEPMatrix
+            Structured matrix object.
+        matrix_coords: dict
+            Dictionary of matrix coordinates.
+        """
         # Number of commands supported
-        no_commands = n_row * n_col
+        no_commands = self.n_row * self.n_col
         # Init
         comms = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789/*-+.,' \
                 '_abcdefghijklmnopqrstuvwxyz'
@@ -276,15 +284,18 @@ class EncodingSettings:
         seqs, info_burst = Burst.gen_codes(n=no_commands, length=burstseqlen, n_bursts=n_burst, f_burst=f_burst)
 
         # Set up the matrix
-        matrix = CVEPMatrix(n_row, n_col, info_seq=info_burst)
+        matrix = CVEPMatrix(info_seq=info_burst)
+        matrix_coords = {}
         for idx, c in enumerate(comms_):
             seq_ = seqs[idx]
-            target = CVEPTarget(text=c, label=c, sequence=seq_)
+            target = CVEPTarget(text=c, uid=str(idx), sequence=seq_)
             matrix.append(target)
-        matrix.organize_matrix()
-
+            row_idx = math.floor(idx / self.n_col)
+            col_idx = idx % self.n_col
+            matrix_coords[str(idx)] = {'row':row_idx, 'col':col_idx}
         matrices = [matrix]
-        return matrices
+        matrices_coords = [matrix_coords]
+        return matrices, matrices_coords
 
     def get_unique_sequence_values(self):
         unique_values = []
@@ -294,22 +305,15 @@ class EncodingSettings:
         return list(np.unique(unique_values))
 
     @staticmethod
-    def get_coords_from_labels(labels, matrices):
-        coords = []
-        for label in labels:
-            label_coord = None
-            for idx, matrix in enumerate(matrices):
-                target = matrix.get_target_from_label(label)
-                if len(target) > 1:
-                    print('WARNING in get_codes_from_labels: more than one '
-                          'command for label %s, taking the first one' % label)
-                if len(target) > 0:
-                    label_coord = [idx, target[0].row, target[0].col]
-                    break
-            if label_coord is None:
-                raise ValueError("Label %s not found" % label)
-            coords.append(label_coord)
-        return coords
+    def get_uids_from_texts(texts, matrices):
+        uids = []
+        for text in texts:
+            for m in matrices:
+                uid = m.get_uid_from_text(text)
+            if uid is None:
+                raise ValueError("Text %s not found" % text)
+            uids.append(uid)
+        return uids
 
     @staticmethod
     def autocorr_circular(x):
@@ -418,35 +422,21 @@ class Stimulus:
 
 class CVEPMatrix:
 
-    def __init__(self, n_row=-1, n_col=-1, info_seq=None):
+    def __init__(self, info_seq=None):
         """ Class that represents a c-VEP matrix.
 
-        Attribute `item_list` encompasses a vector of commands, while
-        `matrix_list` contains these same commands arranged in a matrix-like
-        fashion to be accessed using `row` and `col` as indexes. Therefore,
-        it is mandatory to call `organize_matrix()` sometime.
+        Attribute `item_list` encompasses a vector of commands.
 
         Parameters
         ----------
-        n_row: int
-            (Optional, default:-1) Number of rows of the output matrix.
-            If -1, `n_row` will be taken from the class.
-        n_col: int
-            (Optional, default:-1) Number of columns of the output matrix.
-            If -1, `n_col` will be taken from the class.
         info_seq : dict()
             (Optional, default: None) Sometimes is useful to store additional
             info from the sequences such as tau or lag positions for circular
             shifted c-VEPs or burst onsets, distances, etc. for burst based
             c-VEPs.
         """
-        self.n_row = n_row
-        self.n_col = n_col
         self.info_seq = info_seq
-
         self.item_list = []  # Vector of targets
-        self.matrix_list = []  # Matrix of targets.
-        # Each target can be accessed matrix.matrix_list[row][col]
 
     def remove(self, index):
         """ Removes a CVEPTarget element from the list of targets."""
@@ -458,111 +448,45 @@ class CVEPMatrix:
             raise ValueError('Cannot append, object type is not CVEPTarget.')
         self.item_list.append(new_item)
 
-    def organize_matrix(self, n_row=-1, n_col=-1):
-        """ Arranges the target list into a matrix.
-
-        Parameters
-        ----------
-        n_row: int
-            (Optional, default:-1) Number of rows of the output matrix.
-            If -1, `n_row` will be taken from the class.
-        n_col: int
-            (Optional, default:-1) Number of columns of the output matrix.
-            If -1, `n_col` will be taken from the class.
-
-        Returns
-        -------
-        matrix_list: 2D list of CVEPTarget items
-            Matrix-shaped target list.
-        """
-        # If n_row or n_col are set to -1, take the current values
-        if n_row == -1:
-            n_row = self.n_row
-        if n_col == -1:
-            n_col = self.n_col
-        # Check if the list of targets can be reorganized in n_row and n_col
-        if len(self.item_list) != (n_col * n_row):
-            raise ValueError('Cannot organize elements in matrix. Number of '
-                             'elements (%d) does not match the product of'
-                             ' %d rows and %d columns.' % (len(self.item_list),
-                                                           n_row, n_col))
-
-        # Re-organize matrix
-        r_count = c_count = 0
-        self.matrix_list = [[None for y in range(n_col)] for x in range(n_row)]
-        for element in self.item_list:
-            element.set_row(r_count)
-            element.set_col(c_count)
-            self.matrix_list[r_count][c_count] = element
-            c_count += 1
-            if c_count >= n_col:
-                c_count = 0
-                r_count += 1
-        return self.matrix_list
-
-    def get_target_from_label(self, label):
-        """ This method returns a list of items for the given label. """
-        target = []
-        for row in self.matrix_list:
-            for item in row:
-                if label == item.label:
-                    target.append(item)
-        return target
-
-    def get_row_col_from_idx(self, idx):
-        """ This function returns the [row, col] for a item_list index. """
-        row = math.floor(idx / self.n_col)
-        col = idx % self.n_col
-        return [row, col]
+    def get_uid_from_text(self, text):
+        """ This method returns the uid for the given text label. """
+        for item in self.item_list:
+            if text == item.text:
+                return item.uid
 
     def serialize(self):
         items = []
         for i in self.item_list:
             items.append(i.to_dict())
-        return {"n_row": self.n_row,
-                "n_col": self.n_col,
-                "info_seq": self.info_seq,
+        return {"info_seq": self.info_seq,
                 "item_list": items}
 
 class CVEPTarget:
 
-    def __init__(self, row=-1, col=-1, text='', label='', sequence=None):
+    def __init__(self, text='', uid='', sequence=None):
         """ Class that represents a target cell of the c-VEP speller matrix.
 
         Parameters
         ----------
-        row: int
-            Row of the target. It can be specified later using `set_row` method.
-        col: int
-            Column of the target. It can be specified later using `set_col`
-             method.
         text: basestring
             Text that will be displayed in the target cell.
-        label: basestring
-            Label that identifies the target cell.
+        uid: basestring
+            Unique label that identifies the target cell.
         sequence : list
             Sequence that modulates this target item. The modulation will
             always start with the first index, i.e., sequence[0]
         """
 
         # Useful parameters
-        self.row = row
-        self.col = col
         self.text = text
-        self.label = label
+        self.uid = uid
         self.sequence = sequence
-
-    def set_row(self, row):
-        self.row = row
-
-    def set_col(self, col):
-        self.col = col
 
     def set_text(self, text):
         self.text = text
 
-    def set_label(self, label):
-        self.label = label
+    def set_uid(self, uid):
+        self.uid = uid
 
     def set_sequence(self, sequence):
         self.sequence = sequence
@@ -572,7 +496,6 @@ class CVEPTarget:
 
     def to_json(self):
         return json.dumps(self.__dict__)
-
 
 def circular_shift(sequence, lag):
     """ Shifts circularly a sequence list the desired lag to the left.

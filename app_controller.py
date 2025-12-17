@@ -102,8 +102,8 @@ class AppController(TCPServer):
         msg["event_type"] = "setParameters"
         msg["mode"] = self.app_settings.run_settings.mode
         msg["trainCycles"] = self.app_settings.run_settings.train_cycles
-        msg["trainTargetCoords"] = self.app_settings.encoding_settings.get_coords_from_labels(
-            self.app_settings.run_settings.train_target, self.app_settings.encoding_settings.matrices)
+        msg["trainTarget"] = self.app_settings.encoding_matrix_settings.get_uids_from_texts(
+            self.app_settings.run_settings.train_target, self.app_settings.encoding_matrix_settings.matrices)
         msg["testCycles"] = self.app_settings.run_settings.test_cycles
         msg["tPrevText"] = self.app_settings.timings.t_prev_text
         msg["tPrevIddle"] = self.app_settings.timings.t_prev_iddle
@@ -113,7 +113,10 @@ class AppController(TCPServer):
             self.app_settings.run_settings.enable_photodiode
         msg["showPoint"] = self.app_settings.run_settings.show_point
         msg["pointSize"] = self.app_settings.run_settings.point_size
-        msg["matrices"] = self.app_settings.to_serializable_obj()['encoding_settings']['matrices']
+        msg["matrices"] = self.app_settings.to_serializable_obj()['encoding_matrix_settings']['matrices']
+        msg["matrices_coords"] = self.app_settings.encoding_matrix_settings.matrices_coords
+        msg["n_row"] = self.app_settings.encoding_matrix_settings.n_row
+        msg["n_col"] = self.app_settings.encoding_matrix_settings.n_col
         msg["color_point"] = self.app_settings.colors.color_point
         msg["color_target_box"] = self.app_settings.colors.color_target_box
         msg["color_highlight_result_box"] =  \
@@ -161,11 +164,11 @@ class AppController(TCPServer):
         msg["event_type"] = "stop"
         self.send_command(msg)
 
-    def notify_selection(self, selection_coords, selection_label):
-        print(self.TAG, "Notifying selection: " + selection_label)
+    def notify_selection(self, selection_uid):
+        print(self.TAG, "Notifying selection: " + selection_uid)
         msg = dict()
         msg["event_type"] = "selection"
-        msg["selection_coords"] = selection_coords
+        msg["selection_uid"] = selection_uid
         self.send_command(msg)
 
     def notify_model_trained(self):

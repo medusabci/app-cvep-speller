@@ -1,5 +1,5 @@
 ﻿// MEDUSA-PLATFORM 
-// v2022.0 CHAOS
+// v2025.0 RHEA
 // www.medusabci.com
 
 // c-VEP Speller (Unity app)
@@ -32,12 +32,10 @@ public class Manager : MonoBehaviour
     public int tau = 4;                 // Lag between consecutive commands (in bits)
     public int nRows = 4;
     public int nCols = 4;
-    public int nSeqs = 1;
     public int currentMatrixIdx = 0;
     public int trainCycles = 10;
-    public int trainTrials = 5;
-    private List<List<int>> trainTargetCoords;
     public int testCycles = 5;
+    private List<string> trainTarget, testTarget;
     public bool showPoint = true;
     public int pointSize = 8;
 
@@ -127,39 +125,35 @@ public class Manager : MonoBehaviour
     private float updateUpdateCountPerSecond;
     private float updateFixedUpdateCountPerSecond;
 
-    // Other attributes
+    // Matrices
     private List<List<int[]>> matrixItemSequence;
     private int matrixCurrentTimeShift;
     private string[,] matrixLabels;
+    private string[,] matrixUids;
     private List<MessageInterpreter.ParameterDecoder.Matrix> matrices;
+    private List<Dictionary<string, Dictionary<string, int>>> matrices_coords;
     private int matrixSequenceLength;
 
+    // Other attributes
     private Vector2 lastScreenSize;
     static int currentTestTarget = 0;
     static int currentTrainTarget = 0;
-    static int currentTrainSequence = 0;
     static bool mustHighlightTarget = true;
     private MessageInterpreter messageInterpreter = new MessageInterpreter();
-    private int[] sequence;
-    private int[,] sequences, target_coords;
-    private int[,] matrixTrainLags, matrixTrainLagsInit, matrixTrainSequenceIdx;
     private Camera mainCamera;
     private Canvas mainCanvas;
     private GameObject[,] matrix;
     private GameObject fpsMonitorText, informationBox, informationText, debugText, mainCell, resultBox, resultText, photodiodeCell;
     private float cellSize;
     private float width, height;
-    private int[,] testTarget, trainTarget;
     private string mode;
     private bool targetsAvailable;
     private bool photodiodeEnabled;
     private int cycleTestCounter = 0;
     private int cycleTrainCounter = 0;
-    private int[,] targetsRowCol;
-    private int[] referenceCoordsTest = new int[3];
-    private int[] referenceCoordsTrain = new int[3];
-    private int[] lastResultCoords = new int[3];
-    private string lastResult = "";
+    private int [] lastResultCoords = new int[3];
+    private string lastResultText = "";
+    private string lastResultUid = "";
 
     // TCP client
     private MedusaTCPClient tcpClient;
@@ -354,13 +348,13 @@ public class Manager : MonoBehaviour
             if (resultstate == STATE_RESULT_SHOW)
             {
                 // Show the result
-                if (!String.IsNullOrEmpty(lastResult))
+                if (!String.IsNullOrEmpty(lastResultText))
                 {
-                    concatenateNewResult(lastResult);
+                    concatenateNewResult(lastResultText);
                     changeItemColor(matrix[lastResultCoords[1], lastResultCoords[2]], highlightResultBoxColor);
                     changeItemTexture(matrix[lastResultCoords[1], lastResultCoords[2]], null);
                     changeItemTextColor(matrix[lastResultCoords[1], lastResultCoords[2]], defaultTextColor);
-                    lastResult = "";
+                    lastResultText = "";
                 }
             }
 
@@ -377,7 +371,7 @@ public class Manager : MonoBehaviour
                 // Start another trial?
                 if (targetsAvailable)
                 {
-                    if (currentTestTarget >= testTarget.Length)
+                    if (currentTestTarget >= testTarget.Count)
                     {
                         // If all the targets have been done, notify the server to finish the app
                         mustFinishRun = true;
@@ -394,7 +388,8 @@ public class Manager : MonoBehaviour
 
                 // Reset result
                 lastResultCoords = new int[3];
-                lastResult = "";
+                lastResultText = "";
+                lastResultUid = "";
                 resultstate = STATE_RESULT_SHOW;
             }
 
@@ -500,9 +495,9 @@ public class Manager : MonoBehaviour
     void resetMatrix()
     {
         matrixCurrentTimeShift = 0;
-        for (int r = 0; r < matrix.GetLength(0); r++)
+        for (int r = 0; r < nRows; r++)
         {
-            for (int c = 0; c < matrix.GetLength(1); c++)
+            for (int c = 0; c < nCols; c++)
             {
                 changeItemColor(matrix[r, c], defaultBoxColor);
                 changeItemTexture(matrix[r, c], null);
@@ -559,17 +554,15 @@ public class Manager : MonoBehaviour
         // MATRIX
 
         // Compute the coordinate of the first cell 
-        int Rows = matrix.GetLength(0);
-        int Cols = matrix.GetLength(1);
-        float x0 = (width - (cellSize * Cols + colSeparator * (Cols - 1))) / 2;
-        float y0 = (height + (cellSize * Rows + rowSeparator * (Rows - 1))) / 2;
+        float x0 = (width - (cellSize * nCols + colSeparator * (nCols - 1))) / 2;
+        float y0 = (height + (cellSize * nRows + rowSeparator * (nRows - 1))) / 2;
         Vector2 origin = new Vector2(x0, y0);
 
         // Move all cells
-        for (int r = 0; r < matrix.GetLength(0); r++)
+        for (int r = 0; r < nRows; r++)
         {
             float y_ = origin.y - r * (cellSize + rowSeparator);
-            for (int c = 0; c < matrix.GetLength(1); c++)
+            for (int c = 0; c < nCols; c++)
             {
                 float x_ = origin.x + c * (cellSize + colSeparator);
                 
@@ -611,9 +604,9 @@ public class Manager : MonoBehaviour
     // This function controls the visibility of the matrix
     void setMatrixVisible(bool shouldBeVisible)
     {
-        for (int r = 0; r < matrix.GetLength(0); r++)
+        for (int r = 0; r < nRows; r++)
         {
-            for (int c = 0; c < matrix.GetLength(1); c++)
+            for (int c = 0; c < nCols; c++)
             {
                 matrix[r, c].SetActive(shouldBeVisible);
             }
@@ -672,8 +665,8 @@ public class Manager : MonoBehaviour
                 break;
             case "selection":
                 // MEDUSA has selected a new command!
-                int[] selection_coords = messageInterpreter.decodeSelection(message);
-                onSelectedCommand(selection_coords);
+                string selection_uid = messageInterpreter.decodeSelection(message);
+                onSelectedCommand(selection_uid);
                 break;
             case "exception":
                 string exception = messageInterpreter.decodeException(message);
@@ -702,12 +695,10 @@ public class Manager : MonoBehaviour
         tFinishText = parameters.tFinishText;
         photodiodeEnabled = parameters.photodiodeEnabled; // Using photodiode?
         trainCycles = parameters.trainCycles;
-        trainTargetCoords = parameters.trainTargetCoords;
-        trainTrials =  trainTargetCoords.Count();
+        trainTarget = parameters.trainTarget;
         testCycles = parameters.testCycles;
         showPoint = parameters.showPoint;
         pointSize = parameters.pointSize;
-        matrices = parameters.matrices;
         cellStimuliByValue = parameters.stimulus_box_dict;
         cellOpacitiesByValue = parameters.opacity_box_dict;
         textColorsByValue = parameters.textColorsByValue;
@@ -808,38 +799,46 @@ public class Manager : MonoBehaviour
         // MATRIX
         //      matrix             -> Test matrix containing the GameObjects (i.e., each cell that contains the box and the text)
         //      matrixLabels            -> Label of each command
+        //      matrixUids                -> Id of each command
         //      matrixItemSequence      -> Matrix that contains the sequence of each cell
         //      matrixCurrentTimeShift  -> Counter that controls the position inside the encoding sequence at each monitor refresh
 
         // Find the matrix
+        matrices = parameters.matrices;
+        matrices_coords = parameters.matrices_coords;
+        nRows = parameters.n_row;
+        nCols = parameters.n_col;
         GameObject matrixObject = GameObject.FindGameObjectWithTag("Matrix");
-        int NRow = matrices[currentMatrixIdx].n_row;
-        int NCol = matrices[currentMatrixIdx].n_col;
-        matrix = new GameObject[NRow, NCol];
+        matrix = new GameObject[nRows, nCols];
         mainCell.SetActive(false);
 
         // Create the matrix by duplicating the first cell
-        int idx = 0;
-        matrixLabels = new string[NRow, NCol];
+        matrixLabels = new string[nRows, nCols];
+        matrixUids = new string[nRows, nCols];
         matrixItemSequence = new List<List<int[]>> ();
         matrixCurrentTimeShift = 0;
         matrixSequenceLength = matrices[currentMatrixIdx].item_list[0].sequence.GetLength(0);   // All the items must have the same sequence length
-        for (int r = 0; r < NRow; r++)
+        for (int r = 0; r < nRows; r++)
         {
             matrixItemSequence.Add(new List<int[]>());
-            for (int c = 0; c <NCol; c++)
+            for (int c = 0; c < nCols; c++)
             {
-                matrix[r, c] = Instantiate(mainCell, new Vector2(0, 0), new Quaternion(), matrixObject.transform);
-                matrix[r, c].name = "Cell_" + r.ToString() + "_" + c.ToString();
-                changeItemText(matrix[r, c], matrices[currentMatrixIdx].item_list[idx].text);
-                changeItemPointColor(matrix[r, c], pointColor);
-                changeItemPointSize(matrix[r, c], pointSize);
-                changeItemPointVisibility(matrix[r, c], showPoint);
-                matrixItemSequence[r].Insert(c, matrices[currentMatrixIdx].item_list[idx].sequence);
-                matrixLabels[r, c] = matrices[currentMatrixIdx].item_list[idx].text;
-                idx++;
+                    MessageInterpreter.ParameterDecoder.Target item = matrices[currentMatrixIdx].item_list
+                         .FirstOrDefault(i =>
+                            matrices_coords[currentMatrixIdx][i.uid]["row"] == r &&
+                            matrices_coords[currentMatrixIdx][i.uid]["col"] == c
+                         );
+                    matrix[r, c] = Instantiate(mainCell, new Vector2(0, 0), new Quaternion(), matrixObject.transform);
+                    matrix[r, c].name = "Cell_" + r.ToString() + "_" + c.ToString();
+                    changeItemText(matrix[r, c], item.text);
+                    changeItemPointColor(matrix[r, c], pointColor);
+                    changeItemPointSize(matrix[r, c], pointSize);
+                    changeItemPointVisibility(matrix[r, c], showPoint);
+                    matrixItemSequence[r].Insert(c, item.sequence);
+                    matrixLabels[r, c] = item.text;
+                    matrixUids[r, c] = item.uid;
+                }
             }
-        }
 
         setMatrixVisible(true);
 
@@ -854,12 +853,12 @@ public class Manager : MonoBehaviour
     }
 
     // This function is called when a command is selected from MEDUSA
-    void onSelectedCommand(int[] selectionCoords)
+    void onSelectedCommand(string selectionUid)
     {
         // Store the new result
-        int idx = rowColToMatrixIndex(selectionCoords[0], selectionCoords[1], selectionCoords[2]);
-        lastResult = matrices[selectionCoords[0]].item_list[idx].text;
-        lastResultCoords = selectionCoords;
+        lastResultUid = selectionUid;
+        lastResultCoords = uidToMatrixCoords(currentMatrixIdx, selectionUid);
+        lastResultText = matrixLabels[lastResultCoords[1], lastResultCoords[2]];
         state = STATE_SELECTION_RECEIVED;
         mustShowResult = true;
     }
@@ -873,11 +872,25 @@ public class Manager : MonoBehaviour
         return unixTimeSeconds;
     }
 
-    // This function converts the coordinates of a row and column to the matrix index
-    int rowColToMatrixIndex(int matrixIdx, int row, int col)
+    // This function searches the coordinates for a given uid of a matrix item
+    int [] uidToMatrixCoords(int matrixIdx, string target_uid)
     {
-        int idx = matrices[matrixIdx].n_col * row + col;
-        return idx;
+        int target_row = -1;
+        int target_col = -1;
+        for (int r = 0; r < nRows; r++)
+        {
+            for (int c = 0; c < nCols; c++)
+            {
+                if (matrixUids[r, c] == target_uid)
+                {
+                    target_row = r;
+                    target_col = c;
+                    break;
+                }
+            }
+            if (target_row != -1) break;
+        }
+        return new int[] { matrixIdx, target_row, target_col };
     }
 
     // This function informs MEDUSA about the positions of each element across the screen for raster latency correction
@@ -890,20 +903,21 @@ public class Manager : MonoBehaviour
 
         ResizedMatrices resizedMatrices = new ResizedMatrices();
         // Training items
-        int NRow = matrices[currentMatrixIdx].n_row;
-        int NCol = matrices[currentMatrixIdx].n_col;
-        int idx = 0;
-        for (int r = 0; r < NRow; r++)
+        for (int r = 0; r < nRows; r++)
         {
-            for (int c = 0; c < NCol; c++)
+            for (int c = 0; c < nCols; c++)
             {
-                int[] coord = new int[] { currentMatrixIdx, matrices[currentMatrixIdx].item_list[idx].row, matrices[currentMatrixIdx].item_list[idx].col };
+                MessageInterpreter.ParameterDecoder.Target item = matrices[currentMatrixIdx].item_list
+                         .FirstOrDefault(i =>
+                            matrices_coords[currentMatrixIdx][i.uid]["row"] == r &&
+                            matrices_coords[currentMatrixIdx][i.uid]["col"] == c
+                         );
+                int[] coord = new int[] { currentMatrixIdx, r, c };
                 RectTransform rt = matrix[r, c].GetComponent<RectTransform>();
                 int curr_center_x = (int)(rt.position.x + rt.sizeDelta.x / 2);
                 int curr_center_y = Screen.height - (int)(rt.position.y - rt.sizeDelta.y / 2);
                 int[] new_pos = estimatePixelPosition(curr_center_x, curr_center_y);
-                resizedMatrices.addItem(true, idx, coord, new_pos);
-                idx++;
+                resizedMatrices.addItem(true, item.uid, coord, new_pos);
             }
         }
         sm.addValue("new_position", resizedMatrices);
@@ -930,22 +944,18 @@ public class Manager : MonoBehaviour
         // Target loop, first: Target shown
         else if (innerstate == STATE_RUNNING_TARGET)
         {
-            int target_row = trainTargetCoords[currentTrainTarget][1];
-            int target_col = trainTargetCoords[currentTrainTarget][2];
-
-            changeItemColor(matrix[target_row, target_col], targetBoxColor);
-            changeItemTexture(matrix[target_row, target_col], null);
-            changeItemTextColor(matrix[target_row, target_col], defaultTextColor);
+            int[] targetCoords = uidToMatrixCoords(currentMatrixIdx, trainTarget[currentTrainTarget]);
+            changeItemColor(matrix[targetCoords[1], targetCoords[2]], targetBoxColor);
+            changeItemTexture(matrix[targetCoords[1], targetCoords[2]], null);
+            changeItemTextColor(matrix[targetCoords[1], targetCoords[2]], defaultTextColor);
         }
         // Target loop, second: Standby
         else if (innerstate == STATE_RUNNING_IDDLE2 && mustHighlightTarget)
         {
-            int target_row = trainTargetCoords[currentTrainTarget][1];
-            int target_col = trainTargetCoords[currentTrainTarget][2];
-
-            changeItemColor(matrix[target_row, target_col], defaultBoxColor);
-            changeItemTexture(matrix[target_row, target_col], null);
-            changeItemTextColor(matrix[target_row, target_col], defaultTextColor);
+            int[] targetCoords = uidToMatrixCoords(currentMatrixIdx, trainTarget[currentTrainTarget]);
+            changeItemColor(matrix[targetCoords[1], targetCoords[2]], defaultBoxColor);
+            changeItemTexture(matrix[targetCoords[1], targetCoords[2]], null);
+            changeItemTextColor(matrix[targetCoords[1], targetCoords[2]], defaultTextColor);
             mustHighlightTarget = false;
         }
         // Target loop, third: flickering
@@ -957,20 +967,15 @@ public class Manager : MonoBehaviour
                 // It is starting a new cycle, so the timestamp must be recorded and sent
                 if (cycleTrainCounter < trainCycles)
                 {
-                    int target_mtx = trainTargetCoords[currentTrainTarget][0];
-                    int target_row = trainTargetCoords[currentTrainTarget][1];
-                    int target_col = trainTargetCoords[currentTrainTarget][2];
-                    int target_idx = matrices[target_mtx].n_col * target_row + target_col;
-
                     double currentTime = getCurrentTimeStamp();
                     ServerMessage sm = new ServerMessage("train");
                     sm.addValue("cycle", cycleTrainCounter);
                     sm.addValue("onset", currentTime);
-                    sm.addValue("trial", currentTrainTarget); 
-                    sm.addValue("matrix_idx",target_mtx);
-                    sm.addValue("unit_idx", target_row);
-                    sm.addValue("level_idx", target_col);
-                    sm.addValue("command_idx", target_idx);
+                    sm.addValue("trial", currentTrainTarget);
+                    var uids = matrices[0].item_list.Select(item => item.uid).ToList();
+                    sm.addValue("trial_available_cmmds", uids);
+                    string target_uid = trainTarget[currentTrainTarget];
+                    sm.addValue("command_uid", target_uid);
                     sm.addValue("mode", "Train");
                     tcpClient.SendMessage(sm.ToJson());
                 }
@@ -986,7 +991,7 @@ public class Manager : MonoBehaviour
                 resetMatrix();
 
                 // If all the targets have been done, notify the server
-                if (currentTrainTarget >= trainTrials - 1)
+                if (currentTrainTarget >= trainTarget.Count - 1)
                 {
                     mustFinishRun = true;
                     state = RUN_STATE_FINISHED;
@@ -1003,9 +1008,9 @@ public class Manager : MonoBehaviour
             else
             {
                 // Make the flashings
-                for (int r = 0; r < matrix.GetLength(0); r++)
+                for (int r = 0; r < nRows; r++)
                 {
-                    for (int c = 0; c < matrix.GetLength(1); c++)
+                    for (int c = 0; c < nCols; c++)
                     {
                         int value = matrixItemSequence[r][c][matrixCurrentTimeShift];
                         if (cellSpritesByValue.ContainsKey(value))
@@ -1059,10 +1064,9 @@ public class Manager : MonoBehaviour
                     sm.addValue("cycle", cycleTestCounter);
                     sm.addValue("onset", currentTime);
                     sm.addValue("trial", currentTestTarget);
+                    var uids = matrices[0].item_list.Select(item => item.uid).ToList();
+                    sm.addValue("trial_available_cmmds", uids);
                     sm.addValue("mode", "Online");
-                    sm.addValue("matrix_idx", currentMatrixIdx);
-                    sm.addValue("unit_idx", 0);
-                    sm.addValue("level_idx", 0);
                     tcpClient.SendMessage(sm.ToJson());
                 }
                 // Important note: the previous IF statement prevents the system to send the onset when cycleTestCounter==testCycles, 
@@ -1085,9 +1089,9 @@ public class Manager : MonoBehaviour
             else
             {
                 // Make the flashings
-                for (int r = 0; r < matrix.GetLength(0); r++)
+                for (int r = 0; r < nRows; r++)
                 {
-                    for (int c = 0; c < matrix.GetLength(1); c++)
+                    for (int c = 0; c < nCols; c++)
                     {
                         int value = matrixItemSequence[r][c][matrixCurrentTimeShift];
                         if (cellSpritesByValue.ContainsKey(value))

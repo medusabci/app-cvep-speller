@@ -93,7 +93,7 @@ class Config(QtWidgets.QDialog, ui_main_file):
         self.btn_browse_scenario.clicked.connect(self.browse_scenario)
         # Encoding and matrix buttons
         self.comboBox_seq_type.currentTextChanged.connect(self.on_seq_type_changed)
-        self.n_events = len(self.settings.encoding_settings.get_unique_sequence_values())
+        self.n_events = len(self.settings.encoding_matrix_settings.get_unique_sequence_values())
         self.btn_update_matrix.clicked.connect(self.update_matrix)
         # M-sequence
         self.comboBox_base.currentTextChanged.connect(self.on_base_changed)
@@ -257,7 +257,7 @@ class Config(QtWidgets.QDialog, ui_main_file):
         self.lineEdit_cycleduration_burst.setText(str(burstseq_cycle_duration))
 
     def on_stimulus_changed(self):
-        unique = self.settings.encoding_settings.get_unique_sequence_values()
+        unique = self.settings.encoding_matrix_settings.get_unique_sequence_values()
         c_box, op_box, c_text, op_text = {}, {}, {}, {}
 
         if self.sender() == self.pushButton_plain:
@@ -337,10 +337,10 @@ class Config(QtWidgets.QDialog, ui_main_file):
         policy_fix_fix = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
 
         # Encoding
-        self.comboBox_seq_type.setCurrentText(self.settings.encoding_settings.seq_type)
+        self.comboBox_seq_type.setCurrentText(self.settings.encoding_matrix_settings.seq_type)
         # Matrices
         # Create the required number of tabs
-        n_extra = len(self.settings.encoding_settings.matrices) - \
+        n_extra = len(self.settings.encoding_matrix_settings.matrices) - \
                   self.widget_nested_matrices.count()
         for t in range(1, n_extra + 1):
             mtx_widget_ = QtWidgets.QWidget(self.widget_nested_matrices)
@@ -348,9 +348,10 @@ class Config(QtWidgets.QDialog, ui_main_file):
             self.widget_nested_matrices.addTab(mtx_widget_,
                                                'Matrix #' + str(mtx_idx_))
         # Create each matrix
-        for m in range(len(self.settings.encoding_settings.matrices)):
+        for m in range(len(self.settings.encoding_matrix_settings.matrices)):
             # Set the current index and create the general layout
-            curr_mtx = self.settings.encoding_settings.matrices[m]
+            curr_mtx = self.settings.encoding_matrix_settings.matrices[m]
+            curr_mtx_coords = self.settings.encoding_matrix_settings.matrices_coords[m]
             self.widget_nested_matrices.setCurrentIndex(m)
             global_layout = QtWidgets.QVBoxLayout()
             # Create the result text frame
@@ -394,23 +395,22 @@ class Config(QtWidgets.QDialog, ui_main_file):
             new_layout.setSpacing(10)
             new_layout.setContentsMargins(10, 10, 10, 10)
             # Add buttons as commands
-            for r in range(curr_mtx.n_row):
-                for c in range(curr_mtx.n_col):
-                    temp_button = QtWidgets.QToolButton()
-                    temp_button.setObjectName('btn_command')
-                    temp_button.setText(curr_mtx.matrix_list[r][c].text)
-                    temp_button.clicked.connect(self.btn_command_on_click(r, c))
-                    temp_button.setMinimumSize(60, 60)
-                    temp_button.setSizePolicy(policy_max_max)
-                    gui_utils.modify_properties(
-                        temp_button, {
-                            "background-color": '#FFFFFF',
-                            "font-family": 'sans-serif, Helvetica, Arial',
-                            'font-size': '30px',
-                            'color': '#B7B7B7',
-                            'border': 'transparent'
-                        })
-                    new_layout.addWidget(temp_button, r, c)
+            for curr_item in curr_mtx.item_list:
+                temp_button = QtWidgets.QToolButton()
+                temp_button.setObjectName('btn_command')
+                temp_button.setText(curr_item.text)
+                temp_button.clicked.connect(self.btn_command_on_click(curr_item.uid))
+                temp_button.setMinimumSize(60, 60)
+                temp_button.setSizePolicy(policy_max_max)
+                gui_utils.modify_properties(
+                    temp_button, {
+                        "background-color": '#FFFFFF',
+                        "font-family": 'sans-serif, Helvetica, Arial',
+                        'font-size': '30px',
+                        'color': '#B7B7B7',
+                        'border': 'transparent'
+                    })
+                new_layout.addWidget(temp_button, curr_mtx_coords[curr_item.uid]['row'], curr_mtx_coords[curr_item.uid]['col'])
             global_layout.addLayout(new_layout)
             global_layout.setSpacing(0)
             global_layout.setContentsMargins(0, 0, 0, 0)
@@ -421,8 +421,8 @@ class Config(QtWidgets.QDialog, ui_main_file):
                                       self.settings.background.color_background[:7])
             self.update_tab(self.widget_nested_matrices, m, new_tab)
 
-        self.spinBox_nrow.setValue(self.settings.encoding_settings.matrices[0].n_row)
-        self.spinBox_ncol.setValue(self.settings.encoding_settings.matrices[0].n_col)
+        self.spinBox_nrow.setValue(self.settings.encoding_matrix_settings.n_row)
+        self.spinBox_ncol.setValue(self.settings.encoding_matrix_settings.n_col)
 
         # Stimulus
         self.update_table_stimulus()
@@ -430,27 +430,21 @@ class Config(QtWidgets.QDialog, ui_main_file):
         # Filter cutoffs according to fps_resolution
         self.update_table_cutoffs()
 
-    def btn_command_on_click(self, row, col):
+    def btn_command_on_click(self, uid):
         def set_config():
             # This function is required in order to accept passing arguments
             # (function factory)
-            current_index = self.widget_nested_matrices.currentIndex()
-            target_dialog = TargetConfigDialog(
-                self.settings.encoding_settings.matrices[current_index].
-                    matrix_list[row][col], current_index)
+            curr_mtx_idx = self.widget_nested_matrices.currentIndex()
+            items = self.settings.encoding_matrix_settings.matrices[curr_mtx_idx].item_list
+            curr_item = next((item for item in items if item.uid == uid), -1)
+            curr_item_coords = self.settings.encoding_matrix_settings.matrices_coords[curr_mtx_idx][curr_item.uid]
+            target_dialog = TargetConfigDialog(curr_mtx_idx, curr_item, curr_item_coords)
             if target_dialog.exec_():
                 # Get the returned values
-                self.settings.encoding_settings.matrices[
-                    current_index].matrix_list[row][col].set_text(
+                curr_item.set_text(
                     target_dialog.input_target_text.text())
-                self.settings.encoding_settings.matrices[
-                    current_index].matrix_list[row][col].set_label(
-                    target_dialog.input_target_label.text())
-                seq = eval(target_dialog.input_target_sequence.text())
-                self.settings.encoding_settings.matrices[
-                    current_index].matrix_list[row][col].set_sequence(
-                    seq)
-
+                curr_item.set_sequence(
+                    eval(target_dialog.input_target_sequence.text()))
                 # Update the GUI
                 self.set_settings_to_gui()
 
@@ -538,8 +532,12 @@ class Config(QtWidgets.QDialog, ui_main_file):
             self.lineEdit_scenario.text())
 
         # Encoding
-        self.settings.encoding_settings.seq_type = (
+        self.settings.encoding_matrix_settings.seq_type = (
             self.comboBox_seq_type.currentText())
+        self.settings.encoding_matrix_settings.n_row = (
+            int(self.spinBox_nrow.value()))
+        self.settings.encoding_matrix_settings.n_col = (
+            int(self.spinBox_ncol.value()))
 
         # Stimulus
         self.settings.stimulus.stimulus_box_dict = dict()
@@ -843,8 +841,8 @@ class Config(QtWidgets.QDialog, ui_main_file):
         self.get_settings_from_gui()
         # M-sequence
         if self.comboBox_seq_type.currentText() == "M-sequence":
-            temp_matrix = (self.settings.encoding_settings.build_with_pary_sequences(
-                n_row=n_row, n_col=n_col, base=base, order=order))
+            temp_matrix, temp_matrix_coords = (self.settings.encoding_matrix_settings.build_with_pary_sequences(
+                base=base, order=order))
             # Check everything is correct
             lags_info =  temp_matrix[0].info_seq
             if lags_info['tau'] < 1:
@@ -861,13 +859,14 @@ class Config(QtWidgets.QDialog, ui_main_file):
                             'space more the shifted-sequences and favor the performance.'
                             % (n_col * n_row, mseqlen))
                 warning_dialog(warn_msg, 'Be careful!')
-            self.settings.encoding_settings.matrices = temp_matrix
+            self.settings.encoding_matrix_settings.matrices = temp_matrix
+            self.settings.encoding_matrix_settings.matrices_coords = temp_matrix_coords
             # Update the gui
             self.update_stimulus_events()
             self.set_settings_to_gui()
             # Show the encoding
             visualize_dialog = VisualizeMseqEncodingDialog(n_row=n_row, n_col=n_col, base=base, order=order,
-                monitor_rate=monitor_rate, item_list=self.settings.encoding_settings.matrices[0].item_list,
+                monitor_rate=monitor_rate, item_list=self.settings.encoding_matrix_settings.matrices[0].item_list,
                 lags_info=lags_info)
             if visualize_dialog.exec_():
                 if any(item in lags_info['bad_lags'] for item in lags_info['lags']):
@@ -878,8 +877,8 @@ class Config(QtWidgets.QDialog, ui_main_file):
                     warning_dialog(warn_msg, 'Be careful!')
         # Burst sequence
         elif self.comboBox_seq_type.currentText() == "Burst sequence":
-            temp_matrix = self.settings.encoding_settings.build_with_burst_sequences(
-                n_row=n_row, n_col=n_col, burstseqlen=burstseqlen, n_burst=n_burst, f_burst=f_burst)
+            temp_matrix, temp_matrix_coords = self.settings.encoding_matrix_settings.build_with_burst_sequences(
+                burstseqlen=burstseqlen, n_burst=n_burst, f_burst=f_burst)
             close_burst = False
             overlap_burst = False
             warn_msgs = []
@@ -905,18 +904,19 @@ class Config(QtWidgets.QDialog, ui_main_file):
             if warn_msgs:
                 full_msg = "\n\n".join(warn_msgs)
                 warning_dialog(full_msg, 'Be careful!')
-            self.settings.encoding_settings.matrices = temp_matrix
+            self.settings.encoding_matrix_settings.matrices = temp_matrix
+            self.settings.encoding_matrix_settings.matrices_coords = temp_matrix_coords
             # Update the gui
             self.update_stimulus_events()
             self.set_settings_to_gui()
             # Show the encoding
             visualize_dialog = VisualizeBurstEncodingDialog(
-                item_list=self.settings.encoding_settings.matrices[0].item_list,
+                item_list=self.settings.encoding_matrix_settings.matrices[0].item_list,
                 burst_info=burst_info, close_burst=close_burst, overlap_burst=overlap_burst)
             visualize_dialog.exec_()
 
     def update_stimulus_events(self):
-        unique = self.settings.encoding_settings.get_unique_sequence_values()
+        unique = self.settings.encoding_matrix_settings.get_unique_sequence_values()
         n_new_events = len(unique)
         n_old_events = self.n_events
         if n_new_events == 2 and n_old_events == 2:
@@ -1056,15 +1056,17 @@ class Config(QtWidgets.QDialog, ui_main_file):
 
 class TargetConfigDialog(QtWidgets.QDialog, ui_target_file):
 
-    def __init__(self, target, current_matrix_idx):
+    def __init__(self, current_matrix_idx, target, target_coords):
         """Class that represents a Target Configuration dialog.
         Parameteres
         -----------
+        current_matrix_idx : int
+            Index of the currently selected test matrix.
         target: CVEPTarget
             Instance of CVEPTarget that stores the settings of the target to
             customize.
-        current_matrix_idx : int
-            Index of the currently selected test matrix.
+        target_coords: dicts
+            Dictionary that stores the row and column of the given target
         """
         QtWidgets.QDialog.__init__(self)
         self.setupUi(self)  # Attach the .ui
@@ -1086,10 +1088,10 @@ class TargetConfigDialog(QtWidgets.QDialog, ui_target_file):
 
         # Set the current parameters
         self.input_target_matrix.setText(str(current_matrix_idx))
-        self.input_target_row.setText(str(target.row))
-        self.input_target_column.setText(str(target.col))
+        self.input_target_row.setText(str(target_coords['row']))
+        self.input_target_column.setText(str(target_coords['col']))
         self.input_target_text.setText(target.text)
-        self.input_target_label.setText(target.label)
+        self.input_target_id.setText(target.uid)
         self.input_target_sequence.setText(str(target.sequence))
 
 

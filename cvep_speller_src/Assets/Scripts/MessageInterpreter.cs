@@ -40,7 +40,7 @@ public class MessageInterpreter
         return ExceptionDecoder.getExceptionFromJSON(message);
     }
 
-    public int[] decodeSelection(string message)
+    public string decodeSelection(string message)
     {
         return SelectionDecoder.getSelectionFromJSON(message);
     }
@@ -65,12 +65,15 @@ public class MessageInterpreter
     {
         // Matrices
         public List<Matrix> matrices { get; set; }
+        public List<Dictionary<string, Dictionary<string, int>>> matrices_coords;
+        public int n_row;
+        public int n_col;
 
         // RunSettings
         public string mode;
         public bool photodiodeEnabled;
         public int trainCycles;
-        public List<List<int>> trainTargetCoords;
+        public List<string> trainTarget;
         public int testCycles;
         public float fpsResolution;
         public bool showPoint;
@@ -126,17 +129,13 @@ public class MessageInterpreter
 
         public class Matrix
         {
-            public int n_row { get; set; }
-            public int n_col { get; set; }
             public List<Target> item_list { get; set; }
         }
 
         public class Target
         {
-            public int row { get; set; }
-            public int col { get; set; }
             public string text { get; set; }
-            public string label { get; set; }
+            public string uid { get; set; }
             public int[] sequence { get; set; }
         }
     }
@@ -154,12 +153,12 @@ public class MessageInterpreter
 
     public class SelectionDecoder
     {
-        public int[] selection_coords;
+        public string selection_uid;
 
-        public static int[] getSelectionFromJSON(string jsonString)
+        public static string getSelectionFromJSON(string jsonString)
         {
             SelectionDecoder s = JsonUtility.FromJson<SelectionDecoder>(jsonString);
-            return s.selection_coords;
+            return s.selection_uid;
         }
     }
 
@@ -210,27 +209,27 @@ public class ResizedMatrices
 
     }
 
-    public void addItem(bool isTrain, int idx, int[] coord, int[] new_pos)
+    public void addItem(bool isTrain, string uid, int[] coord, int[] new_pos)
     {
         if (isTrain)
         {
-            train.Add(new ResizedItem(idx, coord, new_pos));
+            train.Add(new ResizedItem(uid, coord, new_pos));
         }
         else
         {
-            test.Add(new ResizedItem(idx, coord, new_pos));
+            test.Add(new ResizedItem(uid, coord, new_pos));
         }
     }
 
     public class ResizedItem
     {
-        public int idx;
+        public string uid;
         public int[] coord;
         public int[] new_pos;
 
-        public ResizedItem(int idx, int[] coord, int[] new_pos)
+        public ResizedItem(string uid, int[] coord, int[] new_pos)
         {
-            this.idx = idx;
+            this.uid = uid;
             this.coord = coord;
             this.new_pos = new_pos;
         }

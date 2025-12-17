@@ -54,33 +54,29 @@ class App(resources.AppSkeleton):
         self.cvep_model = None
 
         # Initialize c-VEP recorded data
-        conf, comms = self.get_conf(self.app_settings.run_settings.mode)
+        conf, cmmds = self.get_conf(self.app_settings.run_settings.mode)
         mode_ = 'train' if self.app_settings.run_settings.mode != \
                            ONLINE_MODE else 'test'
-
-        target_coords = self.app_settings.encoding_settings.get_coords_from_labels(
-            self.app_settings.run_settings.train_target, self.app_settings.encoding_settings.matrices)
-        n_col = self.app_settings.encoding_settings.matrices[0].n_col
-        target_idx = [n_col*target[1] + target[2] for target in target_coords]
+        spell_target = self.app_settings.encoding_matrix_settings.get_uids_from_texts(
+            self.app_settings.run_settings.train_target, self.app_settings.encoding_matrix_settings.matrices)
         self.cvep_data = cvep.CVEPSpellerData(
             mode=mode_,
             paradigm_conf=conf,
-            commands_info=comms,
+            commands_info=cmmds,
             onsets=np.zeros((0,)),
-            command_idx=np.zeros((0,)),
-            unit_idx=np.zeros((0,)),
-            level_idx=np.zeros((0,)),
-            matrix_idx=np.zeros((0,)),
+            command_uids=np.zeros((0,)),
             cycle_idx=np.zeros((0,)),
             trial_idx=np.zeros((0,)),
+            trial_available_cmmds=[],
             cvep_model=None,
             spell_result=[],
             fps_resolution=self.app_settings.run_settings.fps_resolution,
-            spell_target=target_idx
+            spell_target=spell_target,
+            layout_pos=self.app_settings.encoding_matrix_settings.matrices_coords,
         )
 
         # Debugging?
-        self.is_debugging = False
+        self.is_debugging = True
 
     def handle_exception(self, ex):
         if not isinstance(ex, exceptions.MedusaException):
@@ -132,7 +128,7 @@ class App(resources.AppSkeleton):
                 raise exceptions.IncorrectSettingsConfig(
                     "Cannot run ONLINE mode if c-VEP model is missing")
             # Check if the model has been trained with the same sequence
-            curr_seq = tuple(app_settings.encoding_settings.matrices[0].item_list[
+            curr_seq = tuple(app_settings.encoding_matrix_settings.matrices[0].item_list[
                 0].sequence)
             with open(app_settings.run_settings.cvep_model_path, 'rb') as h:
                 cvep_model = pickle.load(h)
@@ -241,7 +237,7 @@ class App(resources.AppSkeleton):
                     raise Exception('[cvep_speller] Cannot process the trial '
                                     'if the model has not been trained before!')
                 fps= self.cvep_data.fps_resolution
-                seq_len = len(self.app_settings.encoding_settings.matrices[0].item_list[0].sequence)
+                seq_len = len(self.app_settings.encoding_matrix_settings.matrices[0].item_list[0].sequence)
                 onsets = self.cvep_data.onsets
                 times_, signal_, fs, channels, equip = self.get_eeg_data()
                 # We need to wait until the signal from the last onset is
@@ -262,8 +258,7 @@ class App(resources.AppSkeleton):
                     self.process_required = False
                     decoding = self.process_trial()
                     self.app_controller.notify_selection(
-                            selection_coords=decoding['coords'],
-                            selection_label=decoding['cmd_label']
+                            selection_uid=decoding['cmd_uid']
                     )
         print(TAG, 'Terminated')
 
@@ -460,17 +455,12 @@ class App(resources.AppSkeleton):
             self.cvep_data.onsets, msg["onset"])
         self.cvep_data.trial_idx = np.append(
             self.cvep_data.trial_idx, msg["trial"])
-        self.cvep_data.matrix_idx = np.append(
-            self.cvep_data.matrix_idx, msg["matrix_idx"])
-        self.cvep_data.level_idx = np.append(
-            self.cvep_data.level_idx, msg["level_idx"])
-        self.cvep_data.unit_idx = np.append(
-            self.cvep_data.unit_idx, msg["unit_idx"])
+        self.cvep_data.trial_available_cmmds.append(msg["trial_available_cmmds"])
 
         # Information only present in Train mode
-        if "command_idx" in msg:
-            self.cvep_data.command_idx = np.append(
-                self.cvep_data.command_idx, msg["command_idx"])
+        if "command_uid" in msg:
+            self.cvep_data.command_uids = np.append(
+                self.cvep_data.command_uids, msg["command_uid"])
 
     def process_trial(self):
         """ This function processes only the last trial to get the selected
@@ -492,18 +482,15 @@ class App(resources.AppSkeleton):
                                                trial_idx=self.cvep_data.trial_idx[-1],
                                                exp_data=self.cvep_data,
                                                sig_data=eeg)
-            label = prediction['spell_result']
-            coords = self.app_settings.encoding_settings.get_coords_from_labels(
-            label, self.app_settings.encoding_settings.matrices)
+            cmd = prediction['spell_result']
             decoding = {
-                'coords': coords[0],
-                'cmd_label': label,
+                'cmd_uid': cmd,
             }
         elif isinstance(self.cvep_model, (cvep.CMDModelBWRLDA,
                                           cvep.CMDModelBWREEGInception,
                                           cvep.CVEPModelBWRRiemannianLDA)):
             # Get sequence of first command
-            seq_len = len(self.app_settings.encoding_settings.matrices[0].item_list[0].sequence)
+            seq_len = len(self.app_settings.encoding_matrix_settings.matrices[0].item_list[0].sequence)
             # Get trial idx to send only the last command
             trial_idx = self.cvep_data.trial_idx.astype(int)
             last_trial_idx = trial_idx == trial_idx[-1]
@@ -527,38 +514,17 @@ class App(resources.AppSkeleton):
                                                   channel_set=channels,
                                                   x_info=x_info)
             cmd = cmds[-1][-1][-1]
-            cmd_item = self.cvep_data.commands_info[cmd[0]][cmd[1]]
-            coords = [cmd[0], cmd_item['row'], cmd_item['col']]
-            label = cmd_item['label']
             decoding = {
-                'coords': coords,
-                'cmd_label': label,
+                'cmd_uid': cmd[1],
             }
         return decoding
 
     def get_conf(self, mode):
-        # TODO: nested matrices (units) are not implemented yet
+        cmmds_info = {}
         cvep_conf = []
-        cvep_comms = []
-
-        prev_idx = 0
-        for m in self.app_settings.encoding_settings.matrices:
-            # Matrix configuration
-            no_comms = len(m.item_list)
-            comms_list = list(range(prev_idx, prev_idx + no_comms))
-            comms_list = list(map(str, comms_list))
-            m_conf = [  # Units
-                # Commands
-                [
-                    comms_list
-                ]
-            ]
-            cvep_conf.append(m_conf)
-            prev_idx = no_comms
-
-            # Commands info
-            matrix_comms = {}
-            for idx, item in enumerate(m.item_list):
-                matrix_comms[comms_list[idx]] = item.to_dict()
-            cvep_comms.append(matrix_comms)
-        return cvep_conf, cvep_comms
+        for m in self.app_settings.encoding_matrix_settings.matrices:
+            cvep_conf.append([])
+            for item in m.item_list:
+                cmmds_info[item.uid] = item.to_dict()
+                cvep_conf[-1].append(item.uid)
+        return cvep_conf, cmmds_info
