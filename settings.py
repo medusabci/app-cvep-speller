@@ -1,14 +1,19 @@
-from medusa.components import SerializableComponent
-from medusa.bci.cvep_spellers import LFSR, LFSR_PRIMITIVE_POLYNOMIALS, Burst
-from gui import gui_utils as gu
-from .app_constants import *
-import numpy as np
+# BUILT-IN MODULES
 import os
 import base64
 import io
-from PIL import Image
-import math
 import json
+import math
+# EXTERNAL MODULES
+import numpy as np
+from PIL import Image
+# MEDUSA-KERNEL MODULES
+from medusa.components import SerializableComponent
+from medusa.bci.cvep_spellers import LFSR, LFSR_PRIMITIVE_POLYNOMIALS, Burst
+# MEDUSA MODULES
+from gui import gui_utils as gu
+# APP MODULES
+from .app_constants import *
 
 
 class Settings(SerializableComponent):
@@ -62,7 +67,8 @@ class Settings(SerializableComponent):
         for m in settings_dict['encoding_matrix_settings']['matrices']:
             item_list = list()
             for i in m['item_list']:
-                target = CVEPTarget(text=i['text'],
+                target = CVEPTarget(content=i['content'],
+                                    content_type=i['content_type'],
                                     uid=i['uid'],
                                     sequence=i['sequence'])
                 item_list.append(target)
@@ -95,7 +101,7 @@ class RunSettings:
     def __init__(self, user="S0X", session="Train", run=1,
                  mode=TRAIN_MODE,
                  enable_photodiode=True,
-                 train_cycles=10, train_target='AAAAA',
+                 train_cycles=10, train_target=['A','A','A','A','A'],
                  test_cycles=10,
                  cvep_model_path='',
                  fps_resolution=60,
@@ -180,9 +186,9 @@ class EncodingMatrixSettings:
         Returns
         --------
         matrices : List of CVEPMatrix
-            Structured matrix object.
+            Structured matrices objects.
         matrices_coords: Lis of dicts
-            Dictionary of matrix coordinates.
+            Dictionaries of matrix coordinates.
         """
         # Number of commands supported
         no_commands = self.n_row * self.n_col
@@ -242,7 +248,7 @@ class EncodingMatrixSettings:
         matrix_coords ={}
         for idx, c in enumerate(comms_):
             seq_ = circular_shift(sequence=seq, lag=lags[idx])
-            target = CVEPTarget(text=c, uid=str(idx), sequence=seq_)
+            target = CVEPTarget(content=c, content_type='text', uid=str(idx), sequence=seq_)
             matrix.append(target)
             row_idx = math.floor(idx / self.n_col)
             col_idx = idx % self.n_col
@@ -250,7 +256,6 @@ class EncodingMatrixSettings:
         matrices = [matrix]
         matrices_coords = [matrix_coords]
         return matrices, matrices_coords
-
 
     def build_with_burst_sequences(self, burstseqlen=80, n_burst=3, f_burst=1):
         """ Computes a predefined standard c-VEP matrix that modulates commands
@@ -267,10 +272,10 @@ class EncodingMatrixSettings:
 
         Returns
         --------
-        matrix : CVEPMatrix
-            Structured matrix object.
-        matrix_coords: dict
-            Dictionary of matrix coordinates.
+        matrices : List of CVEPMatrix
+            Structured matrices objects.
+        matrices_coords: Lis of dicts
+            Dictionaries of matrix coordinates.
         """
         # Number of commands supported
         no_commands = self.n_row * self.n_col
@@ -288,7 +293,7 @@ class EncodingMatrixSettings:
         matrix_coords = {}
         for idx, c in enumerate(comms_):
             seq_ = seqs[idx]
-            target = CVEPTarget(text=c, uid=str(idx), sequence=seq_)
+            target = CVEPTarget(content=c, content_type='text', uid=str(idx), sequence=seq_)
             matrix.append(target)
             row_idx = math.floor(idx / self.n_col)
             col_idx = idx % self.n_col
@@ -304,14 +309,19 @@ class EncodingMatrixSettings:
                 unique_values += list(np.unique(i.sequence))
         return list(np.unique(unique_values))
 
-    @staticmethod
-    def get_uids_from_texts(texts, matrices):
+    def get_uids_from_labels(self, labels):
         uids = []
-        for text in texts:
-            for m in matrices:
-                uid = m.get_uid_from_text(text)
+        for label in labels:
+            uid = None
+            for m in self.matrices:
+                for item in m.item_list:
+                    if label == item.content:
+                        uid = item.uid
+                        break
+                if uid is not None:
+                    break
             if uid is None:
-                raise ValueError("Text %s not found" % text)
+                raise ValueError(f"Label {label} not found")
             uids.append(uid)
         return uids
 
@@ -448,12 +458,6 @@ class CVEPMatrix:
             raise ValueError('Cannot append, object type is not CVEPTarget.')
         self.item_list.append(new_item)
 
-    def get_uid_from_text(self, text):
-        """ This method returns the uid for the given text label. """
-        for item in self.item_list:
-            if text == item.text:
-                return item.uid
-
     def serialize(self):
         items = []
         for i in self.item_list:
@@ -463,13 +467,16 @@ class CVEPMatrix:
 
 class CVEPTarget:
 
-    def __init__(self, text='', uid='', sequence=None):
+    def __init__(self, content='', content_type='', uid='', sequence=None):
         """ Class that represents a target cell of the c-VEP speller matrix.
 
         Parameters
         ----------
-        text: basestring
-            Text that will be displayed in the target cell.
+        content: basestring
+            Content that will be displayed in the target cell. Accepts either a
+            text string or a blob containing image or pictogram data.
+        content_type: basestring
+            'text' or 'blob'
         uid: basestring
             Unique label that identifies the target cell.
         sequence : list
@@ -478,12 +485,16 @@ class CVEPTarget:
         """
 
         # Useful parameters
-        self.text = text
+        self.content = content
+        self.content_type = content_type
         self.uid = uid
         self.sequence = sequence
 
-    def set_text(self, text):
-        self.text = text
+    def set_content(self, content):
+        self.content = content
+
+    def set_content_type(self, content_type):
+        self.content_type = content_type
 
     def set_uid(self, uid):
         self.uid = uid

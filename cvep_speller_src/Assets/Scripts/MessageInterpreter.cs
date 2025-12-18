@@ -134,7 +134,8 @@ public class MessageInterpreter
 
         public class Target
         {
-            public string text { get; set; }
+            public string content { get; set; }
+            public string content_type { get; set; }
             public string uid { get; set; }
             public int[] sequence { get; set; }
         }

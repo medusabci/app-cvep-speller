@@ -1,26 +1,32 @@
+# BUILT-IN MODULES
+import os
+import glob
+import base64
+import json
+import pickle
+import traceback
+from functools import partial
+# EXTERNAL MODULES
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.ticker import FormatStrFormatter
+# from matplotlib.backends.backend_qt import FigureCanvasQT
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.figure import Figure
 from PySide6.QtUiTools import loadUiType
 from PySide6 import QtGui, QtWidgets, QtCore
 from PySide6.QtCore import Signal, Qt
 from PySide6.QtWidgets import QSizePolicy, QApplication, QColorDialog
-from gui import gui_utils
-from . import settings
-import os
-import base64
-import glob
-import json
-from functools import partial
-from medusa.bci import cvep_spellers
+# MEDUSA-KERNEL MODULES
 from medusa import components
-import pickle
+from medusa.bci import cvep_spellers
+from medusa.bci.cvep_spellers import LFSR, LFSR_PRIMITIVE_POLYNOMIALS
+# MEDUSA MODULES
+from gui import gui_utils
 from gui.qt_widgets.notifications import NotificationStack
 from gui.qt_widgets.dialogs import error_dialog, warning_dialog
-from medusa.bci.cvep_spellers import LFSR, LFSR_PRIMITIVE_POLYNOMIALS
-import matplotlib.pyplot as plt
-from matplotlib.ticker import FormatStrFormatter
-import numpy as np
-# from matplotlib.backends.backend_qt import FigureCanvasQT
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.figure import Figure
+# APP MODULES
+from . import settings
 from .utils_win_monitor_rates import get_monitor_rates
 
 # Load the .ui files
@@ -296,7 +302,7 @@ class Config(QtWidgets.QDialog, ui_main_file):
         self.spinBox_run.setValue(self.settings.run_settings.run)
         self.comboBox_mode.setCurrentText(self.settings.run_settings.mode)
         self.spinBox_traincycles.setValue(self.settings.run_settings.train_cycles)
-        self.lineEdit_train_targets.setText(self.settings.run_settings.train_target)
+        self.lineEdit_train_targets.setText(str(self.settings.run_settings.train_target))
         self.spinBox_testcycles.setValue(self.settings.run_settings.test_cycles)
         self.lineEdit_cvepmodel.setText(self.settings.run_settings.cvep_model_path)
         self.spinBox_fpsresolution.setValue(self.settings.run_settings.fps_resolution)
@@ -398,7 +404,7 @@ class Config(QtWidgets.QDialog, ui_main_file):
             for curr_item in curr_mtx.item_list:
                 temp_button = QtWidgets.QToolButton()
                 temp_button.setObjectName('btn_command')
-                temp_button.setText(curr_item.text)
+                temp_button.setText(curr_item.content)
                 temp_button.clicked.connect(self.btn_command_on_click(curr_item.uid))
                 temp_button.setMinimumSize(60, 60)
                 temp_button.setSizePolicy(policy_max_max)
@@ -434,6 +440,7 @@ class Config(QtWidgets.QDialog, ui_main_file):
         def set_config():
             # This function is required in order to accept passing arguments
             # (function factory)
+            self.get_settings_from_gui()
             curr_mtx_idx = self.widget_nested_matrices.currentIndex()
             items = self.settings.encoding_matrix_settings.matrices[curr_mtx_idx].item_list
             curr_item = next((item for item in items if item.uid == uid), -1)
@@ -441,7 +448,7 @@ class Config(QtWidgets.QDialog, ui_main_file):
             target_dialog = TargetConfigDialog(curr_mtx_idx, curr_item, curr_item_coords)
             if target_dialog.exec_():
                 # Get the returned values
-                curr_item.set_text(
+                curr_item.set_content(
                     target_dialog.input_target_text.text())
                 curr_item.set_sequence(
                     eval(target_dialog.input_target_sequence.text()))
@@ -482,7 +489,7 @@ class Config(QtWidgets.QDialog, ui_main_file):
             self.comboBox_mode.currentText())
         self.settings.run_settings.train_cycles = (
             self.spinBox_traincycles.value())
-        self.settings.run_settings.train_target = (
+        self.settings.run_settings.train_target = eval(
             self.lineEdit_train_targets.text())
         self.settings.run_settings.test_cycles = (
             self.spinBox_testcycles.value())
@@ -1090,7 +1097,7 @@ class TargetConfigDialog(QtWidgets.QDialog, ui_target_file):
         self.input_target_matrix.setText(str(current_matrix_idx))
         self.input_target_row.setText(str(target_coords['row']))
         self.input_target_column.setText(str(target_coords['col']))
-        self.input_target_text.setText(target.text)
+        self.input_target_text.setText(target.content)
         self.input_target_id.setText(target.uid)
         self.input_target_sequence.setText(str(target.sequence))
 
@@ -1145,7 +1152,7 @@ class VisualizeMseqEncodingDialog(QtWidgets.QDialog, ui_encoding_file_mseq):
                          [yoff - 0.05, yoff + 0.05], color='#ff1e55',
                                         linewidth=0.5)
                 self.axes_autocorr.text(lag / monitor_rate, yoff - 0.1,
-                                        item_list[i].text,
+                                        item_list[i].content,
                                         horizontalalignment='center',
                                         color='#ff1e55')
             self.axes_autocorr.set_xlim((tr_s[0], tr_s[-1]))
@@ -1167,7 +1174,7 @@ class VisualizeMseqEncodingDialog(QtWidgets.QDialog, ui_encoding_file_mseq):
         with plt.style.context('dark_background'):
             commands = list()
             for c in item_list:
-                commands.append(c.text)
+                commands.append(c.content)
             self.axes_encoding.imshow(big_lagged_seqs_, aspect='auto',
                                       cmap='gray_r')
             self.axes_encoding.set_yticks(np.arange(len(commands)))
@@ -1267,7 +1274,7 @@ class VisualizeBurstEncodingDialog(QtWidgets.QDialog, ui_encoding_file_burst):
         all_sequences = []
 
         for item in item_list:
-            commands.append(item.text)
+            commands.append(item.content)
             all_sequences.append(np.array(item.sequence))
 
         max_len = max(len(seq) for seq in all_sequences)

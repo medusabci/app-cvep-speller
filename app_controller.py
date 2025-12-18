@@ -1,12 +1,13 @@
-# External modules
+# BUILT-IN MODULES
 import asyncio
 import subprocess
 import multiprocessing as mp
 import os
-# Medusa modules
+# MEDUSA MODULES
 import constants
-from .app_constants import *
 from tcp.async_tcp_server import TCPServer
+# APP MODULES
+from .app_constants import *
 
 
 class AppController(TCPServer):
@@ -102,8 +103,8 @@ class AppController(TCPServer):
         msg["event_type"] = "setParameters"
         msg["mode"] = self.app_settings.run_settings.mode
         msg["trainCycles"] = self.app_settings.run_settings.train_cycles
-        msg["trainTarget"] = self.app_settings.encoding_matrix_settings.get_uids_from_texts(
-            self.app_settings.run_settings.train_target, self.app_settings.encoding_matrix_settings.matrices)
+        msg["trainTarget"] = self.app_settings.encoding_matrix_settings.get_uids_from_labels(
+            self.app_settings.run_settings.train_target)
         msg["testCycles"] = self.app_settings.run_settings.test_cycles
         msg["tPrevText"] = self.app_settings.timings.t_prev_text
         msg["tPrevIddle"] = self.app_settings.timings.t_prev_iddle

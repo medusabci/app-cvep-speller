@@ -1,5 +1,5 @@
 ﻿// MEDUSA-PLATFORM 
-// v2025.0 RHEA
+// v2022.0 CHAOS
 // www.medusabci.com
 
 // c-VEP Speller (Unity app)
@@ -830,12 +830,12 @@ public class Manager : MonoBehaviour
                          );
                     matrix[r, c] = Instantiate(mainCell, new Vector2(0, 0), new Quaternion(), matrixObject.transform);
                     matrix[r, c].name = "Cell_" + r.ToString() + "_" + c.ToString();
-                    changeItemText(matrix[r, c], item.text);
+                    changeItemText(matrix[r, c], item.content);
                     changeItemPointColor(matrix[r, c], pointColor);
                     changeItemPointSize(matrix[r, c], pointSize);
                     changeItemPointVisibility(matrix[r, c], showPoint);
                     matrixItemSequence[r].Insert(c, item.sequence);
-                    matrixLabels[r, c] = item.text;
+                    matrixLabels[r, c] = item.content;
                     matrixUids[r, c] = item.uid;
                 }
             }

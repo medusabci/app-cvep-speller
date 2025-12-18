@@ -2,10 +2,10 @@
 import multiprocessing as mp
 import time
 import os.path
+import pickle
 # EXTERNAL MODULES
 from PySide6.QtWidgets import QApplication
 import numpy as np
-import pickle
 # MEDUSA-KERNEL MODULES
 from medusa import components
 from medusa import meeg, emg, nirs, ecg
@@ -17,7 +17,6 @@ from gui import gui_utils
 # APP MODULES
 from . import app_controller
 from .app_constants import *
-from .app_controller import AppController
 
 
 class App(resources.AppSkeleton):
@@ -57,8 +56,8 @@ class App(resources.AppSkeleton):
         conf, cmmds = self.get_conf(self.app_settings.run_settings.mode)
         mode_ = 'train' if self.app_settings.run_settings.mode != \
                            ONLINE_MODE else 'test'
-        spell_target = self.app_settings.encoding_matrix_settings.get_uids_from_texts(
-            self.app_settings.run_settings.train_target, self.app_settings.encoding_matrix_settings.matrices)
+        spell_target = self.app_settings.encoding_matrix_settings.get_uids_from_labels(
+            self.app_settings.run_settings.train_target)
         self.cvep_data = cvep.CVEPSpellerData(
             mode=mode_,
             paradigm_conf=conf,
